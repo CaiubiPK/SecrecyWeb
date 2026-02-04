@@ -1,6 +1,6 @@
 @import url('https://fonts.cdnfonts.com/css/vecna');
 @import url('https://fonts.cdnfonts.com/css/magnefico');
-@import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@100..900&family=Pirata+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@100..900&display=swap');
 /* Tentativa de importação via CDNFonts */
 
 :root {
@@ -17,14 +17,14 @@
     /* Vidro claro */
     --borda-vidro: rgba(255, 255, 255, 0.6);
 
-    --cor-vida: #e74c3c;
+    --cor-vida: #2ecc71;
     --cor-energia: #f1c40f;
     --cor-mana: #3498db;
 
     /* Tipografia Customizada (Ajustada para alternativas CDN) */
     --fonte-titulo: 'Vecna', serif;
     /* Títulos Principais */
-    --fonte-destaque: 'Grenze Gotisch', serif;
+    --fonte-destaque: 'Vecna', serif;
     /* Alternativa fiel à Celandine (Blackletter) */
     --fonte-corpo: 'Times New Roman', serif;
     /* Textos Normais */
@@ -54,8 +54,6 @@ body {
     position: relative;
     max-width: 100%;
     /* Permite expandir em ultrawide */
-    padding: 0 5vw;
-    /* Margem lateral para não colar nas bordas */
     margin: 0 auto;
 }
 
@@ -146,15 +144,230 @@ body {
     background: var(--cor-destaque);
     box-shadow: 0 0 30px var(--brilho-destaque);
     transform: translateY(-2px);
+    color: #000;
 }
 
-/* --- Tela de Jogo --- */
+/* --- Tela de Nome --- */
+#tela-nome {
+    background: radial-gradient(circle at center, #1b262c 0%, #0f4c75 100%);
+}
+
+.container-central {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 3rem;
+    border-radius: 20px;
+    border: 2px solid var(--cor-destaque);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(212, 175, 55, 0.2);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.8s ease-out;
+}
+
+.container-fullscreen-mapa {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid var(--cor-destaque);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.texto-fullscreen {
+    font-family: var(--fonte-destaque);
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.titulo-medieval {
+    font-family: var(--fonte-titulo);
+    font-size: 2.5rem;
+    color: var(--cor-destaque);
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px var(--brilho-destaque);
+}
+
+.caixa-entrada {
+    position: relative;
+    margin-bottom: 2.5rem;
+}
+
+#input-nome {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+    color: #fff;
+    font-family: var(--fonte-destaque);
+    font-size: 1.8rem;
+    padding: 0.5rem 1rem;
+    width: 300px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+#input-nome:focus {
+    outline: none;
+    border-bottom-color: var(--brilho-destaque);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.linha-decorativa {
+    height: 2px;
+    background: var(--cor-destaque);
+    width: 0;
+    margin: 0 auto;
+    transition: width 0.5s ease;
+}
+
+#input-nome:focus+.linha-decorativa {
+    width: 100%;
+}
+
+/* --- Tela de Campanha --- */
+#tela-campanha {
+    background: radial-gradient(circle at top, #1a1a1d 0%, #000 100%);
+    padding: 2rem;
+}
+
+.campanhas-container {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 3rem;
+    perspective: 1000px;
+}
+
+.card-campanha {
+    width: 300px;
+    height: 450px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(212, 175, 55, 0.2);
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+.card-campanha.ativa:hover {
+    transform: translateY(-20px) scale(1.05) rotateY(5deg);
+    border-color: var(--cor-destaque);
+    box-shadow: 0 20px 50px rgba(212, 175, 55, 0.3);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.card-campanha.ativa::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.card-campanha.ativa:hover::before {
+    transform: translateX(100%);
+}
+
+.decoracao-card {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 0 10px var(--cor-destaque));
+}
+
+.card-campanha h3 {
+    font-family: var(--fonte-titulo);
+    font-size: 1.8rem;
+    color: var(--cor-destaque);
+    margin-bottom: 1rem;
+}
+
+.card-campanha p {
+    font-family: var(--fonte-corpo);
+    color: #ccc;
+    font-style: italic;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.tag-status {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-family: var(--fonte-destaque);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.ativa .tag-status {
+    background: var(--cor-destaque);
+    color: #000;
+}
+
+/* Campanhas Bloqueadas */
+.card-campanha.bloqueada {
+    filter: grayscale(1);
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-color: #444;
+}
+
+.correntes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 8rem;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.bloqueada .tag-status {
+    background: #333;
+    color: #777;
+}
+
+.card-campanha.bloqueada:hover {
+    transform: scale(0.98);
+}
+
 #tela-jogo {
     justify-content: space-between;
     /* Espalhar topo, centro, fundo */
-    padding: 2rem;
+    padding: 0.5rem;
     background: linear-gradient(180deg, #87ceeb 0%, #e0f7fa 100%);
     /* Céu diurno brilhante */
+    position: relative;
+    overflow: hidden;
+}
+
+/* Overlay para diminuir transparência/brilho do fundo em 20% */
+#tela-jogo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    /* Abaixo do layout-combate (z-index 100) */
+    pointer-events: none;
 }
 
 /* --- Interface Principal de Combate --- */
@@ -164,7 +377,8 @@ body {
     align-items: center;
     width: 100%;
     flex-grow: 1;
-    padding: 1rem 2rem;
+    padding: 0.5rem 1rem;
+    /* Reduzido de 1rem 2rem */
     gap: 2rem;
     position: relative;
     z-index: 100;
@@ -172,17 +386,16 @@ body {
 
 .painel-lateral {
     pointer-events: auto;
-    width: clamp(300px, 25vw, 400px);
-    /* Ligeiramente mais largo */
+    width: clamp(250px, 28vw, 450px);
     background: rgba(0, 0, 0, 0.85);
     color: #f5f5f5;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
-    padding: 1.2rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+    gap: 0.8rem;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     transition: all 0.3s ease;
 }
@@ -265,8 +478,8 @@ body {
 /* Novo Grid de Atributos */
 .grid-atributos {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+    grid-gap: clamp(4px, 0.5vw, 10px);
     margin-top: 1rem;
     width: 100%;
 }
@@ -275,11 +488,12 @@ body {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 6px;
-    padding: 4px;
+    padding: clamp(4px, 0.8vw, 8px);
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: clamp(4px, 0.5vw, 8px);
     transition: all 0.2s ease;
+    flex: 1;
 }
 
 .card-atributo:hover {
@@ -288,19 +502,19 @@ body {
 }
 
 .icone-atrib {
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 1.2vw, 1.3rem);
     flex-shrink: 0;
 }
 
 .corpo-atrib {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    min-width: 0;
+    /* Permite que o flex child diminua se necessário */
 }
 
 .label-atrib {
-    font-size: 0.8rem;
-    /* Aumentado */
+    font-size: clamp(0.6rem, 0.8vw, 0.9rem);
     color: #aaa;
     font-family: var(--fonte-destaque);
     text-transform: uppercase;
@@ -323,8 +537,7 @@ body {
 }
 
 .valor-atual {
-    font-size: 1.1rem;
-    /* Aumentado significativamente */
+    font-size: clamp(0.8rem, 1.1vw, 1.3rem);
     font-weight: bold;
     color: #fff;
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
@@ -398,6 +611,18 @@ body {
 
 .painel-lateral.direita .valores-atrib {
     justify-content: flex-end;
+}
+
+/* Forçar que no mobile o grid de atributos ocupe mais colunas se necessário */
+@media (max-width: 1200px) {
+    .grid-atributos {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+        gap: 4px;
+    }
+
+    .painel-lateral {
+        width: clamp(240px, 35vw, 400px);
+    }
 }
 
 .painel-lateral.direita .caixa-determinacao {
@@ -659,56 +884,385 @@ body {
 
 .divisor-versus {
     font-family: var(--fonte-titulo);
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: bold;
     color: rgba(0, 0, 0, 0.2);
-    /* Escuro mas sutil */
     font-style: italic;
+    z-index: 5;
 }
 
-/* Controles */
+/* Arena 3v3 Update */
+.arena {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 1rem;
+}
+
+.time {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.personagem-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    /* Reduzido de 1.5rem */
+    position: relative;
+}
+
+.time-jogadores .personagem-container {
+    align-items: flex-end;
+    /* Jogadores principais ficam mais próximos do VS */
+}
+
+.time-inimigos .personagem-container {
+    align-items: flex-start;
+    /* Inimigos principais ficam mais próximos do VS */
+}
+
+/* Membros secundários afastados do centro e "atrás" (recuados) */
+.time-jogadores .personagem.lateral {
+    margin-right: clamp(60px, 10vw, 140px);
+    /* Empurra para a esquerda, longe do VS */
+    z-index: 1;
+    filter: brightness(0.7);
+    /* Efeito de profundidade */
+}
+
+.time-inimigos .personagem.lateral {
+    margin-left: clamp(60px, 10vw, 140px);
+    /* Empurra para a direita, longe do VS */
+    z-index: 1;
+    filter: brightness(0.7);
+    /* Efeito de profundidade */
+}
+
+.personagem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    /* Removido espaçamento */
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* Redução das molduras para 3v3 - Otimizado para caber na tela */
+/* Molduras dos personagens - Aumentadas conforme pedido */
+.visual-personagem {
+    width: clamp(80px, 15vw, 160px);
+    height: clamp(80px, 15vw, 160px);
+    background-color: #333;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    position: relative;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background-size: cover;
+    background-position: center;
+}
+
+/* Destaque para o personagem principal em foco - Aumentado */
+.personagem.principal .visual-personagem {
+    width: clamp(120px, 20vw, 240px);
+    height: clamp(120px, 20vw, 240px);
+    z-index: 5;
+}
+
+.personagem.lateral .visual-personagem {
+    opacity: 0.8;
+    transform: scale(0.85);
+    /* Reduzido lateral */
+}
+
+.personagem:hover .visual-personagem {
+    transform: scale(1.05);
+    opacity: 1;
+    border-color: var(--cor-destaque);
+}
+
+.personagem.foco .visual-personagem {
+    border-color: var(--brilho-destaque);
+    box-shadow: 0 0 25px var(--brilho-destaque);
+    transform: scale(1.15);
+    opacity: 1;
+    z-index: 10;
+    filter: brightness(1);
+}
+
+/* Estado Selecionável (Menu de Ataque) */
+.personagem.inimigo.selecionavel .visual-personagem {
+    border: 3px solid #ff4757;
+    /* Vermelho vibrante */
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.6);
+    cursor: crosshair;
+    animation: pulsagemAlvo 1s infinite alternate;
+}
+
+.personagem.inimigo.selecionavel:hover .visual-personagem {
+    box-shadow: 0 0 25px #ff4757;
+    transform: scale(1.1);
+}
+
+/* Alvo Realmente Selecionado */
+.personagem.inimigo.foco-alvo .visual-personagem {
+    border: 4px solid #ff2e2e !important;
+    box-shadow: 0 0 30px #ff2e2e !important;
+    transform: scale(1.15);
+}
+
+@keyframes pulsagemAlvo {
+    from {
+        box-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
+    }
+
+    to {
+        box-shadow: 0 0 25px rgba(255, 71, 87, 0.8);
+    }
+}
+
+/* Destaque para Inimigos (Vermelho) */
+.personagem.destaque-inimigo .visual-personagem {
+    border: 3px solid #ff0000;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.4);
+    animation: pulsagemInimigo 1.5s infinite alternate;
+}
+
+@keyframes pulsagemInimigo {
+    from {
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.6), 0 0 30px rgba(255, 0, 0, 0.3);
+    }
+
+    to {
+        box-shadow: 0 0 30px rgba(255, 0, 0, 1), 0 0 60px rgba(255, 0, 0, 0.5);
+    }
+}
+
+/* Destaque para Aliados (Verde) */
+.personagem.destaque-aliado .visual-personagem {
+    border: 3px solid #00ff00;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.8), 0 0 40px rgba(0, 255, 0, 0.4);
+    animation: pulsagemAliado 1.5s infinite alternate;
+}
+
+@keyframes pulsagemAliado {
+    from {
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.6), 0 0 30px rgba(0, 255, 0, 0.3);
+    }
+
+    to {
+        box-shadow: 0 0 30px rgba(0, 255, 0, 1), 0 0 60px rgba(0, 255, 0, 0.5);
+    }
+}
+
+
+.nome-personagem {
+    font-family: var(--fonte-titulo);
+    font-size: 1.1rem;
+    background: rgba(0, 0, 0, 0.85);
+    color: var(--cor-destaque);
+    padding: 0.1rem 0.6rem;
+    /* Reduzi o padding vertical para colar mais */
+    border-radius: 0 0 4px 4px;
+    /* Arredondado só embaixo para encaixar */
+    border: 1px solid var(--cor-destaque);
+    border-top: none;
+    /* Remove borda superior para colar na moldura */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 150px;
+    z-index: 2;
+    /* Garante que fique sobre a moldura se necessário */
+}
+
+.personagem.principal .nome-personagem {
+    font-size: 1.4rem;
+    /* Aumentado de 1rem */
+    padding: 0.5rem 1.2rem;
+    max-width: 200px;
+}
+
+
+@media (max-width: 768px) {
+    .arena {
+        flex-direction: column;
+        gap: 3rem;
+    }
+
+    .time-jogadores .personagem-container,
+    .time-inimigos .personagem-container {
+        align-items: center;
+        /* Centraliza no mobile */
+    }
+
+    .time-jogadores .personagem.lateral,
+    .time-inimigos .personagem.lateral {
+        margin: 0;
+        /* Remove afastamento no mobile */
+    }
+
+    .divisor-versus {
+        transform: rotate(90deg);
+        font-size: 1.5rem;
+    }
+
+    .visual-personagem {
+        width: 70px;
+        height: 70px;
+    }
+
+    .personagem.principal .visual-personagem {
+        width: 90px;
+        height: 90px;
+    }
+}
+
+/* --- Animações de Combate --- */
+.ataque-dash-jogador {
+    animation: dashJogador 0.5s ease-out;
+}
+
+.ataque-dash-inimigo {
+    animation: dashInimigo 0.5s ease-out;
+}
+
+.tomar-dano {
+    animation: tremerDano 0.4s ease-in-out;
+}
+
+@keyframes dashJogador {
+    0% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(50px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes dashInimigo {
+    0% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(-50px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes tremerDano {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-10px);
+    }
+
+    40% {
+        transform: translateX(10px);
+    }
+
+    60% {
+        transform: translateX(-5px);
+    }
+
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes tremerDano {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-10px);
+    }
+
+    40% {
+        transform: translateX(10px);
+    }
+
+    60% {
+        transform: translateX(-5px);
+    }
+
+    80% {
+        transform: translateX(5px);
+    }
+}
+
 .controles {
     display: flex;
-    gap: 1.2rem;
-    width: 100%;
+    flex-direction: row;
     justify-content: center;
-    padding: 1.5rem;
-    flex-wrap: wrap;
-    /* Estilo igual aos painéis laterais */
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    border-radius: 12px;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    gap: 1.5rem;
+    padding: 1rem;
+    width: 100%;
+    z-index: 100;
+    pointer-events: all;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
 }
 
 .botao-acao {
-    flex: 1;
-    background: var(--cor-destaque);
-    color: #000;
-    border: none;
-    padding: 1rem;
+    flex: 0 1 auto;
+    background: linear-gradient(135deg, #1e272e 0%, #2f3640 100%);
+    color: var(--cor-destaque);
+    border: 2px solid var(--cor-destaque);
+    padding: 0.8rem 2rem;
     font-family: var(--fonte-destaque);
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     align-items: center;
-    gap: 0.8rem;
-    min-width: 150px;
+    gap: 10px;
+    min-width: 180px;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    letter-spacing: 0.05rem;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(212, 175, 55, 0.1);
+    letter-spacing: 0.1rem;
+    border-radius: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
+}
+
+.botao-acao::before {
+    content: '◈';
+    font-size: 0.8rem;
+    opacity: 0.7;
 }
 
 .botao-acao:hover {
-    background: rgba(0, 0, 0, 0.9);
-    border-color: var(--brilho-destaque);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
-    color: var(--brilho-destaque);
-    text-shadow: 0 0 10px var(--brilho-destaque);
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+    color: #111;
+    border-color: #fff;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 12px 25px rgba(212, 175, 55, 0.6);
+    text-shadow: none;
+}
+
+.botao-acao:active {
+    transform: translateY(-2px) scale(0.98);
 }
 
 /* Animações */
@@ -724,37 +1278,172 @@ body {
     }
 }
 
-@media (max-width: 768px) {
-    .interface-status {
-        flex-wrap: wrap;
+/* --- Responsividade Geral --- */
+
+/* Telas Grandes / Ultrawide */
+@media (min-width: 1921px) {
+    .layout-combate {
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+}
+
+/* Tablets e Laptops Pequenos */
+@media (max-width: 1200px) {
+    .layout-combate {
+        padding: 1rem;
         gap: 1rem;
     }
 
-    .recipiente-barra-status {
-        width: 100%;
+    .painel-lateral {
+        width: 280px;
     }
 
     .arena {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 0 1rem;
+        gap: 1rem;
     }
 
     .visual-personagem {
-        width: 100px;
+        width: 150px;
+        /* Reduzido de 220px */
+        height: 150px;
+    }
+}
+
+/* Tablets em Modo Retrato */
+@media (max-width: 900px) {
+    .layout-combate {
+        flex-direction: column;
+        justify-content: flex-start;
+        overflow-y: auto;
+        gap: 2rem;
+        padding-top: 4rem;
+    }
+
+    .painel-lateral {
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .arena {
+        order: -1;
+        /* Personagens sobem um pouco */
+        margin-top: 2rem;
+    }
+
+    .visual-personagem {
+        width: 180px;
         height: 180px;
     }
 
+    .campanhas-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* Celulares */
+@media (max-width: 600px) {
+    #tela-jogo {
+        padding: 0.5rem;
+    }
+
+    .layout-combate {
+        padding-top: 3rem;
+        gap: 1rem;
+    }
+
+    .painel-lateral {
+        width: 95%;
+        padding: 0.6rem;
+        gap: 0.5rem;
+    }
+
+    .grid-atributos {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+    }
+
+    .card-atributo {
+        padding: 2px;
+    }
+
+    .valor-atual {
+        font-size: 0.9rem;
+    }
+
+    .label-atrib {
+        font-size: 0.65rem;
+    }
+
+    .arena {
+        gap: 0.5rem;
+        transform: scale(0.9);
+    }
+
+    .visual-personagem {
+        width: 130px;
+        height: 130px;
+    }
+
+    .divisor-versus {
+        font-size: 1.5rem;
+    }
+
     .controles {
+        padding: 0.8rem;
         gap: 0.5rem;
     }
 
     .botao-acao {
-        padding: 0.6rem 1rem;
-        font-size: 0.9rem;
-        min-width: auto;
-        flex: 1 1 40%;
+        padding: 0.6rem;
+        font-size: 0.85rem;
+        min-width: 120px;
     }
+
+    /* Cards de Ataque */
+    .cartas-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        overflow-y: auto;
+        max-height: 70vh;
+        padding: 1rem;
+    }
+
+    .carta {
+        width: 180px;
+        height: 250px;
+        flex-shrink: 0;
+    }
+
+    .vitoria-titulo {
+        font-size: 3rem;
+        letter-spacing: 0.3rem;
+    }
+
+    .titulo-jogo {
+        font-size: 4rem;
+        letter-spacing: 0.4rem;
+    }
+
+    /* Tela de Nome */
+    .container-central {
+        width: 90%;
+        padding: 1.5rem;
+    }
+
+    #input-nome {
+        width: 80%;
+        font-size: 1.4rem;
+    }
+}
+
+/* Ajuste específico para o botão Voltar na seleção de cartas */
+#container-cartas .botao-acao {
+    max-width: 200px;
+    margin-top: 1rem;
+    border-radius: 30px;
 }
 
 /* --- Contagem Regressiva --- */
@@ -847,11 +1536,11 @@ body {
 /* --- Estado de Seleção (Roleta) --- */
 /* --- Estado de Seleção (Roleta) --- */
 #tela-jogo.modo-selecao {
-    /* Background mais etéreo/mágico para seleção */
-    background: radial-gradient(circle at center, #fff1eb 0%, #ace0f9 100%);
+    /* Background mais dramático para a transição */
+    background: radial-gradient(circle at center, #2c3e50 0%, #000000 100%);
 }
 
-#tela-jogo.modo-selecao .interface-status,
+#tela-jogo.modo-selecao .layout-combate,
 #tela-jogo.modo-selecao .controles {
     opacity: 0;
     pointer-events: none;
@@ -897,11 +1586,9 @@ body {
 #tela-mapa {
     background: url('Images/Campanhas/CampanhaDoCastelo.png') no-repeat center center;
     background-size: cover;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding-top: 2rem;
     position: relative;
-    /* Garante posicionamento */
+    display: block;
+    /* Removido flex para evitar desalinhamento */
 }
 
 /* Adicionar overlay escuro para melhorar leitura do título se necessário */
@@ -919,28 +1606,28 @@ body {
 
 /* Título deve ficar acima do overlay */
 .titulo-mapa {
-    z-index: 1;
-    position: relative;
+    z-index: 10;
+    position: absolute;
+    top: 2rem;
+    left: 0;
+    width: 100%;
     font-family: var(--fonte-titulo);
     font-size: 3.5rem;
-    /* Maior e mais imponente */
     color: var(--cor-destaque);
-    margin-bottom: 2rem;
     text-shadow: 0 0 20px rgba(0, 0, 0, 0.9), 0 0 40px var(--cor-destaque);
-    /* Brilho intenso */
     text-align: center;
     letter-spacing: 0.3rem;
-    /* Dramaticidade medieval */
+    margin: 0;
+    pointer-events: none;
 }
 
 .mapa-container {
     z-index: 1;
-    /* Acima do overlay */
-    width: 90%;
-    height: 80%;
-    /* Ocupar mais espaço */
-    /* ... */
-    position: relative;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1435,15 +2122,17 @@ body {
 }
 
 .modal-pequeno {
-    max-width: 600px;
+    width: 95%;
+    max-width: 500px;
     height: auto;
-    max-height: 80vh;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .grid-atributos-detalhada {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.8rem;
     padding: 1rem;
 }
 
@@ -1481,13 +2170,13 @@ body {
     left: 50%;
     transform: translateX(-50%);
     z-index: 1500;
-    min-width: 300px;
+    width: 90%;
     max-width: 600px;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(10px);
     border: 2px solid var(--cor-destaque);
     border-radius: 15px;
-    padding: 1rem 2rem;
+    padding: 0.8rem 1.5rem;
     text-align: center;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(212, 175, 55, 0.2);
     animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1525,100 +2214,12 @@ body {
     box-shadow: 0 0 30px rgba(255, 71, 87, 0.4);
 }
 
-/* --- Overlay de Diálogo --- */
-#overlay-dialogo {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 2000;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    padding-bottom: 5vh;
-    backdrop-filter: blur(4px);
+.mensagem-atencao {
+    border-color: #f1c40f;
+    box-shadow: 0 0 30px rgba(241, 196, 15, 0.4);
 }
 
-.caixa-dialogo {
-    width: 80%;
-    max-width: 900px;
-    background: rgba(0, 0, 0, 0.9);
-    border: 2px solid var(--cor-destaque);
-    border-radius: 15px;
-    padding: 2rem;
-    position: relative;
-    display: flex;
-    gap: 2rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(212, 175, 55, 0.1);
-    animation: slideUpDialogue 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-}
 
-@keyframes slideUpDialogue {
-    from {
-        transform: translateY(50px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.personagem-dialogo-container {
-    flex-shrink: 0;
-    width: 150px;
-    text-align: center;
-}
-
-#img-personagem-dialogo {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 3px solid var(--cor-destaque);
-    background: #222;
-    object-fit: contain;
-    box-shadow: 0 0 15px var(--brilho-destaque);
-}
-
-.nome-dialogo {
-    font-family: var(--fonte-titulo);
-    color: var(--cor-destaque);
-    font-size: 1.4rem;
-    margin-top: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.texto-dialogo-container {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-}
-
-#texto-dialogo {
-    font-family: var(--fonte-corpo);
-    color: #fff;
-    font-size: 1.4rem;
-    line-height: 1.6;
-    margin: 0;
-    font-style: italic;
-}
-
-.controles-dialogo {
-    position: absolute;
-    bottom: -20px;
-    right: 40px;
-}
-
-#botao-avancar-dialogo {
-    padding: 0.5rem 2rem;
-    font-size: 1rem;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-}
 
 
 /* --- Tela de Vitória Comemorativa --- */

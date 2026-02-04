@@ -30,7 +30,7 @@ const BancoDeDados = {
         xp: 0,
         xpParaProximoNivel: 100,
         pontosHabilidade: 0,
-        imagem: "Images/Personagens/Protagonista.png"
+        imagem: "Images/Personagens/Jogador.png"
     },
     Inimigos: [
         {

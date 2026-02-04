@@ -1,40 +1,92 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Elementos da Interface (DOM)
-    const TelaInicial = document.getElementById('tela-inicial');
-    const TelaDeJogo = document.getElementById('tela-jogo');
-    const BotaoIniciar = document.getElementById('botao-iniciar');
-    const BotoesDeAcao = document.querySelectorAll('.botao-acao');
+    // ===== FUNÇÃO DE DEBUG =====
+    // Função auxiliar para logar a execução de funções
+    function LogDebug(nomeFuncao) {
+        console.log(`%c▶ Executando: ${nomeFuncao}`, 'color: #4CAF50; font-weight: bold; font-size: 12px;');
+    }
+
+    // Elementos da Interface (DOM) - Cache Global de Elementos
+    const ElementosUI = {
+        Telas: {
+            Inicial: document.getElementById('tela-inicial'),
+            Jogo: document.getElementById('tela-jogo'),
+            Nome: document.getElementById('tela-nome'),
+            Campanha: document.getElementById('tela-campanha'),
+            // Mapa removido: linear progression
+            Vitoria: document.getElementById('tela-vitoria'),
+            Talentos: document.getElementById('menu-talentos')
+        },
+        Botoes: {
+            Iniciar: document.getElementById('botao-iniciar'),
+            Acao: document.querySelectorAll('.botao-acao'),
+            ContinuarVitoria: document.getElementById('btn-vitoria-continuar')
+        },
+        HUD: {
+            Jogador: {
+                VidaTexto: document.getElementById('texto-vida-jogador'),
+                VidaBarra: document.getElementById('barra-vida-jogador'),
+                EnergiaTexto: document.getElementById('texto-energia-jogador'),
+                EnergiaBarra: document.getElementById('barra-energia-jogador'),
+                ManaTexto: document.getElementById('texto-mana-jogador'),
+                ManaBarra: document.getElementById('barra-mana-jogador'),
+                Nome: document.querySelector('.personagem.jogador.principal .nome-personagem'),
+                AtkLabel: document.getElementById('label-ataque-jogador'),
+                AtkValor: document.getElementById('atk-jogador'),
+                Def: document.getElementById('def-jogador'),
+                Vigor: document.getElementById('vigor-jogador'),
+                Roubo: document.getElementById('roubo-jogador'),
+                Crit: document.getElementById('crit-jogador'),
+                Pen: document.getElementById('pen-jogador-abs'),
+                Det: document.getElementById('det-jogador')
+            },
+            Inimigo: {
+                Nome: document.getElementById('nome-inimigo-hud'),
+                VidaTexto: document.getElementById('texto-vida-inimigo'),
+                VidaBarra: document.getElementById('barra-vida-inimigo'),
+                EnergiaTexto: document.getElementById('texto-energia-inimigo'),
+                EnergiaBarra: document.getElementById('barra-energia-inimigo'),
+                ManaTexto: document.getElementById('texto-mana-inimigo'),
+                ManaBarra: document.getElementById('barra-mana-inimigo'),
+                AtkValor: document.getElementById('atk-inimigo'),
+                Def: document.getElementById('def-inimigo'),
+                Vigor: document.getElementById('vigor-inimigo'),
+                Roubo: document.getElementById('roubo-inimigo'),
+                Crit: document.getElementById('crit-inimigo'),
+                Pen: document.getElementById('pen-inimigo-abs'),
+                Det: document.getElementById('det-inimigo')
+            }
+        }
+    };
+
+    const TelaInicial = ElementosUI.Telas.Inicial;
+    const TelaDeJogo = ElementosUI.Telas.Jogo;
+    const BotaoIniciar = ElementosUI.Botoes.Iniciar;
+    const BotoesDeAcao = ElementosUI.Botoes.Acao;
 
     // Dados dos Inimigos são carregados do arquivo dados.js
     // Acessados via: BancoDeDados.Inimigos
 
     // Estado do Jogo
     const EstadoDoJogo = {
-        jogador: { ...BancoDeDados.JogadorBase },
-        inimigoAtual: null,
+        jogadores: [{ ...BancoDeDados.JogadorBase }], // Array de jogadores
+        jogadorFoco: 0, // Índice do jogador cujos atributos estão sendo exibidos
+        inimigos: [], // Array de inimigos na batalha (max 3)
+        inimigoFoco: 0, // Índice do inimigo focado no HUD
+        alvoSelecionado: 0, // Índice do inimigo que receberá o ataque
         turno: 0,
         fasesDesbloqueadas: 1,
         baralhoPersonalizado: [],
         timerMensagem: null,
         indiceDialogo: 0,
         dialogoAtual: [],
-        audioHabilitado: true
-    };
-
-    const DialogosCombate = {
-        "Igvuld": [
-            { nome: "Igvuld", texto: "Quem ousa invadir meus domínios?", imagem: "Images/Personagens/Igvuld.png" },
-            { nome: "Protagonista", texto: "Vim colocar um fim à sua tirania, Igvuld!", imagem: "Images/Personagens/Protagonista.png" },
-            { nome: "Igvuld", texto: "Tolo... Seu sangue servirá de oferenda para as sombras!", imagem: "Images/Personagens/Igvuld.png" }
-        ],
-        "Padrao": [
-            { nome: "Inimigo", texto: "Prepare-se para morrer!", imagem: "" },
-            { nome: "Protagonista", texto: "Eu não seria tão confiante se fosse você.", imagem: "Images/Personagens/Protagonista.png" }
-        ]
+        audioHabilitado: true,
+        faseAtual: 1,
+        carregandoFase: false // Flag para evitar cliques duplos
     };
 
     // Inicializar baralho com 20 cartas (exemplo: Bronze e Prata misturadas)
     function InicializarBaralho() {
+        LogDebug('InicializarBaralho');
         const colecao = BancoDeDados.CartasColecao;
 
         // Encontra os modelos das cartas
@@ -79,9 +131,20 @@ document.addEventListener('DOMContentLoaded', () => {
     window.FecharMenuAtaque = FecharMenuAtaque;
     window.VoltarAoMapa = VoltarAoMapa;
     window.SelecionarTalento = SelecionarTalento;
+    window.MaximizarPrograma = MaximizarPrograma;
+
+    function MaximizarPrograma() {
+        LogDebug('MaximizarPrograma');
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(e => {
+                console.log("Tela cheia recusada:", e);
+                ExibirMensagem("Pressione F11 para tela cheia", "erro");
+            });
+        }
+    }
 
     document.getElementById('btn-vitoria-continuar').onclick = () => {
-        if (EstadoDoJogo.jogador.pontosHabilidade > 0) {
+        if (EstadoDoJogo.jogadores[0].pontosHabilidade > 0) {
             AbrirMenuTalentos();
         } else {
             VoltarAoMapa();
@@ -101,9 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('botao-avancar-dialogo').addEventListener('click', AvancarDialogo);
     document.querySelectorAll('.fase').forEach(fase => {
         fase.addEventListener('click', (e) => {
+            if (EstadoDoJogo.carregandoFase) return; // Bloqueia se já estiver carregando
             const numeroFase = parseInt(e.currentTarget.dataset.fase);
             ClicarFase(numeroFase);
         });
@@ -119,176 +182,248 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- Gerenciamento de Telas ---
+    // --- Gerenciamento de Telas ---
+    function TrocarTela(idTelaAtiva) {
+        LogDebug(`TrocarTela -> ${idTelaAtiva}`);
+
+        // Mapeamento ID -> Elemento do Cache
+        const mapaTelas = {
+            'tela-inicial': ElementosUI.Telas.Inicial,
+            'tela-nome': ElementosUI.Telas.Nome,
+            'tela-campanha': ElementosUI.Telas.Campanha,
+            'tela-mapa': ElementosUI.Telas.Mapa,
+            'tela-jogo': ElementosUI.Telas.Jogo,
+            'tela-vitoria': ElementosUI.Telas.Vitoria,
+            'menu-talentos': ElementosUI.Telas.Talentos
+        };
+
+        Object.keys(mapaTelas).forEach(chave => {
+            const el = mapaTelas[chave];
+            if (el) {
+                if (chave === idTelaAtiva) {
+                    el.classList.remove('oculta');
+                    el.classList.add('ativa');
+                } else {
+                    el.classList.remove('ativa');
+                    el.classList.add('oculta');
+                }
+            }
+        });
+    }
+
     // --- Funções Principais ---
 
     function IniciarJogo() {
-        InicializarBaralho();
-        AtributosBaseJogador = { ...EstadoDoJogo.jogador }; // Salva base
-        // Agora vai para o Mapa, não direto para o jogo
-        TelaInicial.classList.add('oculta');
-        EntrarNoMapa();
-    }
-
-    function EntrarNoMapa() {
-        const TelaMapa = document.getElementById('tela-mapa');
-        TelaMapa.classList.remove('oculta');
-        TelaMapa.classList.add('ativa');
-
-        AtualizarMapa();
-    }
-
-    function AtualizarMapa() {
-        // Atualiza visual das fases (bloqueado/desbloqueado)
-        document.querySelectorAll('.fase').forEach(faseEl => {
-            const num = parseInt(faseEl.dataset.fase);
-            const icone = faseEl.querySelector('.icone-fase');
-
-            icone.className = 'icone-fase'; // Limpa classes
-
-            if (num <= EstadoDoJogo.fasesDesbloqueadas) {
-                icone.classList.add('disponivel');
-            } else {
-                icone.classList.add('bloqueado');
-            }
-        });
-
-        // Atualiza posição do token do jogador
-        // Movemos para a fase atual (ou última visitada)
-        const TokenJogador = document.getElementById('jogador-mapa');
-        const FaseAtualEl = document.querySelector(`.fase[data-fase="${EstadoDoJogo.faseAtual}"]`);
-
-        // Vamos pegar o 'left' e 'top' da fase atual para alinhar o token perfeitamente
-        if (FaseAtualEl) {
-            TokenJogador.style.left = FaseAtualEl.style.left;
-            TokenJogador.style.top = FaseAtualEl.style.top; // Copia também a altura
+        LogDebug('IniciarJogo');
+        // Tenta colocar em tela cheia (exige interação do usuário, que é este clique)
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(e => console.log("Tela cheia negada ou não suportada"));
         }
+
+        InicializarBaralho();
+        AtributosBaseJogador = { ...EstadoDoJogo.jogadores[0] }; // Salva base
+
+        // Agora vai para a Tela de Nome
+        TrocarTela('tela-nome');
     }
 
-    function ClicarFase(numeroDaFase) {
-        if (numeroDaFase > EstadoDoJogo.fasesDesbloqueadas) {
-            alert("⚠️ Complete a fase anterior para desbloquear esta!");
+    // Lógica da Tela de Nome
+    document.getElementById('botao-confirmar-nome').addEventListener('click', ConfirmarNome);
+    document.getElementById('input-nome').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') ConfirmarNome();
+    });
+
+    function ConfirmarNome() {
+        LogDebug('ConfirmarNome');
+        const inputNome = document.getElementById('input-nome');
+        const nome = inputNome.value.trim();
+
+        if (nome === "") {
+            ExibirMensagem("Por favor, digite seu nome desafiante!", "erro");
             return;
         }
 
-        // Se fase liberada, entra no combate
+        EstadoDoJogo.jogadores[0].nome = nome;
+
+        // Atualizar nome na interface (HUD)
+        document.querySelector('.personagem.jogador .nome-personagem').textContent = nome;
+
+        // Ir para Seleção de Campanha
+        TrocarTela('tela-campanha');
+    }
+
+    // Lógica da Tela de Campanha
+    document.getElementById('campanha-castelo').addEventListener('click', () => {
+        IniciarPrimeiraFase();
+    });
+
+    function IniciarPrimeiraFase() {
+        LogDebug('IniciarPrimeiraFase');
+        EstadoDoJogo.faseAtual = 1;
+        CarregarFase(1);
+    }
+
+    // Função Unificada para Carregar Fases (Substitui ClicarFase)
+    function CarregarFase(numeroDaFase) {
+        LogDebug(`CarregarFase -> Fase ${numeroDaFase}`);
+
+        if (EstadoDoJogo.carregandoFase) return;
+
+        EstadoDoJogo.carregandoFase = true;
         EstadoDoJogo.faseAtual = numeroDaFase;
-        AtualizarMapa(); // Move jogador visualmente
 
-        // Pequeno delay para ver o boneco andando
+        // Exibir mensagem de carregamento
+        ExibirMensagem(`Iniciando Fase ${numeroDaFase}... Preparando campo de batalha.`);
+
         setTimeout(() => {
-            const TelaMapa = document.getElementById('tela-mapa');
-            TelaMapa.classList.add('oculta'); // Esconde mapa
+            // Sequência de chefes e inimigos
+            const inimigosNoBanco = BancoDeDados.Inimigos;
+            const inimigosFase = [];
 
-            // Prepara a tela de jogo
-            TelaDeJogo.classList.remove('oculta');
-            TelaDeJogo.classList.add('ativa');
-            TelaDeJogo.classList.add('modo-selecao');
-
-            console.log(`Entrando na Fase ${numeroDaFase}`);
-
-            // Define o inimigo com base na fase (Fase 1 = Igvuld)
-            let inimigo;
             if (numeroDaFase === 1) {
-                inimigo = BancoDeDados.Inimigos.find(i => i.nome === "Igvuld");
+                // Primeira fase: Igvuld + 2 Aleatórios
+                const igvuld = inimigosNoBanco.find(i => i.nome === "Igvuld");
+                if (igvuld) inimigosFase.push({ ...igvuld });
+
+                for (let i = 0; i < 2; i++) {
+                    const randomIdx = Math.floor(Math.random() * inimigosNoBanco.length);
+                    inimigosFase.push({ ...inimigosNoBanco[randomIdx] });
+                }
+
+                // Garante aliados na primeira vez
+                if (EstadoDoJogo.jogadores.length < 3) {
+                    EstadoDoJogo.jogadores.push({ ...BancoDeDados.JogadorBase, nome: "Aliado 1" });
+                    EstadoDoJogo.jogadores.push({ ...BancoDeDados.JogadorBase, nome: "Aliado 2" });
+                }
             } else {
-                // Para outras fases, pode ser aleatório ou sequência
-                inimigo = BancoDeDados.Inimigos[Math.floor(Math.random() * BancoDeDados.Inimigos.length)];
+                // Outras fases: Chefe Específico ou Aleatório
+                const nomesChefes = { 2: "Durotan", 3: "Zirgur", 4: "Gromn" };
+                const nomeChefe = nomesChefes[numeroDaFase];
+
+                if (nomeChefe) {
+                    const chefe = inimigosNoBanco.find(i => i.nome === nomeChefe);
+                    if (chefe) inimigosFase.push({ ...chefe });
+                    else inimigosFase.push({ ...inimigosNoBanco[Math.floor(Math.random() * inimigosNoBanco.length)] });
+                } else {
+                    // Fases genéricas infinitas (ex: 5+)
+                    inimigosFase.push({ ...inimigosNoBanco[Math.floor(Math.random() * inimigosNoBanco.length)] });
+                }
             }
 
-            IniciarDialogoPreCombate(inimigo);
-        }, 500);
+            PrepararCenaCombate(inimigosFase);
+            ComecarCombateReal();
+            EstadoDoJogo.carregandoFase = false;
+        }, 1000);
     }
 
 
 
     function ComecarCombateReal() {
-        // Remove modo seleção para mostrar HUD e Controles
-        TelaDeJogo.classList.remove('modo-selecao');
+        LogDebug('ComecarCombateReal');
+        try {
+            TrocarTela('tela-jogo'); // Garante que apenas a tela de jogo está ativa
+            const elJogo = ElementosUI.Telas.Jogo;
+            elJogo.classList.remove('modo-selecao');
 
-        // Atualizar Cenário de Fundo com base na Fase
-        const fase = EstadoDoJogo.faseAtual;
-        const imagemCenario = BancoDeDados.Cenarios[fase] || "Images/Cenarios/CampoDeBatalha.png"; // Fallback
+            // Validação de Segurança do Banco de Dados
+            if (!BancoDeDados || !BancoDeDados.Cenarios) {
+                throw new Error("Banco de dados de cenários não carregado.");
+            }
 
-        TelaDeJogo.style.backgroundImage = `url('${imagemCenario}')`;
-        TelaDeJogo.style.backgroundSize = "cover";
-        TelaDeJogo.style.backgroundPosition = "center";
+            // Atualizar Cenário de Fundo com base na Fase
+            const fase = EstadoDoJogo.faseAtual;
+            const imagemCenario = BancoDeDados.Cenarios[fase] || "Images/Cenarios/CampoDeBatalha.png";
 
-        // Tocar música de fundo
-        if (MusicaCombate) MusicaCombate.pause();
-        MusicaCombate = new Audio(AudioConfig.CaminhoMusicaDeFundo);
-        MusicaCombate.loop = true;
-        MusicaCombate.volume = 0.5;
-        MusicaCombate.play().catch(erro => console.log("Erro ao tocar música:", erro));
+            elJogo.style.backgroundImage = `url('${imagemCenario}')`;
+            elJogo.style.backgroundSize = "cover";
+            elJogo.style.backgroundPosition = "center";
 
-        TelaInicial.style.display = 'none';
+            // Tocar música de fundo
+            if (MusicaCombate) MusicaCombate.pause();
+            MusicaCombate = new Audio(AudioConfig.CaminhoMusicaDeFundo);
+            MusicaCombate.loop = true;
+            MusicaCombate.volume = 0.5;
+            MusicaCombate.play().catch(erro => console.log("Erro ao tocar música:", erro));
 
-        // Garante que o mapa também some se algo deu errado
-        document.getElementById('tela-mapa').classList.add('oculta');
-
-        console.log("Combate Real Iniciado!");
-    }
-
-    function IniciarDialogoPreCombate(inimigo) {
-        EstadoDoJogo.inimigoAtual = { ...inimigo };
-        AtributosBaseInimigo = { ...inimigo };
-
-        // Configura o visual do inimigo antes do diálogo
-        const VisualDoInimigo = document.querySelector('.visual-inimigo');
-        const NomeDoInimigo = document.querySelector('.personagem.inimigo .nome-personagem');
-        VisualDoInimigo.style.backgroundImage = `url('${inimigo.imagem}')`;
-        NomeDoInimigo.textContent = inimigo.nome;
-
-        // Prepara diálogos
-        EstadoDoJogo.dialogoAtual = DialogosCombate[inimigo.nome] || DialogosCombate["Padrao"];
-        EstadoDoJogo.indiceDialogo = 0;
-
-        // Mostra overlay de diálogo
-        document.getElementById('overlay-dialogo').classList.remove('oculta');
-        AtualizarTextoDialogo();
-    }
-
-    function AtualizarTextoDialogo() {
-        const dialogo = EstadoDoJogo.dialogoAtual[EstadoDoJogo.indiceDialogo];
-        document.getElementById('nome-personagem-dialogo').textContent = dialogo.nome;
-        document.getElementById('texto-dialogo').textContent = dialogo.texto;
-
-        const img = document.getElementById('img-personagem-dialogo');
-        if (dialogo.imagem) {
-            img.src = dialogo.imagem;
-            img.style.display = 'block';
-        } else {
-            // Se for o inimigo e não tiver imagem específica no diálogo, usa a do banco
-            img.src = EstadoDoJogo.inimigoAtual.imagem;
-            img.style.display = 'block';
+            LogDebug("Combate Real Iniciado com sucesso!");
+            EstadoDoJogo.turno = 0; // Turno do Jogador
+        } catch (erro) {
+            console.error("ERRO FATAL ao iniciar combate:", erro);
+            ExibirMensagem("Erro ao carregar o campo de batalha. Retornando ao mapa...", "erro");
+            // Fallback seguro
+            setTimeout(() => {
+                TrocarTela('tela-mapa');
+                EstadoDoJogo.carregandoFase = false;
+            }, 2000);
         }
     }
 
-    function AvancarDialogo() {
-        EstadoDoJogo.indiceDialogo++;
-        if (EstadoDoJogo.indiceDialogo < EstadoDoJogo.dialogoAtual.length) {
-            AtualizarTextoDialogo();
-        } else {
-            FecharDialogo();
+    function PrepararCenaCombate(inimigos) {
+        LogDebug('PrepararCenaCombate');
+        if (!inimigos || inimigos.length === 0) {
+            console.error("Nenhum inimigo fornecido para o combate!");
+            return;
         }
-    }
 
-    function FecharDialogo() {
-        document.getElementById('overlay-dialogo').classList.add('oculta');
+        EstadoDoJogo.inimigos = inimigos.map(i => ({ ...i }));
+        EstadoDoJogo.inimigoAtual = EstadoDoJogo.inimigos[0];
+        EstadoDoJogo.inimigoFoco = 0;
+        EstadoDoJogo.alvoSelecionado = 0;
 
-        // Atualiza a Interface completa chamando a nova função
+        // Configura o visual de todos os inimigos
+        EstadoDoJogo.inimigos.forEach((inimigo, index) => {
+            const el = document.getElementById(`inimigo-${index + 1}`);
+            if (el) {
+                el.classList.remove('oculta');
+                el.querySelector('.visual-personagem').style.backgroundImage = `url('${inimigo.imagem}')`;
+                el.querySelector('.nome-personagem').textContent = inimigo.nome;
+
+                // Adiciona evento de clique
+                el.onclick = () => {
+                    // Se há uma carta selecionada, executa o ataque
+                    if (EstadoDoJogo.cartaSelecionada) {
+                        EstadoDoJogo.alvoSelecionado = index;
+                        RealizarAtaqueJogador(EstadoDoJogo.cartaSelecionada);
+                    } else {
+                        // Caso contrário, apenas foca no inimigo
+                        FocarInimigo(index);
+                    }
+                };
+            }
+        });
+
+        // Esconde slots extras se houverem menos de 3 inimigos
+        for (let i = EstadoDoJogo.inimigos.length + 1; i <= 3; i++) {
+            const el = document.getElementById(`inimigo-${i}`);
+            if (el) el.classList.add('oculta');
+        }
+
+        // Configura o visual de todos os jogadores
+        EstadoDoJogo.jogadores.forEach((jogador, index) => {
+            const el = document.getElementById(`jogador-${index + 1}`);
+            if (el) {
+                el.classList.remove('oculta');
+                el.querySelector('.visual-personagem').style.backgroundImage = `url('${jogador.imagem || 'Images/Personagens/Jogador.png'}')`;
+                el.querySelector('.nome-personagem').textContent = jogador.nome;
+
+                // Adiciona evento de clique para focar
+                el.onclick = () => FocarJogador(index);
+            }
+        });
+
         AtualizarInterface();
-
-        document.getElementById('nome-inimigo-hud').textContent = EstadoDoJogo.inimigoAtual.nome;
-
-        ComecarCombateReal();
+        document.getElementById('nome-inimigo-hud').textContent = EstadoDoJogo.inimigos[0].nome;
     }
 
     function IniciarRoletaDeInimigos() {
+        LogDebug('IniciarRoletaDeInimigos');
         // Função mantida mas não mais chamada diretamente para permitir diálogos
         console.warn("Roleta desativada em favor do sistema de diálogos.");
     }
 
     function FinalizarSelecaoDeInimigo(InimigoSelecionado) {
+        LogDebug(`FinalizarSelecaoDeInimigo -> ${InimigoSelecionado.nome}`);
         // Som de Seleção
         const somSelecao = new Audio(AudioConfig.CaminhoSomConfirmarSelecao);
         somSelecao.play().catch(e => { });
@@ -319,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function LidarComAcaoDoJogador(acao) {
+        LogDebug(`LidarComAcaoDoJogador -> ${acao}`);
         if (EstadoDoJogo.turno !== 0) return; // Bloqueia se não for turno do jogador
 
         const BotaoClicado = document.querySelector(`.botao-acao.${acao}`);
@@ -351,6 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Sistema de Combate ---
 
     function AbrirMenuAtaque() {
+        LogDebug('AbrirMenuAtaque');
         const containerCartas = document.getElementById('container-cartas');
         const wrapper = containerCartas.querySelector('.cartas-wrapper');
 
@@ -382,7 +519,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
 
-            cartaEl.onclick = () => RealizarAtaqueJogador(carta);
+            cartaEl.onclick = () => {
+                // Salva a carta temporariamente para ser usada ao clicar no inimigo
+                EstadoDoJogo.cartaSelecionada = carta;
+
+                // Esconde o container de cartas
+                containerCartas.classList.add('oculta');
+
+                // Exibe mensagem
+                ExibirMensagem("Selecione seu alvo clicando no inimigo!", "atencao");
+
+                // Adiciona classe de destaque aos inimigos vivos (vermelho)
+                document.querySelectorAll('.personagem.inimigo').forEach((el, idx) => {
+                    const inimigo = EstadoDoJogo.inimigos[idx];
+                    if (inimigo && inimigo.vida > 0) {
+                        el.classList.add('selecionavel', 'destaque-inimigo');
+                    }
+                });
+
+                // Adiciona classe de destaque aos aliados (verde)
+                document.querySelectorAll('.personagem.jogador').forEach((el, idx) => {
+                    const jogador = EstadoDoJogo.jogadores[idx];
+                    if (jogador && jogador.vida > 0) {
+                        el.classList.add('destaque-aliado');
+                    }
+                });
+            };
             wrapper.appendChild(cartaEl);
         });
 
@@ -391,8 +553,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function FecharMenuAtaque() {
+        LogDebug('FecharMenuAtaque');
         document.getElementById('container-cartas').classList.add('oculta');
         document.querySelector('.controles').classList.remove('oculta');
+
+        // Limpar estados de seleção dos inimigos
+        document.querySelectorAll('.personagem.inimigo').forEach(el => {
+            el.classList.remove('selecionavel', 'foco-alvo', 'destaque-inimigo');
+        });
+
+        // Limpar estados de destaque dos aliados
+        document.querySelectorAll('.personagem.jogador').forEach(el => {
+            el.classList.remove('destaque-aliado');
+        });
+
+        EstadoDoJogo.cartaSelecionada = null;
     }
 
     function CalcularReducaoDano(valor) {
@@ -403,101 +578,225 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.min(valor / (valor + 88), 0.85);
     }
 
+    // --- Nova Função Centralizada de Dano ---
+    function ProcessarAtaque(atacante, defensor, multiplicador = 1.0, ehMagico = false, nomeHabilidade = "Ataque") {
+        if (defensor.vida <= 0) return { dano: 0, resultado: "morto" };
+
+        // 1. Esquiva
+        const chanceAcerto = atacante.precisao - defensor.esquiva;
+        const sorteMod = (atacante.sorte || 0) * 0.5;
+
+        if (Math.random() * 100 > (chanceAcerto + sorteMod)) {
+            ExibirMensagem(`${atacante.nome} errou o ataque em ${defensor.nome}! (Esquiva)`);
+            return { dano: 0, resultado: "esquiva" };
+        }
+
+        // 2. Dano Base
+        let danoBase = (ehMagico ? atacante.ataqueMagico : atacante.ataque) * multiplicador;
+
+        // 3. Crítico
+        let critico = false;
+        if (Math.random() * 100 < (atacante.chanceCritico + ((atacante.sorte || 0) * 0.2))) {
+            danoBase *= 1.75;
+            critico = true;
+        }
+
+        // 4. Redução
+        const reducao = ehMagico ? CalcularReducaoMagica(defensor.protecaoMagica) : CalcularReducaoDano(defensor.armadura);
+        const danoFinal = Math.floor(danoBase * (1 - reducao));
+        const danoReal = danoFinal > 0 ? danoFinal : 1;
+
+        // 5. Aplicação
+        defensor.vida = Math.max(0, defensor.vida - danoReal);
+
+        // Dano à Determinação (Stagger)
+        defensor.determinacao = Math.max(0, defensor.determinacao - Math.floor(danoReal * 0.1));
+
+        // 6. Lifesteal (apenas se for jogador/aliado por enquanto, ou genérico)
+        if (atacante.rouboVida > 0) {
+            const cura = Math.floor(danoReal * (atacante.rouboVida / 100));
+            atacante.vida = Math.min(atacante.vida + cura, atacante.vidaMaxima);
+            // Identificar ID para indicador de cura seria ideal, mas deixaremos genérico visualmente depois
+        }
+
+        return { dano: danoReal, critico: critico, resultado: "sucesso" };
+    }
+
     function CalcularAmplificacaoVigor(vigor) {
         return Math.min((vigor / 200) * 0.5, 0.5);
     }
 
     function RealizarAtaqueJogador(carta) {
-        const jogador = EstadoDoJogo.jogador;
-        const inimigo = EstadoDoJogo.inimigoAtual;
+        LogDebug(`RealizarAtaqueJogador -> ${carta.nome}`);
 
-        if (jogador.energia < (carta.custoEnergia || 0) && jogador.mana < (carta.custoMana || 0)) {
-            ExibirMensagem("Recursos insuficientes!");
+        const lider = EstadoDoJogo.jogadores[0];
+        const indiceAlvo = EstadoDoJogo.alvoSelecionado;
+        const inimigoAlvo = EstadoDoJogo.inimigos[indiceAlvo];
+
+        // Validações
+        if (!inimigoAlvo || inimigoAlvo.vida <= 0) {
+            ExibirMensagem("Selecione um alvo válido!", "erro");
             return;
         }
 
-        // Consumir Recursos
-        if (carta.custoEnergia) jogador.energia -= carta.custoEnergia;
-        if (carta.custoMana) jogador.mana -= carta.custoMana;
+        if (lider.energia < (carta.custoEnergia || 0) || lider.mana < (carta.custoMana || 0)) {
+            ExibirMensagem("Recursos insuficientes!", "erro");
+            return;
+        }
 
-        // Tocar Som da Carta
+        // Consumo de Recursos
+        if (carta.custoEnergia) lider.energia -= carta.custoEnergia;
+        if (carta.custoMana) lider.mana -= carta.custoMana;
+
+        // Efeitos Sonoros
         if (carta.som && EstadoDoJogo.audioHabilitado) {
             const somAtaque = new Audio(carta.som);
             somAtaque.volume = 1;
-            somAtaque.play().catch(e => console.log("Erro ao tocar som da carta:", e));
+            somAtaque.play().catch(() => { });
         }
 
-        // Precisão vs Esquiva
-        const chanceAcerto = jogador.precisao - inimigo.esquiva;
-        const sorteMod = jogador.sorte * 0.5;
-        if (Math.random() * 100 > (chanceAcerto + sorteMod)) {
-            ExibirMensagem("O ataque falhou! (Esquiva)", "erro");
-            PassarTurnoAutomatico();
-            return;
-        }
-
-        // Calcular Dano
+        // --- 1. Ataque do Líder ---
         const mult = carta.efeito?.danoMultiplicador || 1.0;
-        let danoBase = (carta.custoMana ? jogador.ataqueMagico : jogador.ataque) * mult;
+        const ehMagico = !!carta.custoMana;
 
-        // Crítico (175%)
-        let critico = false;
-        if (Math.random() * 100 < (jogador.chanceCritico + (jogador.sorte * 0.2))) {
-            danoBase *= 1.75;
-            critico = true;
+        // Executar Animação Líder
+        AnimarAtaque('jogador-1', `inimigo-${indiceAlvo + 1}`);
+
+        // Processar Dano Líder
+        setTimeout(() => {
+            const resultado = ProcessarAtaque(lider, inimigoAlvo, mult, ehMagico, carta.nome);
+
+            if (resultado.resultado === 'sucesso') {
+                MostrarIndicadorDano(`inimigo-${indiceAlvo + 1}`, resultado.dano, resultado.critico ? 'critico' : 'dano');
+                ExibirMensagem(`${resultado.critico ? 'CRÍTICO! ' : ''}Você usou ${carta.nome} em ${inimigoAlvo.nome} (${resultado.dano} dano)`);
+            }
+
+            AtualizarInterface();
+            VerificarFimCombateOuContinuar(true); // true = processar aliados
+        }, 300);
+
+        // --- Lógica dos Aliados (Lacaios) ---
+        // Função interna para coordenar aliados
+        function ProcessarAliados() {
+            const aliados = EstadoDoJogo.jogadores.slice(1); // Todos menos o 0 (Líder)
+
+            if (aliados.length === 0) {
+                VerificarFimDeTurno();
+                return;
+            }
+
+            let delayAcumulado = 600; // Começa depois do líder
+
+            aliados.forEach((aliado, idx) => {
+                if (aliado.vida <= 0) return;
+
+                // Definir Alvo do Aliado
+                let alvoAliado = inimigoAlvo;
+
+                // Se o ataque original foi em área (exemplo flag) ou se alvo original morreu
+                const ataqueEmArea = carta.tipo === "Area" || !carta.alvoUnico;
+
+                if (ataqueEmArea || alvoAliado.vida <= 0) {
+                    // Busca inimigo com menos vida
+                    const vivos = EstadoDoJogo.inimigos.filter(i => i.vida > 0);
+                    if (vivos.length > 0) {
+                        alvoAliado = vivos.reduce((prev, curr) => prev.vida < curr.vida ? prev : curr);
+                    } else {
+                        return; // Ninguém pra atacar
+                    }
+                }
+
+                // Agenda Ataque do Aliado
+                setTimeout(() => {
+                    const idAliado = idx + 2; // Jogador 2, 3...
+                    const idAlvoReal = EstadoDoJogo.inimigos.indexOf(alvoAliado) + 1;
+
+                    AnimarAtaque(`jogador-${idAliado}`, `inimigo-${idAlvoReal}`);
+
+                    setTimeout(() => {
+                        const res = ProcessarAtaque(aliado, alvoAliado, 1.0, false, "Ataque Coordenado");
+                        if (res.resultado === 'sucesso') {
+                            MostrarIndicadorDano(`inimigo-${idAlvoReal}`, res.dano, res.critico ? 'critico' : 'dano');
+                        }
+                        AtualizarInterface();
+                    }, 250);
+
+                }, delayAcumulado);
+
+                delayAcumulado += 800; // Espaçamento entre aliados
+            });
+
+            // Finaliza turno após todos os aliados
+            setTimeout(() => {
+                VerificarFimDeTurno();
+            }, delayAcumulado + 500);
         }
 
-        // Redução por Defesa
-        const reducao = carta.custoMana ? CalcularReducaoMagica(inimigo.protecaoMagica) : CalcularReducaoDano(inimigo.armadura);
-        const danoFinal = Math.floor(danoBase * (1 - reducao));
-        const danoReal = danoFinal > 0 ? danoFinal : 1;
-
-        // Aplicar Dano
-        inimigo.vida -= danoReal;
-        if (inimigo.vida < 0) inimigo.vida = 0;
-
-        // Afeta Determinação (10% do dano tirado)
-        inimigo.determinacao -= Math.floor(danoReal * 0.1);
-        if (inimigo.determinacao < 0) inimigo.determinacao = 0;
-
-        // Lifesteal
-        if (jogador.rouboVida > 0) {
-            const cura = Math.floor(danoReal * (jogador.rouboVida / 100));
-            jogador.vida = Math.min(jogador.vida + cura, jogador.vidaMaxima);
-            if (cura > 0) MostrarIndicadorDano('jogador', cura, 'cura');
-        }
-
-        MostrarIndicadorDano('inimigo', danoReal, critico ? 'critico' : 'dano');
-
-        // Feedback Visual e Interface
+        // Guardar referência para chamar depois do ataque do líder
+        EstadoDoJogo.ProcessarAliados = ProcessarAliados;
         FecharMenuAtaque();
-        AtualizarInterface();
+    }
 
-        ExibirMensagem(`${critico ? 'CRÍTICO! ' : ''}Você usou ${carta.nome} causando ${danoReal} de dano!`);
+    // Auxiliar para verificar morte global
+    function VerificarFimCombateOuContinuar(processarAliados) {
+        const todosInimigosMortos = EstadoDoJogo.inimigos.every(i => i.vida <= 0 || i.determinacao <= 0);
 
-        // Verifica vitória ou passa turno
-        if (inimigo.vida <= 0 || inimigo.determinacao <= 0) {
-            ExibirMensagem(inimigo.vida <= 0 ? "VITÓRIA! O inimigo sucumbiu." : "VITÓRIA! O inimigo perdeu a determinação.", "vitoria");
-            setTimeout(MostrarTelaVitoria, 1000);
+        if (todosInimigosMortos) {
+            ExibirMensagem("VITÓRIA TOTAL! O time inimigo foi derrotado.", "vitoria");
+            setTimeout(() => {
+                TrocarTela('tela-vitoria');
+                MostrarTelaVitoria();
+            }, 1000);
+        } else if (processarAliados && EstadoDoJogo.ProcessarAliados) {
+            EstadoDoJogo.ProcessarAliados();
+            EstadoDoJogo.ProcessarAliados = null;
+        }
+    }
+
+    function VerificarFimDeTurno() {
+        // Verifica novamente se venceu (caso aliados tenham matado o último)
+        const todosInimigosMortos = EstadoDoJogo.inimigos.every(i => i.vida <= 0 || i.determinacao <= 0);
+        if (todosInimigosMortos) {
+            VerificarFimCombateOuContinuar(false);
         } else {
-            EstadoDoJogo.turno = 1; // Inimigo
-            setTimeout(TurnoDoInimigo, 1500);
+            EstadoDoJogo.turno = 1; // Turno Inimigo
+            setTimeout(TurnoDosInimigos, 1000);
+        }
+    }
+
+    function AnimarAtaque(idAtacante, idAlvo) {
+        const elAtacante = document.getElementById(idAtacante);
+        const elAlvo = document.getElementById(idAlvo);
+
+        let classeAnim = idAtacante.includes('jogador') ? 'ataque-dash-jogador' : 'ataque-dash-inimigo';
+
+        if (elAtacante) {
+            elAtacante.classList.add(classeAnim);
+            setTimeout(() => elAtacante.classList.remove(classeAnim), 500);
+        }
+        if (elAlvo) {
+            setTimeout(() => {
+                elAlvo.classList.add('tomar-dano');
+                setTimeout(() => elAlvo.classList.remove('tomar-dano'), 400);
+            }, 250);
         }
     }
 
     function PassarTurnoAutomatico() {
+        LogDebug('PassarTurnoAutomatico');
         FecharMenuAtaque();
         EstadoDoJogo.turno = 1;
-        setTimeout(TurnoDoInimigo, 1000);
+        setTimeout(TurnoDosInimigos, 1000);
     }
 
     function IniciarTurnoJogador() {
-        const jogador = EstadoDoJogo.jogador;
+        LogDebug('IniciarTurnoJogador');
+        const jogador = EstadoDoJogo.jogadores[0]; // Corrigido de .jogador
         const amplificacao = CalcularAmplificacaoVigor(jogador.vigor);
 
         // Visual: Destaca Jogador
-        document.querySelector('.visual-jogador').classList.add('ativo');
-        document.querySelector('.visual-inimigo').classList.remove('ativo');
+        document.querySelectorAll('.personagem').forEach(el => el.classList.remove('ativo'));
+        document.getElementById('jogador-1').classList.add('ativo');
 
         // Regeneração de Início de Turno
         const regenVida = Math.floor(jogador.regeneracaoVida * (1 + amplificacao));
@@ -508,7 +807,7 @@ document.addEventListener('DOMContentLoaded', () => {
         jogador.mana = Math.min(jogador.mana + regenMana, jogador.manaMaxima);
         jogador.energia = Math.min(jogador.energia + regenEnergia, jogador.energiaMaxima);
 
-        if (regenVida > 0) MostrarIndicadorDano('jogador', regenVida, 'cura');
+        if (regenVida > 0) MostrarIndicadorDano('jogador-1', regenVida, 'cura'); // Corrigido ID
 
         AtualizarInterface();
         ExibirMensagem("Seu turno! Energias recuperadas.");
@@ -516,140 +815,160 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function PassarTurno() {
+        LogDebug('PassarTurno');
         if (!confirm("Deseja passar o turno e descansar?")) return;
         ExibirMensagem("Você descansou.");
         EstadoDoJogo.turno = 1;
-        setTimeout(TurnoDoInimigo, 1000);
+        setTimeout(TurnoDosInimigos, 1000);
     }
 
-    function TurnoDoInimigo() {
-        const inimigo = EstadoDoJogo.inimigoAtual;
-        const jogador = EstadoDoJogo.jogador;
+    function TurnoDosInimigos() {
+        LogDebug('TurnoDosInimigos');
 
-        // Visual: Destaca Inimigo
-        document.querySelector('.visual-inimigo').classList.add('ativo');
-        document.querySelector('.visual-jogador').classList.remove('ativo');
+        if (EstadoDoJogo.turno !== 1) return;
 
-        // Inimigo Ataca (Lógica simplificada para IA)
-        const chanceAcerto = inimigo.precisao - jogador.esquiva;
-        if (Math.random() * 100 > chanceAcerto) {
-            ExibirMensagem(`${inimigo.nome} errou o ataque!`);
+        // Identifica Inimigos Vivos
+        const inimigosVivos = EstadoDoJogo.inimigos.filter(i => i.vida > 0 && i.determinacao > 0);
+
+        if (inimigosVivos.length === 0) {
+            ExibirMensagem("Turno dos inimigos pulado (atordoados/mortos).");
             setTimeout(IniciarTurnoJogador, 1000);
             return;
         }
 
-        const aleatorio = 1 + (Math.random() * 0.5); // 1.0 a 1.5
-        const danoBruto = Math.floor(inimigo.ataque * aleatorio);
-        const reducao = CalcularReducaoDano(jogador.armadura);
-        const danoFinal = Math.max(1, Math.floor(danoBruto * (1 - reducao)));
+        // Lógica de Líder (Primeiro vivo comanda)
+        const liderInimigo = inimigosVivos[0];
 
-        jogador.vida -= danoFinal;
-        jogador.determinacao -= Math.floor(danoFinal * 0.1);
+        // Identificar Jogadores Vivos
+        const jogadoresVivos = EstadoDoJogo.jogadores.filter(j => j.vida > 0);
 
-        MostrarIndicadorDano('jogador', danoFinal, 'dano');
-        AtualizarInterface();
-        ExibirMensagem(`${inimigo.nome} atacou causando ${danoFinal} de dano!`);
+        if (jogadoresVivos.length === 0) {
+            VerificarGameOver();
+            return;
+        }
 
-        // Verifica Derrota ou Teste de Determinação
-        if (jogador.vida <= 0 || jogador.determinacao <= 0) {
-            if (jogador.determinacao > 0) {
-                // Teste de Ressurreição
-                const teste = Math.random() * 100;
-                const limite = (jogador.determinacao / 2) - 25 + (jogador.sorte * 2);
-                if (teste < limite) {
-                    jogador.vida = 1;
-                    ExibirMensagem("DETERMINAÇÃO! Você se recusa a cair!", "vitoria");
-                    setTimeout(IniciarTurnoJogador, 1500);
+        // Escolha de Alvo do Líder (Aleatório entre os vivos)
+        const alvoInicial = jogadoresVivos[Math.floor(Math.random() * jogadoresVivos.length)];
+        let alvoAtual = alvoInicial;
+
+        // Destaque visual do Foco
+        ExibirMensagem(`${liderInimigo.nome} comanda ataque em ${alvoAtual.nome}!`);
+
+        let indexAtaque = 0;
+
+        function SequenciaAtaqueCoordenado() {
+            if (EstadoDoJogo.turno !== 1) return;
+
+            if (indexAtaque >= inimigosVivos.length) {
+                setTimeout(IniciarTurnoJogador, 1000);
+                return;
+            }
+
+            const atacante = inimigosVivos[indexAtaque];
+
+            // Recalcula alvo se o original morreu durante o combo
+            if (alvoAtual.vida <= 0) {
+                const vivos = EstadoDoJogo.jogadores.filter(j => j.vida > 0);
+                if (vivos.length > 0) {
+                    // Foca no mais fraco se o principal caiu
+                    alvoAtual = vivos.reduce((prev, curr) => prev.vida < curr.vida ? prev : curr);
+                } else {
+                    VerificarGameOver();
                     return;
                 }
             }
 
-            ExibirMensagem("DERROTA! Seu cavaleiro caiu em batalha.", "derrota");
-            setTimeout(() => location.reload(), 3000);
-        } else {
-            setTimeout(IniciarTurnoJogador, 1500);
+            // Realiza o ataque
+            const idAtacante = EstadoDoJogo.inimigos.indexOf(atacante) + 1;
+            const idAlvo = EstadoDoJogo.jogadores.indexOf(alvoAtual) + 1;
+
+            const elInimigo = document.getElementById(`inimigo-${idAtacante}`);
+            if (elInimigo) {
+                // Remove ativo anterior
+                document.querySelectorAll('.inimigo-container').forEach(el => el.classList.remove('ativo'));
+                elInimigo.classList.add('ativo');
+            }
+
+            AnimarAtaque(`inimigo-${idAtacante}`, `jogador-${idAlvo}`);
+
+            setTimeout(() => {
+                // Inimigos tem sorte reduzida ou padrão
+                const resultado = ProcessarAtaque(atacante, alvoAtual, 1.0, false, "Ataque");
+
+                if (resultado.resultado === 'sucesso') {
+                    MostrarIndicadorDano(`jogador-${idAlvo}`, resultado.dano, resultado.critico ? 'critico' : 'dano');
+                    ExibirMensagem(`${atacante.nome} atacou ${alvoAtual.nome}!`);
+                } else if (resultado.resultado === 'esquiva') {
+                    // Mensagem já exibida no ProcessarAtaque
+                }
+
+                AtualizarInterface();
+                VerificarGameOver(); // Checa se jogador morreu a cada hit
+
+            }, 300);
+
+            indexAtaque++;
+            setTimeout(SequenciaAtaqueCoordenado, 1500); // Intervalo entre ataques
+        }
+
+        setTimeout(SequenciaAtaqueCoordenado, 1000);
+    }
+
+    function VerificarGameOver() {
+        if (EstadoDoJogo.jogadores[0].vida <= 0 || EstadoDoJogo.jogadores[0].determinacao <= 0) {
+            EstadoDoJogo.turno = -1;
+            ExibirMensagem("DERROTA! Seu líder caiu.", "derrota");
+            setTimeout(() => location.reload(), 4000);
         }
     }
 
     function AtualizarInterface() {
-        const J = EstadoDoJogo.jogador;
-        const I = EstadoDoJogo.inimigoAtual;
-        const BaseJ = BancoDeDados.JogadorBase;
+        LogDebug('AtualizarInterface');
+        const J = EstadoDoJogo.jogadores[EstadoDoJogo.jogadorFoco];
+        const I = EstadoDoJogo.inimigos[EstadoDoJogo.inimigoFoco];
 
         if (!J) return;
 
-        // --- Barras Jogador ---
-        document.getElementById('texto-vida-jogador').textContent = `${Math.floor(J.vida)}/${J.vidaMaxima}`;
-        document.getElementById('barra-vida-jogador').style.width = `${(J.vida / J.vidaMaxima) * 100}%`;
+        // Função auxiliar interna para atualizar barras e textos
+        const AtualizarStatusHUD = (elementos, dados, ehJogador) => {
+            if (!elementos || !dados) return;
 
-        document.getElementById('texto-energia-jogador').textContent = `${Math.floor(J.energia)}/${J.energiaMaxima}`;
-        document.getElementById('barra-energia-jogador').style.width = `${(J.energia / J.energiaMaxima) * 100}%`;
+            // Barras e Textos Básicos
+            elementos.VidaTexto.textContent = `${Math.floor(dados.vida)}/${dados.vidaMaxima}`;
+            elementos.VidaBarra.style.width = `${(dados.vida / dados.vidaMaxima) * 100}%`;
+            elementos.EnergiaTexto.textContent = `${Math.floor(dados.energia)}/${dados.energiaMaxima}`;
+            elementos.EnergiaBarra.style.width = `${(dados.energia / dados.energiaMaxima) * 100}%`;
+            elementos.ManaTexto.textContent = `${Math.floor(dados.mana)}/${dados.manaMaxima}`;
+            elementos.ManaBarra.style.width = `${(dados.mana / dados.manaMaxima) * 100}%`;
 
-        document.getElementById('texto-mana-jogador').textContent = `${Math.floor(J.mana)}/${J.manaMaxima}`;
-        document.getElementById('barra-mana-jogador').style.width = `${(J.mana / J.manaMaxima) * 100}%`;
+            // Atributos Detalhados
+            if (ehJogador) elementos.AtkLabel.textContent = (dados.classe === "Mago") ? "MATK" : "ATK";
+            elementos.AtkValor.textContent = (ehJogador && dados.classe === "Mago") ? dados.ataqueMagico : dados.ataque;
+            elementos.Def.textContent = dados.armadura;
+            elementos.Vigor.textContent = dados.vigor;
+            elementos.Roubo.textContent = `${dados.rouboVida}%`;
+            elementos.Crit.textContent = `${dados.chanceCritico}%`;
 
-        // --- Grid Jogador ---
-        const isMago = J.classe === "Mago";
-        const labelAtk = document.getElementById('label-ataque-jogador');
-        labelAtk.textContent = isMago ? "MATK" : "ATK";
+            const pen = (ehJogador && dados.classe === "Mago") ? dados.penetracaoMagica : dados.penetracaoArmadura;
+            elementos.Pen.textContent = pen;
+            elementos.Det.textContent = Math.floor(dados.determinacao);
 
-        const baseAtkValue = isMago ? BaseJ.ataqueMagico : BaseJ.ataque;
-        const atualAtkValue = isMago ? J.ataqueMagico : J.ataque;
+            if (elementos.Nome) elementos.Nome.textContent = dados.nome;
+        };
 
-        const elAtkBase = document.getElementById('atk-jogador-base');
-        elAtkBase.textContent = baseAtkValue;
+        // Atualizar HUDs usando o cache
+        AtualizarStatusHUD(ElementosUI.HUD.Jogador, J, true);
 
-        const elAtkAtual = document.getElementById('atk-jogador');
-        elAtkAtual.textContent = atualAtkValue;
-        elAtkAtual.className = "valor-atual " + (atualAtkValue > baseAtkValue ? "subiu" : (atualAtkValue < baseAtkValue ? "desceu" : ""));
-
-        // DEF
-        const defReducao = (CalcularReducaoDano(J.armadura) * 100).toFixed(1);
-        document.getElementById('def-jogador').textContent = J.armadura;
-        document.getElementById('def-jogador-pct').textContent = `(${defReducao}%)`;
-
-        // VIG
-        const vigAmp = (CalcularAmplificacaoVigor(J.vigor) * 100).toFixed(1);
-        document.getElementById('vigor-jogador').textContent = J.vigor;
-        document.getElementById('vigor-jogador-pct').textContent = `(+${vigAmp}%)`;
-
-        // ROUBO / CRIT
-        document.getElementById('roubo-jogador').textContent = `${J.rouboVida}%`;
-        document.getElementById('crit-jogador').textContent = `${J.chanceCritico}%`;
-
-        // PEN
-        const labelPen = document.getElementById('label-pen-jogador');
-        labelPen.textContent = isMago ? "MPEN" : "PEN";
-        const penVal = isMago ? J.penetracaoMagica : J.penetracaoArmadura;
-        document.getElementById('pen-jogador-abs').textContent = penVal;
-        document.getElementById('pen-jogador-pct').textContent = `(${penVal}%)`;
-
-        // DETERMINAÇÃO
-        document.getElementById('det-jogador').textContent = Math.floor(J.determinacao);
-        document.getElementById('det-max-jogador').textContent = J.determinacaoMaxima || 200;
-
-        // --- Inimigo ---
         if (I) {
-            document.getElementById('texto-vida-inimigo').textContent = `${Math.floor(I.vida)}/${I.vidaMaxima}`;
-            document.getElementById('barra-vida-inimigo').style.width = `${(I.vida / I.vidaMaxima) * 100}%`;
-            document.getElementById('texto-energia-inimigo').textContent = `${Math.floor(I.energia)}/${I.energiaMaxima}`;
-            document.getElementById('barra-energia-inimigo').style.width = `${(I.energia / I.energiaMaxima) * 100}%`;
-            document.getElementById('texto-mana-inimigo').textContent = `${Math.floor(I.mana)}/${I.manaMaxima}`;
-            document.getElementById('barra-mana-inimigo').style.width = `${(I.mana / I.manaMaxima) * 100}%`;
-
-            document.getElementById('atk-inimigo').textContent = I.ataque;
-            document.getElementById('def-inimigo').textContent = I.armadura;
-            document.getElementById('def-inimigo-pct').textContent = `(${(CalcularReducaoDano(I.armadura) * 100).toFixed(1)}%)`;
-            document.getElementById('vigor-inimigo').textContent = I.vigor;
-            document.getElementById('roubo-inimigo').textContent = `${I.rouboVida}%`;
-            document.getElementById('crit-inimigo').textContent = `${I.chanceCritico}%`;
-            document.getElementById('pen-inimigo-abs').textContent = I.penetracaoArmadura;
-            document.getElementById('det-inimigo').textContent = Math.floor(I.determinacao);
+            AtualizarStatusHUD(ElementosUI.HUD.Inimigo, I, false);
+        } else {
+            ElementosUI.HUD.Inimigo.Nome.textContent = "Inimigo";
         }
     }
 
     // --- Modal do Baralho ---
     function AbrirModalBaralho() {
+        LogDebug('AbrirModalBaralho');
         const modal = document.getElementById('modal-baralho');
         const grid = document.getElementById('deck-grid');
         grid.innerHTML = '';
@@ -672,16 +991,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function FecharModalBaralho() {
+        LogDebug('FecharModalBaralho');
         document.getElementById('modal-baralho').classList.add('oculta');
     }
 
     // --- Sistema de Atributos Detalhados ---
     function AbrirDetalhesAtributos(alvo) {
+        LogDebug(`AbrirDetalhesAtributos -> ${alvo}`);
         const modal = document.getElementById('modal-atributos');
         const titulo = document.getElementById('titulo-modal-atributos');
         const grid = document.getElementById('lista-atributos-detalhada');
 
-        const dados = alvo === 'jogador' ? EstadoDoJogo.jogador : EstadoDoJogo.inimigoAtual;
+        const dados = alvo === 'jogador' ? EstadoDoJogo.jogadores[EstadoDoJogo.jogadorFoco] : EstadoDoJogo.inimigos[EstadoDoJogo.inimigoFoco];
         const dadosBase = alvo === 'jogador' ? AtributosBaseJogador : AtributosBaseInimigo;
 
         if (!dados) return;
@@ -721,16 +1042,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function FecharDetalhesAtributos() {
+        LogDebug('FecharDetalhesAtributos');
         document.getElementById('modal-atributos').classList.add('oculta');
     }
 
     // --- Indicadores de Dano/Cura ---
-    function MostrarIndicadorDano(alvo, valor, tipo) {
-        const id = alvo === 'jogador' ? 'indicador-dano-jogador' : 'indicador-dano-inimigo';
-        const el = document.getElementById(id);
+    function MostrarIndicadorDano(slotId, valor, tipo) {
+        LogDebug(`MostrarIndicadorDano -> ${slotId}: ${valor} (${tipo})`);
+        // slotId pode ser 'jogador-1', 'inimigo-1', etc.
+        const el = document.getElementById(`indicador-dano-${slotId}`);
 
-        el.textContent = tipo === 'dano' ? `-${valor}` : `+${valor}`;
-        el.className = `indicador-flutuante ${tipo === 'dano' ? 'indicador-dano' : 'indicador-cura'}`;
+        if (!el) return;
+
+        el.textContent = tipo === 'cura' ? `+${valor}` : `-${valor}`;
+        el.className = `indicador-flutuante indicador-${tipo === 'cura' ? 'cura' : 'dano'}`;
+
+        if (tipo === 'critico') {
+            el.style.fontSize = '2rem';
+            el.style.color = '#ff9f43';
+        } else {
+            el.style.fontSize = '';
+            el.style.color = '';
+        }
 
         // Resetar animação
         el.classList.remove('animar-indicador');
@@ -739,15 +1072,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(() => {
             el.classList.remove('animar-indicador');
-        }, 1000);
+        }, 1200);
     }
 
     // --- Novo Display de Mensagens Centralizado ---
     function ExibirMensagem(texto, tipo = "") {
+        LogDebug(`ExibirMensagem -> ${texto.substring(0, 50)}...`);
         const display = document.getElementById('display-mensagens');
         const txtEl = document.getElementById('texto-mensagem');
 
         clearTimeout(EstadoDoJogo.timerMensagem);
+
+        if (!display || !txtEl) {
+            console.error("Elementos de mensagem não encontrados no DOM.");
+            return;
+        }
 
         txtEl.textContent = texto;
         display.className = "display-mensagens"; // Limpa tipos
@@ -761,10 +1100,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function MostrarTelaVitoria() {
+        LogDebug('MostrarTelaVitoria');
         const tela = document.getElementById('tela-vitoria');
         const resumo = document.getElementById('vitoria-resumo');
-        const inimigo = EstadoDoJogo.inimigoAtual;
-        const jogador = EstadoDoJogo.jogador;
+        const inimigo = EstadoDoJogo.inimigoAtual || { nome: "Inimigo" };
+        const jogador = EstadoDoJogo.jogadores[0]; // Corrigido de .jogador
 
         // Pausar música de combate e tocar vitória
         if (MusicaCombate) MusicaCombate.pause();
@@ -783,8 +1123,6 @@ document.addEventListener('DOMContentLoaded', () => {
         while (jogador.xp >= jogador.xpParaProximoNivel) {
             jogador.nivel++;
             jogador.xp -= jogador.xpParaProximoNivel;
-            // Mantendo 100 de XP conforme pedido, ou aumentando levemente
-            // jogador.xpParaProximoNivel = 100; 
             jogador.pontosHabilidade += 3; // +3 ao subir de nível
             subiuDeNivel = true;
         }
@@ -797,18 +1135,16 @@ document.addEventListener('DOMContentLoaded', () => {
             <p style="margin-top: 1rem;">Total de Pontos Disponíveis: ${jogador.pontosHabilidade}</p>
         `;
 
-        tela.classList.remove('oculta');
         CriarParticulasVitoria();
     }
 
     function AbrirMenuTalentos() {
-        document.getElementById('tela-vitoria').classList.add('oculta');
-        const menu = document.getElementById('menu-talentos');
+        LogDebug('AbrirMenuTalentos');
+        TrocarTela('menu-talentos');
         const grid = document.getElementById('grid-talentos');
         const textoPontos = document.getElementById('pontos-talento-valor');
 
-        textoPontos.textContent = EstadoDoJogo.jogador.pontosHabilidade;
-        menu.classList.remove('oculta');
+        textoPontos.textContent = EstadoDoJogo.jogadores[0].pontosHabilidade;
 
         // Sortear 3 talentos aleatórios
         const sorteados = [];
@@ -835,30 +1171,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function SelecionarTalento(talento) {
-        if (EstadoDoJogo.jogador.pontosHabilidade <= 0) return;
+        LogDebug(`SelecionarTalento -> ${talento.nome}`);
+        if (EstadoDoJogo.jogadores[0].pontosHabilidade <= 0) return;
 
-        EstadoDoJogo.jogador.pontosHabilidade--;
+        EstadoDoJogo.jogadores[0].pontosHabilidade--;
 
         // Aplicar efeitos
         for (let atributo in talento.efeito) {
-            if (EstadoDoJogo.jogador.hasOwnProperty(atributo)) {
-                EstadoDoJogo.jogador[atributo] += talento.efeito[atributo];
+            if (EstadoDoJogo.jogadores[0].hasOwnProperty(atributo)) {
+                EstadoDoJogo.jogadores[0][atributo] += talento.efeito[atributo];
                 // Se for vidaMaxima, cura um pouco também
-                if (atributo === 'vidaMaxima') EstadoDoJogo.jogador.vida += talento.efeito[atributo];
+                if (atributo === 'vidaMaxima') EstadoDoJogo.jogadores[0].vida += talento.efeito[atributo];
             }
         }
 
         ExibirMensagem(`Talento Adquirido: ${talento.nome}`);
 
-        if (EstadoDoJogo.jogador.pontosHabilidade > 0) {
+        if (EstadoDoJogo.jogadores[0].pontosHabilidade > 0) {
             AbrirMenuTalentos(); // Continua escolhendo se tiver pontos
         } else {
-            document.getElementById('menu-talentos').classList.add('oculta');
+            TrocarTela('tela-mapa'); // Garante volta ao mapa corretamente
             VoltarAoMapa();
         }
     }
 
     function CriarParticulasVitoria() {
+        LogDebug('CriarParticulasVitoria');
         const container = document.getElementById('particulas-vitoria');
         container.innerHTML = '';
         for (let i = 0; i < 50; i++) {
@@ -872,32 +1210,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function VoltarAoMapa() {
+        LogDebug('ContinuarJornada (Antigo VoltarAoMapa)');
         if (MusicaVitoria) MusicaVitoria.pause();
-        document.getElementById('tela-vitoria').classList.add('oculta');
 
-        TelaDeJogo.classList.remove('ativa');
-        TelaDeJogo.classList.add('oculta');
+        const proximaFase = EstadoDoJogo.faseAtual + 1;
+        EstadoDoJogo.fasesDesbloqueadas = Math.max(EstadoDoJogo.fasesDesbloqueadas, proximaFase);
 
-        EstadoDoJogo.fasesDesbloqueadas = Math.max(EstadoDoJogo.fasesDesbloqueadas, EstadoDoJogo.faseAtual + 1);
-        EntrarNoMapa();
+        // Verifica se a campanha acabou (Exemplo: 4 fases)
+        if (EstadoDoJogo.faseAtual >= 4) {
+            ExibirMensagem("PARABÉNS! Você conquistou o Castelo de Igvuld!", "vitoria");
+            // Volta para o menu de campanhas após zerar
+            setTimeout(() => {
+                TrocarTela('tela-campanha');
+            }, 3000);
+        } else {
+            // Avança para a próxima luta
+            CarregarFase(proximaFase);
+        }
     }
 
     // --- Sistema de Configurações ---
     function AbrirMenuConfig() {
+        LogDebug('AbrirMenuConfig');
         document.getElementById('modal-config').classList.remove('oculta');
     }
 
     function FecharMenuConfig() {
+        LogDebug('FecharMenuConfig');
         document.getElementById('modal-config').classList.add('oculta');
     }
 
     function MenuDesistir() {
+        LogDebug('MenuDesistir');
         if (confirm("Guerreiros não desistem, mas se você precisar partir... Tem certeza?")) {
             location.reload();
         }
     }
 
     function ToggleAudio() {
+        LogDebug('ToggleAudio');
         EstadoDoJogo.audioHabilitado = !EstadoDoJogo.audioHabilitado;
         const btn = document.getElementById('btn-audio-toggle');
         btn.textContent = EstadoDoJogo.audioHabilitado ? "Desabilitar Áudio" : "Habilitar Áudio";
@@ -905,6 +1256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function FecharPrograma() {
+        LogDebug('FecharPrograma');
         if (confirm("Deseja realmente fechar o programa?")) {
             window.close();
             // Fallback se window.close() for bloqueado
@@ -913,6 +1265,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function AbrirBaralhoViaConfig() {
+        LogDebug('AbrirBaralhoViaConfig');
         FecharMenuConfig();
         AbrirModalBaralho();
     }
