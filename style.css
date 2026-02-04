@@ -1,0 +1,1788 @@
+@import url('https://fonts.cdnfonts.com/css/vecna');
+@import url('https://fonts.cdnfonts.com/css/magnefico');
+@import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@100..900&family=Pirata+One&display=swap');
+/* Tentativa de importação via CDNFonts */
+
+:root {
+    /* Cores Light Fantasy */
+    --cor-fundo: #f0f4f8;
+    /* Branco/Cinza azulado bem claro */
+    --cor-texto: #2d3436;
+    /* Cinza escuro para contraste */
+    --cor-destaque: #d4af37;
+    /* Dourado */
+    --brilho-destaque: #ffd700;
+    /* Ouro mais claro */
+    --fundo-vidro: rgba(255, 255, 255, 0.4);
+    /* Vidro claro */
+    --borda-vidro: rgba(255, 255, 255, 0.6);
+
+    --cor-vida: #e74c3c;
+    --cor-energia: #f1c40f;
+    --cor-mana: #3498db;
+
+    /* Tipografia Customizada (Ajustada para alternativas CDN) */
+    --fonte-titulo: 'Vecna', serif;
+    /* Títulos Principais */
+    --fonte-destaque: 'Grenze Gotisch', serif;
+    /* Alternativa fiel à Celandine (Blackletter) */
+    --fonte-corpo: 'Times New Roman', serif;
+    /* Textos Normais */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    font-family: var(--fonte-corpo);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    /* Auxiliar de centralização */
+    justify-content: center;
+    align-items: center;
+}
+
+#aplicativo {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    max-width: 100%;
+    /* Permite expandir em ultrawide */
+    padding: 0 5vw;
+    /* Margem lateral para não colar nas bordas */
+    margin: 0 auto;
+}
+
+.tela {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Centro vertical padrão */
+    align-items: center;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease;
+}
+
+.oculta {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+    z-index: 0;
+}
+
+.ativa {
+    opacity: 1;
+    pointer-events: all;
+    transform: scale(1);
+    z-index: 10;
+}
+
+/* --- Tela Inicial --- */
+#tela-inicial {
+    background: radial-gradient(circle at top, #ffffff 0%, #dbe9f4 100%);
+    /* Céu claro */
+}
+
+.container-titulo {
+    text-align: center;
+    margin-bottom: 3rem;
+    animation: fadeInDown 1s ease-out;
+}
+
+.titulo-jogo {
+    font-family: var(--fonte-titulo);
+    font-size: clamp(3.5rem, 12vw, 9rem);
+    /* Maior e mais imponente */
+    color: var(--cor-texto);
+    letter-spacing: 0.8rem;
+    /* Mais espaçamento para dramaticidade */
+    text-shadow: 0 0 30px var(--cor-destaque), 0 0 60px rgba(212, 175, 55, 0.5);
+    /* Brilho mais intenso */
+}
+
+.subtitulo-jogo {
+    font-size: 1.4rem;
+    font-family: var(--fonte-destaque);
+    color: #999;
+    letter-spacing: 0.3rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+    /* Toque elegante */
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.botao-brilho {
+    background: transparent;
+    color: var(--cor-texto);
+    font-family: var(--fonte-destaque);
+    font-size: 1.6rem;
+    /* Maior */
+    padding: 1.2rem 3.5rem;
+    /* Mais espaçoso */
+    border: 2px solid var(--cor-destaque);
+    /* Borda mais grossa */
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    letter-spacing: 0.25rem;
+    /* Mais espaçamento dramático */
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    /* Brilho dourado */
+}
+
+.botao-brilho:hover {
+    background: var(--cor-destaque);
+    box-shadow: 0 0 30px var(--brilho-destaque);
+    transform: translateY(-2px);
+}
+
+/* --- Tela de Jogo --- */
+#tela-jogo {
+    justify-content: space-between;
+    /* Espalhar topo, centro, fundo */
+    padding: 2rem;
+    background: linear-gradient(180deg, #87ceeb 0%, #e0f7fa 100%);
+    /* Céu diurno brilhante */
+}
+
+/* --- Interface Principal de Combate --- */
+.layout-combate {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-grow: 1;
+    padding: 1rem 2rem;
+    gap: 2rem;
+    position: relative;
+    z-index: 100;
+}
+
+.painel-lateral {
+    pointer-events: auto;
+    width: clamp(300px, 25vw, 400px);
+    /* Ligeiramente mais largo */
+    background: rgba(0, 0, 0, 0.85);
+    color: #f5f5f5;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+}
+
+/* Forçar cor clara nos rótulos dentro do painel */
+.painel-lateral .rotulo-status {
+    color: #e0e0e0;
+    font-family: var(--fonte-destaque);
+    text-shadow: 1px 1px 2px black;
+}
+
+/* Forçar cor clara nos atributos */
+.status-atributos {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: #ffffff;
+    /* Branco puro */
+    font-weight: bold;
+}
+
+.atributo {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(255, 255, 255, 0.1);
+    /* Leve destaque */
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.arena {
+    flex-grow: 1;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    /* Centraliza contentores */
+    gap: 2rem;
+    /* Espaço suficiente apenas para o VS */
+    align-items: center;
+    position: relative;
+    perspective: 1000px;
+}
+
+.painel-lateral.esquerda {
+    border-left: 4px solid var(--cor-destaque);
+}
+
+.painel-lateral.direita {
+    border-right: 4px solid var(--cor-vida);
+    /* Lado do inimigo vermelho */
+    align-items: flex-end;
+    /* Alinha itens internos à direita visualmente */
+}
+
+/* Ajuste interno para painel direito (ficar espelhado) */
+.painel-lateral.direita .recipiente-barra-status,
+.painel-lateral.direita .status-atributos {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.nome-hud {
+    font-family: var(--fonte-titulo);
+    font-size: 1.3rem;
+    /* Levemente maior */
+    color: var(--cor-destaque);
+    margin: 0;
+    letter-spacing: 0.15rem;
+    /* Espaçamento medieval */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+    text-shadow: 0 0 10px var(--brilho-destaque);
+    /* Brilho sutil */
+    flex-grow: 1;
+    /* Ocupa o espaço restante */
+}
+
+/* Novo Grid de Atributos */
+.grid-atributos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 6px;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.card-atributo {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.card-atributo:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.icone-atrib {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.corpo-atrib {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.label-atrib {
+    font-size: 0.8rem;
+    /* Aumentado */
+    color: #aaa;
+    font-family: var(--fonte-destaque);
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.valores-atrib {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.valor-base {
+    font-size: 0.9rem;
+    /* Aumentado */
+    color: #666;
+    text-decoration: line-through;
+}
+
+.valor-atual {
+    font-size: 1.1rem;
+    /* Aumentado significativamente */
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.valor-extra {
+    font-size: 0.9rem;
+    /* Aumentado */
+    color: var(--cor-destaque);
+    font-style: italic;
+}
+
+/* Cores de Variação */
+.valor-atual.subiu {
+    color: #2ecc71 !important;
+}
+
+.valor-atual.desceu {
+    color: #e74c3c !important;
+}
+
+/* Caixa de Determinação */
+.caixa-determinacao {
+    margin-top: 1rem;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.15), transparent);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+}
+
+.det-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.det-header .label-atrib {
+    font-size: 0.7rem;
+    color: var(--cor-destaque);
+    margin-bottom: 0;
+}
+
+.det-valor-container {
+    font-family: var(--fonte-titulo);
+    font-size: 1.4rem;
+    color: #fff;
+    text-shadow: 0 0 10px var(--brilho-destaque);
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.det-max {
+    font-size: 0.8rem;
+    opacity: 0.4;
+}
+
+/* Ajustes para o lado direito (Inimigo) */
+.painel-lateral.direita .grid-atributos {
+    direction: rtl;
+    /* Inverte direção visualmente */
+}
+
+.painel-lateral.direita .corpo-atrib {
+    text-align: right;
+    direction: ltr;
+    /* Volta texto ao normal */
+}
+
+.painel-lateral.direita .valores-atrib {
+    justify-content: flex-end;
+}
+
+.painel-lateral.direita .caixa-determinacao {
+    background: linear-gradient(270deg, rgba(231, 76, 60, 0.15), transparent);
+    border-color: rgba(231, 76, 60, 0.2);
+    text-align: right;
+}
+
+.painel-lateral.direita .det-header {
+    flex-direction: row-reverse;
+}
+
+.painel-lateral.direita .det-valor-container {
+    justify-content: flex-end;
+}
+
+/* Botão de Configurações Fixo */
+.btn-config-fixo {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--cor-destaque);
+    border: 1px solid var(--cor-destaque);
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 5000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.btn-config-fixo:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: var(--cor-destaque);
+    color: #000;
+    box-shadow: 0 0 25px var(--brilho-destaque);
+}
+
+/* Itens do Menu de Configuração */
+.menu-config-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.btn-config-item {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    border-radius: 6px;
+    font-family: var(--fonte-destaque);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-config-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--cor-destaque);
+}
+
+.btn-config-item.btn-perigo {
+    color: #ff4757;
+    border-color: rgba(255, 71, 87, 0.3);
+}
+
+.btn-config-item.btn-perigo:hover {
+    background: rgba(255, 71, 87, 0.1);
+    border-color: #ff4757;
+}
+
+.btn-config-item.btn-sair {
+    margin-top: 10px;
+    color: #aaa;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-config-item.btn-sair:hover {
+    background: #c0392b;
+    color: #fff;
+    border-color: #e74c3c;
+}
+
+.item-atributo span {
+    font-weight: bold;
+    color: var(--cor-destaque);
+}
+
+/* Estilos antigos como referência ou limpeza */
+.status-jogador,
+.status-inimigo {
+    /* Estilos agora gerenciados por .painel-lateral */
+    flex-grow: 0;
+}
+
+.recipiente-barra-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* Alinha labels à esquerda */
+    width: 100%;
+}
+
+.rotulo-status {
+    font-size: 0.8rem;
+    margin-bottom: 0.2rem;
+    font-weight: 600;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    /* Espalha Label e Valor */
+}
+
+.barra-status {
+    width: 100%;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.preenchimento-barra {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+.valor-status {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    font-weight: normal;
+}
+
+.vida .preenchimento-barra {
+    background-color: var(--cor-vida);
+    box-shadow: 0 0 10px var(--cor-vida);
+}
+
+.energia .preenchimento-barra {
+    background-color: var(--cor-energia);
+    box-shadow: 0 0 10px var(--cor-energia);
+}
+
+.mana .preenchimento-barra {
+    background-color: var(--cor-mana);
+    box-shadow: 0 0 10px var(--cor-mana);
+}
+
+/* Arena */
+.arena {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    align-items: center;
+    position: relative;
+    perspective: 1000px;
+}
+
+.personagem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.visual-personagem {
+    width: clamp(150px, 18.75vw, 300px);
+    /* Tamanho reduzido em 25% */
+    height: clamp(150px, 18.75vw, 300px);
+    background-color: #333;
+    /* Fallback */
+    border-radius: 10px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    position: relative;
+    border: 2px solid transparent;
+    /* Slot para a borda */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.visual-personagem.ativo {
+    border-color: var(--cor-destaque);
+    box-shadow: 0 0 30px var(--brilho-destaque), 0 20px 50px rgba(0, 0, 0, 0.5);
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+
+.visual-jogador {
+    background-image: url("Images/Personagens/Jogador.png");
+    /* caminho da imagem */
+    background-size: cover;
+    /* ajusta a imagem para cobrir todo o elemento */
+    background-position: center;
+    /* centraliza a imagem */
+    border: 2px solid #aaa;
+}
+
+.visual-inimigo {
+    background-image: url("Images/FotoDr.jpeg");
+    /* caminho da imagem */
+    background-size: cover;
+    /* ajusta a imagem para cobrir todo o elemento */
+    background-position: center;
+    /* centraliza a imagem */
+}
+
+/* Representação visual simples de "Olhando um para o outro" */
+.visual-jogador::after,
+.visual-inimigo::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+}
+
+.visual-jogador::after {
+    right: 10px;
+    box-shadow: 0 0 10px cyan;
+}
+
+/* Olhos virados para a direita */
+.visual-inimigo::after {
+    left: 10px;
+    box-shadow: 0 0 10px red;
+}
+
+/* Olhos virados para a esquerda */
+/* Removido o fixed top: 20px para scale relativo */
+
+.nome-personagem {
+    font-family: var(--fonte-titulo);
+    font-size: 1.2rem;
+    /* Estilo igual aos painéis laterais */
+    background: rgba(0, 0, 0, 0.85);
+    color: var(--cor-destaque);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    border: 2px solid var(--cor-destaque);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0 10px var(--brilho-destaque);
+}
+
+.divisor-versus {
+    font-family: var(--fonte-titulo);
+    font-size: 3rem;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.2);
+    /* Escuro mas sutil */
+    font-style: italic;
+}
+
+/* Controles */
+.controles {
+    display: flex;
+    gap: 1.2rem;
+    width: 100%;
+    justify-content: center;
+    padding: 1.5rem;
+    flex-wrap: wrap;
+    /* Estilo igual aos painéis laterais */
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.botao-acao {
+    flex: 1;
+    background: var(--cor-destaque);
+    color: #000;
+    border: none;
+    padding: 1rem;
+    font-family: var(--fonte-destaque);
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-width: 150px;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.05rem;
+}
+
+.botao-acao:hover {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: var(--brilho-destaque);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+    color: var(--brilho-destaque);
+    text-shadow: 0 0 10px var(--brilho-destaque);
+}
+
+/* Animações */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .interface-status {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .recipiente-barra-status {
+        width: 100%;
+    }
+
+    .arena {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0 1rem;
+    }
+
+    .visual-personagem {
+        width: 100px;
+        height: 180px;
+    }
+
+    .controles {
+        gap: 0.5rem;
+    }
+
+    .botao-acao {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        min-width: auto;
+        flex: 1 1 40%;
+    }
+}
+
+/* --- Contagem Regressiva --- */
+#overlay-contagem {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* Acima de tudo */
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s ease;
+}
+
+#numero-contagem {
+    font-family: var(--fonte-titulo);
+    font-size: 15rem;
+    /* Bem grande */
+    color: var(--cor-destaque);
+    text-shadow: 0 0 50px var(--brilho-destaque), 0 0 100px var(--cor-destaque);
+    font-weight: 700;
+    opacity: 0;
+}
+
+/* Animação descendo até o centro */
+.animar-numero {
+    animation: descerExplosao 0.9s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards;
+}
+
+@keyframes descerExplosao {
+    0% {
+        opacity: 0;
+        transform: translateY(-200px) scale(0.5);
+        filter: blur(10px);
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(0) scale(1.2);
+        filter: blur(0);
+    }
+
+    60% {
+        transform: translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+        filter: blur(20px);
+    }
+}
+
+/* Efeito Atravessando a Tela (Flash) */
+.efeito-flash::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: -150%;
+    width: 200%;
+    /* Mais largo que a tela para inclinação */
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.8) 50%,
+            transparent 100%);
+    z-index: 2000;
+    transform: skewX(-20deg);
+    /* Inclinação para dar dinamismo */
+    animation: atravessarTela 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes atravessarTela {
+    0% {
+        left: -150%;
+    }
+
+    100% {
+        left: 150%;
+    }
+}
+
+/* --- Estado de Seleção (Roleta) --- */
+/* --- Estado de Seleção (Roleta) --- */
+/* --- Estado de Seleção (Roleta) --- */
+#tela-jogo.modo-selecao {
+    /* Background mais etéreo/mágico para seleção */
+    background: radial-gradient(circle at center, #fff1eb 0%, #ace0f9 100%);
+}
+
+#tela-jogo.modo-selecao .interface-status,
+#tela-jogo.modo-selecao .controles {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(50px);
+    transition: all 0.5s ease;
+}
+
+/* Durante a seleção, aumentamos muito a arena para dar destaque total aos combatentes */
+#tela-jogo.modo-selecao .arena {
+    transform: scale(1.4);
+    gap: 8rem;
+    /* Afasta mais os personagens */
+}
+
+/* Oculta os nomes durante a roleta para ficar mais limpo, ou deixa menor */
+#tela-jogo.modo-selecao .nome-personagem {
+    opacity: 0.7;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+/* Destaque no VS */
+#tela-jogo.modo-selecao .divisor-versus {
+    font-size: 4rem;
+    color: var(--cor-destaque);
+    text-shadow: 0 0 40px var(--brilho-destaque);
+    animation: pulsoVersus 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes pulsoVersus {
+    from {
+        transform: scale(1);
+        text-shadow: 0 0 20px var(--brilho-destaque);
+    }
+
+    to {
+        transform: scale(1.2);
+        text-shadow: 0 0 50px var(--brilho-destaque), 0 0 100px var(--cor-destaque);
+    }
+}
+
+/* --- Tela Mapa da Campanha --- */
+#tela-mapa {
+    background: url('Images/Campanhas/CampanhaDoCastelo.png') no-repeat center center;
+    background-size: cover;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 2rem;
+    position: relative;
+    /* Garante posicionamento */
+}
+
+/* Adicionar overlay escuro para melhorar leitura do título se necessário */
+#tela-mapa::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    /* Leve escurecida */
+    z-index: 0;
+}
+
+/* Título deve ficar acima do overlay */
+.titulo-mapa {
+    z-index: 1;
+    position: relative;
+    font-family: var(--fonte-titulo);
+    font-size: 3.5rem;
+    /* Maior e mais imponente */
+    color: var(--cor-destaque);
+    margin-bottom: 2rem;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.9), 0 0 40px var(--cor-destaque);
+    /* Brilho intenso */
+    text-align: center;
+    letter-spacing: 0.3rem;
+    /* Dramaticidade medieval */
+}
+
+.mapa-container {
+    z-index: 1;
+    /* Acima do overlay */
+    width: 90%;
+    height: 80%;
+    /* Ocupar mais espaço */
+    /* ... */
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Linhas de caminho */
+.caminho-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.linha-pontilhada {
+    stroke: #aaa;
+    stroke-width: 4;
+    stroke-dasharray: 10, 10;
+}
+
+/* Fases / Nós  */
+.fase {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 2;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.fase:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.icone-fase {
+    width: 60px;
+    height: 60px;
+    background-color: #ddd;
+    border: 3px solid #888;
+    border-radius: 8px;
+    /* Quadrado arredondado */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.icone-fase.disponivel {
+    background-color: #a8e6cf;
+    border-color: #2ecc71;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Imagem específica para cada fase */
+.fase[data-fase="1"] .icone-fase {
+    background-image: url('Images/Cenarios/CampoDeBatalha.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.fase[data-fase="2"] .icone-fase {
+    background-image: url('Images/Cenarios/PonteDoCastelo.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.fase[data-fase="3"] .icone-fase {
+    background-image: url('Images/Cenarios/PortaoDoCastelo.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.fase[data-fase="4"] .icone-fase {
+    background-image: url('Images/Cenarios/SalaoDoCastelo.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.icone-fase.bloqueado {
+    background-color: #e6a8a8;
+    border-color: #c0392b;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Ícone de bloqueio (cadeado) usando CSS pseudo-element ou emoji */
+.icone-fase.bloqueado::after {
+    content: '🔒';
+    font-size: 1.5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.nome-fase {
+    font-weight: bold;
+    color: var(--cor-texto);
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Jogador no Mapa */
+.jogador-token {
+    position: absolute;
+    top: 50%;
+    /* Mesma linha das fases */
+    left: 10%;
+    /* Começa na primeira fase */
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background-image: url('Images/Personagens/Jogador.png');
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--cor-destaque);
+    border-radius: 4px;
+    /* Quadrado */
+    z-index: 10;
+    transition: left 0.5s ease-in-out;
+    box-shadow: 0 0 15px var(--brilho-destaque);
+}
+
+/* --- Sistema de Cartas de Habilidades --- */
+#container-cartas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    gap: 3rem;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.cartas-wrapper {
+    display: flex;
+    gap: 2rem;
+    perspective: 1000px;
+    justify-content: center;
+    width: 100%;
+}
+
+.carta {
+    width: 250px;
+    height: 350px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 15px;
+    border: 3px solid var(--cor-destaque);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.carta:hover {
+    transform: translateY(-20px) scale(1.05) rotateY(10deg);
+    box-shadow: 0 20px 50px rgba(212, 175, 55, 0.4);
+    border-color: var(--brilho-destaque);
+}
+
+.carta::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
+    transition: 0.5s;
+}
+
+.carta:hover::after {
+    left: 100%;
+}
+
+.info-carta {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    padding: 1rem;
+    color: white;
+    text-align: center;
+}
+
+.nome-carta {
+    font-family: var(--fonte-titulo);
+    font-size: 1.2rem;
+    color: var(--cor-destaque);
+    margin-bottom: 0.3rem;
+    text-shadow: 0 0 5px black;
+}
+
+.custo-carta {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--cor-energia);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* --- Botão do Baralho Fixo --- */
+.botao-deck {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid var(--cor-destaque);
+    color: var(--cor-destaque);
+    padding: 1rem 1.5rem;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    z-index: 999;
+    font-family: var(--fonte-destaque);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.botao-deck:hover {
+    transform: scale(1.1) translateY(-5px);
+    background: var(--cor-destaque);
+    color: black;
+    box-shadow: 0 8px 25px var(--brilho-destaque);
+}
+
+.icone-deck {
+    font-size: 1.5rem;
+}
+
+/* --- Modal do Baralho --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-conteudo {
+    width: 90%;
+    max-width: 1200px;
+    height: 85%;
+    background: #1a1a1a;
+    border: 1px solid var(--cor-destaque);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+    padding-bottom: 1rem;
+}
+
+.modal-header h2 {
+    font-family: var(--fonte-titulo);
+    color: var(--cor-destaque);
+    font-size: 2rem;
+}
+
+.botao-fechar {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 2.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+    overflow-y: auto;
+    padding-right: 1rem;
+}
+
+/* --- Miniaturas das Cartas --- */
+.carta-miniatura {
+    height: 250px;
+    border-radius: 10px;
+    border: 2px solid #333;
+    padding: 5px;
+    transition: all 0.3s ease;
+}
+
+.carta-miniatura-inner {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.info-miniatura {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 0.5rem;
+    text-align: center;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.nome-min {
+    display: block;
+    font-size: 0.9rem;
+    color: white;
+    font-weight: bold;
+}
+
+.tipo-min {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-family: var(--fonte-destaque);
+    letter-spacing: 1px;
+}
+
+/* Cores por Tipo */
+.tipo-bronze {
+    border-color: #cd7f32;
+}
+
+.tipo-bronze .tipo-min {
+    color: #cd7f32;
+}
+
+.tipo-prata {
+    border-color: #c0c0c0;
+}
+
+.tipo-prata .tipo-min {
+    color: #c0c0c0;
+}
+
+.tipo-ouro {
+    border-color: #ffd700;
+}
+
+.tipo-ouro .tipo-min {
+    color: #ffd700;
+}
+
+.tipo-negra {
+    border-color: #7d00f5;
+}
+
+.tipo-negra .tipo-min {
+    color: #7d00f5;
+}
+
+/* Tags de raridade (nas cartas grandes) */
+.tag-raridade {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 1px 2px black;
+    z-index: 5;
+}
+
+.raridade-comum {
+    background: #888;
+}
+
+.raridade-incomum {
+    background: #2ecc71;
+}
+
+.raridade-raro {
+    background: #3498db;
+}
+
+.raridade-épico {
+    background: #9b59b6;
+}
+
+.raridade-lendário {
+    background: #e67e22;
+}
+
+/* --- Novos Elementos: Seta de Status e Indicadores --- */
+.nome-hud-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.botao-info-stats {
+    background: rgba(212, 175, 55, 0.2);
+    border: 1px solid var(--cor-destaque);
+    color: var(--cor-destaque);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    z-index: 99;
+    /* Garantir que fique acima de tudo no painel */
+    margin: 0 5px;
+    pointer-events: auto !important;
+}
+
+.botao-info-stats:hover {
+    background: var(--cor-destaque);
+    color: black;
+    transform: scale(1.2);
+    box-shadow: 0 0 15px var(--brilho-destaque);
+}
+
+.indicador-flutuante {
+    position: absolute;
+    right: 0;
+    font-weight: bold;
+    font-size: 1.2rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s;
+}
+
+.indicador-dano {
+    color: #ff4757;
+    text-shadow: 0 0 5px black;
+}
+
+.indicador-cura {
+    color: #2ed573;
+    text-shadow: 0 0 5px black;
+}
+
+.animar-indicador {
+    opacity: 1;
+    transform: translateY(-30px);
+}
+
+.modal-pequeno {
+    max-width: 600px;
+    height: auto;
+    max-height: 80vh;
+}
+
+.grid-atributos-detalhada {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.atrib-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.atrib-nome {
+    color: #aaa;
+}
+
+.atrib-valor {
+    font-weight: bold;
+}
+
+.subiu {
+    color: #2ed573;
+    text-shadow: 0 0 3px #2ed573;
+}
+
+.desceu {
+    color: #ff4757;
+    text-shadow: 0 0 3px #ff4757;
+}
+
+/* --- Display de Mensagens Central --- */
+.display-mensagens {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1500;
+    min-width: 300px;
+    max-width: 600px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--cor-destaque);
+    border-radius: 15px;
+    padding: 1rem 2rem;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(212, 175, 55, 0.2);
+    animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+}
+
+#texto-mensagem {
+    font-family: var(--fonte-destaque);
+    font-size: 1.5rem;
+    color: #fff;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.1rem;
+}
+
+@keyframes slideDown {
+    from {
+        top: -10%;
+        opacity: 0;
+    }
+
+    to {
+        top: 5%;
+        opacity: 1;
+    }
+}
+
+.mensagem-vitoria {
+    border-color: #2ed573;
+    box-shadow: 0 0 30px rgba(46, 213, 115, 0.4);
+}
+
+.mensagem-derrota {
+    border-color: #ff4757;
+    box-shadow: 0 0 30px rgba(255, 71, 87, 0.4);
+}
+
+/* --- Overlay de Diálogo --- */
+#overlay-dialogo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 5vh;
+    backdrop-filter: blur(4px);
+}
+
+.caixa-dialogo {
+    width: 80%;
+    max-width: 900px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid var(--cor-destaque);
+    border-radius: 15px;
+    padding: 2rem;
+    position: relative;
+    display: flex;
+    gap: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(212, 175, 55, 0.1);
+    animation: slideUpDialogue 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+@keyframes slideUpDialogue {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.personagem-dialogo-container {
+    flex-shrink: 0;
+    width: 150px;
+    text-align: center;
+}
+
+#img-personagem-dialogo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--cor-destaque);
+    background: #222;
+    object-fit: contain;
+    box-shadow: 0 0 15px var(--brilho-destaque);
+}
+
+.nome-dialogo {
+    font-family: var(--fonte-titulo);
+    color: var(--cor-destaque);
+    font-size: 1.4rem;
+    margin-top: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.texto-dialogo-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+#texto-dialogo {
+    font-family: var(--fonte-corpo);
+    color: #fff;
+    font-size: 1.4rem;
+    line-height: 1.6;
+    margin: 0;
+    font-style: italic;
+}
+
+.controles-dialogo {
+    position: absolute;
+    bottom: -20px;
+    right: 40px;
+}
+
+#botao-avancar-dialogo {
+    padding: 0.5rem 2rem;
+    font-size: 1rem;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+
+/* --- Tela de Vitória Comemorativa --- */
+.tela-especial {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle, rgba(20, 20, 20, 0.95) 0%, rgba(0, 0, 0, 1) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    transition: opacity 0.8s ease;
+}
+
+.vitoria-content {
+    text-align: center;
+    animation: zoomIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.vitoria-titulo {
+    font-family: var(--fonte-titulo);
+    font-size: 8rem;
+    color: var(--cor-destaque);
+    text-shadow: 0 0 50px var(--brilho-destaque);
+    margin: 0;
+    letter-spacing: 1rem;
+    text-transform: uppercase;
+}
+
+.vitoria-decoracao {
+    font-size: 4rem;
+    margin: 1rem 0;
+    filter: drop-shadow(0 0 20px var(--cor-destaque));
+    animation: float 2s ease-in-out infinite;
+}
+
+.vitoria-subtitulo {
+    font-family: var(--fonte-destaque);
+    font-size: 1.8rem;
+    color: #fff;
+    font-style: italic;
+    margin-bottom: 2rem;
+}
+
+.vitoria-recompensas {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid var(--cor-destaque);
+    padding: 1.5rem 3rem;
+    border-radius: 10px;
+    margin-bottom: 3rem;
+    font-family: var(--fonte-corpo);
+    color: #fff;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+#particulas-vitoria {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.particula {
+    position: absolute;
+    background: var(--cor-destaque);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    animation: rain linear infinite;
+}
+
+@keyframes rain {
+    to {
+        transform: translateY(100vh) rotate(360deg);
+    }
+}
+
+/* --- Menu de Talentos --- */
+.talentos-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 3rem 0;
+}
+
+.card-talento {
+    width: 200px;
+    height: 250px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid var(--cor-destaque);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    animation: zoomIn 0.5s ease-out;
+}
+
+.card-talento:hover {
+    transform: translateY(-10px) scale(1.05);
+    background: rgba(212, 175, 55, 0.1);
+    box-shadow: 0 0 30px var(--brilho-destaque);
+}
+
+.img-talento {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--cor-destaque);
+    border-radius: 8px;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+}
+
+.nome-talento {
+    font-family: var(--fonte-titulo);
+    color: var(--cor-destaque);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.desc-talento {
+    font-family: var(--fonte-corpo);
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.instrucao-talento {
+    color: var(--cor-destaque);
+    font-family: var(--fonte-destaque);
+    font-style: italic;
+    opacity: 0.8;
+}

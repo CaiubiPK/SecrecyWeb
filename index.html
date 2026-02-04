@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secrecy RPG</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main id="aplicativo">
+        <main id="aplicativo">
+            <!-- Tela Inicial -->
+            <section id="tela-inicial" class="tela ativa">
+                <div class="container-titulo">
+                    <h1 class="titulo-jogo">Secrecy</h1>
+                    <p class="subtitulo-jogo">O destino aguarda</p>
+                </div>
+                <button id="botao-iniciar" class="botao-brilho">Iniciar Jogo</button>
+            </section>
+
+            <!-- Tela do Mapa da Campanha -->
+            <section id="tela-mapa" class="tela oculta">
+                <h2 class="titulo-mapa">Mapa da Campanha</h2>
+                <div class="mapa-container">
+                    <!-- Caminhos -->
+                    <div class="caminho-svg">
+                        <svg width="100%" height="100%">
+                            <!-- Caminho Sinuoso -->
+                            <line x1="15%" y1="75%" x2="35%" y2="55%" class="linha-pontilhada" />
+                            <line x1="35%" y1="55%" x2="60%" y2="45%" class="linha-pontilhada" />
+                            <line x1="60%" y1="45%" x2="85%" y2="25%" class="linha-pontilhada" />
+                        </svg>
+                    </div>
+
+                    <!-- Fases -->
+                    <div class="fase" data-fase="1" style="left: 15%; top: 75%;">
+                        <div class="icone-fase disponivel"></div>
+                        <span class="nome-fase">Muralhas</span>
+                    </div>
+
+                    <div class="fase" data-fase="2" style="left: 35%; top: 55%;">
+                        <div class="icone-fase bloqueado"></div>
+                        <span class="nome-fase">Ponte</span>
+                    </div>
+
+                    <div class="fase" data-fase="3" style="left: 60%; top: 45%;">
+                        <div class="icone-fase bloqueado"></div>
+                        <span class="nome-fase">Entrada do Castelo</span>
+                    </div>
+
+                    <div class="fase" data-fase="4" style="left: 85%; top: 25%;">
+                        <div class="icone-fase bloqueado"></div>
+                        <span class="nome-fase">Salão Principal</span>
+                    </div>
+
+                    <!-- Jogador no Mapa -->
+                    <div id="jogador-mapa" class="jogador-token"></div>
+                </div>
+            </section>
+
+            <!-- Tela de Vitória Comemorativa -->
+            <section id="tela-vitoria" class="tela-especial oculta">
+                <div class="vitoria-content">
+                    <h1 class="vitoria-titulo">Triunfo!</h1>
+                    <div class="vitoria-decoracao">⚔️</div>
+                    <p class="vitoria-subtitulo">O inimigo caiu, a justiça prevalece.</p>
+                    <div class="vitoria-recompensas" id="vitoria-resumo">
+                        <!-- Preenchido via JS -->
+                    </div>
+                    <button class="botao-brilho" id="btn-vitoria-continuar">Continuar Jornada</button>
+                </div>
+                <div id="particulas-vitoria"></div>
+            </section>
+
+            <!-- Menu de Talentos/Habilidades -->
+            <section id="menu-talentos" class="tela-especial oculta">
+                <div class="vitoria-content">
+                    <h2 class="vitoria-titulo" style="font-size: 3.5rem;">Aprimorar Talentos</h2>
+                    <p class="vitoria-subtitulo">Pontos disponíveis: <span id="pontos-talento-valor">0</span></p>
+                    <div class="talentos-grid" id="grid-talentos">
+                        <!-- Cards de talentos sorteados via JS -->
+                    </div>
+                    <p class="instrucao-talento">Escolha sabiamente para fortalecer seu herói.</p>
+                </div>
+            </section>
+
+
+            <!-- Tela de Jogo -->
+            <section id="tela-jogo" class="tela oculta">
+                <!-- Botão de Configurações (Apenas no Jogo/Combate) -->
+                <button id="btn-config" class="btn-config-fixo" onclick="AbrirMenuConfig()">⚙️</button>
+
+                <!-- Overlay de Diálogo -->
+                <div id="overlay-dialogo" class="oculta">
+                    <div class="caixa-dialogo">
+                        <div class="personagem-dialogo-container">
+                            <img id="img-personagem-dialogo" src="" alt="Personagem">
+                            <div class="nome-dialogo" id="nome-personagem-dialogo"></div>
+                        </div>
+                        <div class="texto-dialogo-container">
+                            <p id="texto-dialogo"></p>
+                        </div>
+                        <div class="controles-dialogo">
+                            <button id="botao-avancar-dialogo" class="botao-acao">Continuar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interface Principal Superior (HUDs e Arena) -->
+                <div class="layout-combate">
+                    <!-- Status do Jogador (Esquerda) -->
+                    <div class="status-jogador painel-lateral esquerda">
+                        <div class="nome-hud-container">
+                            <h3 class="nome-hud text-truncate">Cavaleiros</h3>
+                            <button class="botao-info-stats" data-alvo="jogador">▶</button>
+                        </div>
+
+                        <!-- Barras (Primeiro) -->
+                        <div class="recipiente-barra-status">
+                            <div class="rotulo-status">
+                                Vida
+                                <span id="indicador-dano-jogador" class="indicador-flutuante"></span>
+                                <span class="valor-status" id="texto-vida-jogador">100/100</span>
+                            </div>
+                            <div class="barra-status vida">
+                                <div class="preenchimento-barra" id="barra-vida-jogador" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="recipiente-barra-status">
+                            <div class="rotulo-status">Energia <span class="valor-status"
+                                    id="texto-energia-jogador">50/50</span></div>
+                            <div class="barra-status energia">
+                                <div class="preenchimento-barra" id="barra-energia-jogador" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="recipiente-barra-status">
+                            <div class="rotulo-status">Mana <span class="valor-status"
+                                    id="texto-mana-jogador">30/30</span>
+                            </div>
+                            <div class="barra-status mana">
+                                <div class="preenchimento-barra" id="barra-mana-jogador" style="width: 100%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Novo Grid de Atributos -->
+                        <div class="grid-atributos">
+                            <div class="card-atributo" id="card-ataque-jogador">
+                                <span class="icone-atrib">⚔️</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib" id="label-ataque-jogador">ATK</span>
+                                    <div class="valores-atrib">
+                                        <span class="valor-base" id="atk-jogador-base">--</span>
+                                        <span class="valor-atual" id="atk-jogador">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo">
+                                <span class="icone-atrib">🛡️</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">DEF</span>
+                                    <div class="valores-atrib">
+                                        <span class="valor-atual" id="def-jogador">--</span>
+                                        <span class="valor-extra" id="def-jogador-pct">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo">
+                                <span class="icone-atrib">💪</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">VIG</span>
+                                    <div class="valores-atrib">
+                                        <span class="valor-atual" id="vigor-jogador">--</span>
+                                        <span class="valor-extra" id="vigor-jogador-pct">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo">
+                                <span class="icone-atrib">🩸</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">ROUBO</span>
+                                    <div class="valores-atrib">
+                                        <span class="valor-atual" id="roubo-jogador">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo">
+                                <span class="icone-atrib">🎯</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">CRIT</span>
+                                    <div class="valores-atrib">
+                                        <span class="valor-atual" id="crit-jogador">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo" id="card-pen-jogador">
+                                <span class="icone-atrib">🗝️</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib" id="label-pen-jogador">PEN</span>
+                                    <div class="valores-atrib">
+                                        <span class="valor-atual" id="pen-jogador-abs">--</span>
+                                        <span class="valor-extra" id="pen-jogador-pct">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Caixa de Determinação Exclusiva -->
+                        <div class="caixa-determinacao">
+                            <div class="det-header">
+                                <span class="icone-atrib">✨</span>
+                                <span class="label-atrib">DETERMINAÇÃO</span>
+                            </div>
+                            <div class="det-valor-container">
+                                <span id="det-jogador">--</span>
+                                <span class="det-max">/ <span id="det-max-jogador">200</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arena (Centro) -->
+                    <div class="arena">
+                        <div class="personagem jogador">
+                            <div class="visual-personagem visual-jogador"></div>
+                            <div class="nome-personagem">Você</div>
+                        </div>
+                        <div class="divisor-versus">VS</div>
+                        <div class="personagem inimigo">
+                            <div class="visual-personagem visual-inimigo"></div>
+                            <div class="nome-personagem">Inimigo</div>
+                        </div>
+                    </div>
+
+                    <!-- Status do Inimigo (Direita) -->
+                    <div class="status-inimigo painel-lateral direita" id="status-inimigo">
+                        <div class="nome-hud-container">
+                            <button class="botao-info-stats" data-alvo="inimigo">◀</button>
+                            <h3 class="nome-hud text-truncate" id="nome-inimigo-hud">Inimigo</h3>
+                        </div>
+
+                        <!-- Barras (Primeiro) -->
+                        <div class="recipiente-barra-status">
+                            <div class="rotulo-status">
+                                Vida
+                                <span id="indicador-dano-inimigo" class="indicador-flutuante"></span>
+                                <span class="valor-status" id="texto-vida-inimigo">100/100</span>
+                            </div>
+                            <div class="barra-status vida">
+                                <div class="preenchimento-barra" id="barra-vida-inimigo" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="recipiente-barra-status">
+                            <div class="rotulo-status">Energia <span class="valor-status"
+                                    id="texto-energia-inimigo">50/50</span></div>
+                            <div class="barra-status energia">
+                                <div class="preenchimento-barra" id="barra-energia-inimigo" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="recipiente-barra-status">
+                            <div class="rotulo-status">Mana <span class="valor-status"
+                                    id="texto-mana-inimigo">30/30</span>
+                            </div>
+                            <div class="barra-status mana">
+                                <div class="preenchimento-barra" id="barra-mana-inimigo" style="width: 100%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Novo Grid de Atributos Inimigo -->
+                        <div class="grid-atributos">
+                            <div class="card-atributo">
+                                <span class="icone-atrib">⚔️</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">ATK</span>
+                                    <div class="valores-atrib">
+                                        <span class="valor-atual" id="atk-inimigo">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo">
+                                <span class="icone-atrib">🛡️</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">DEF</span>
+                                    <div class="valores-atrib">
+                                        <span id="def-inimigo">--</span>
+                                        <span class="valor-extra" id="def-inimigo-pct">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo">
+                                <span class="icone-atrib">💪</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">VIG</span>
+                                    <div class="valores-atrib">
+                                        <span id="vigor-inimigo">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo">
+                                <span class="icone-atrib">🩸</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">ROUBO</span>
+                                    <div class="valores-atrib">
+                                        <span id="roubo-inimigo">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo">
+                                <span class="icone-atrib">🎯</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">CRIT</span>
+                                    <div class="valores-atrib">
+                                        <span id="crit-inimigo">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-atributo">
+                                <span class="icone-atrib">🗝️</span>
+                                <div class="corpo-atrib">
+                                    <span class="label-atrib">PEN</span>
+                                    <div class="valores-atrib">
+                                        <span id="pen-inimigo-abs">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="caixa-determinacao">
+                            <div class="det-header">
+                                <span class="icone-atrib">✨</span>
+                                <span class="label-atrib">DETERMINAÇÃO</span>
+                            </div>
+                            <div class="det-valor-container">
+                                <span id="det-inimigo">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controles">
+                    <button class="botao-acao atacar" data-acao="atacar">Atacar</button>
+                    <button class="botao-acao habilidade" data-acao="habilidade">Habilidades</button>
+                    <button class="botao-acao descansar" data-acao="passar-turno">Passar Turno</button>
+                    <button class="botao-acao mochila" data-acao="mochila">Mochila</button>
+                </div>
+
+                <!-- Seleção de Cartas (Sub-menu de Ataque) -->
+                <div id="container-cartas" class="oculta">
+                    <div class="cartas-wrapper">
+                        <!-- As cartas serão geradas via JS aqui -->
+                    </div>
+                    <button class="botao-acao" onclick="FecharMenuAtaque()">Voltar</button>
+                </div>
+
+                </div>
+            </section>
+        </main>
+
+        <!-- Modais (Fora do main para evitar conflitos de posicionamento) -->
+
+        <!-- Modal de Atributos Detalhados -->
+        <div id="modal-atributos" class="modal-overlay oculta">
+            <div class="modal-conteudo modal-pequeno">
+                <div class="modal-header">
+                    <h2 id="titulo-modal-atributos">Atributos</h2>
+                    <button class="botao-fechar" onclick="FecharDetalhesAtributos()">&times;</button>
+                </div>
+                <div id="lista-atributos-detalhada" class="grid-atributos-detalhada">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal do Baralho -->
+        <div id="modal-baralho" class="modal-overlay oculta">
+            <div class="modal-conteudo">
+                <div class="modal-header">
+                    <h2>Seu Baralho (20 Cartas)</h2>
+                    <button class="botao-fechar" onclick="FecharModalBaralho()">&times;</button>
+                </div>
+                <div id="deck-grid" class="deck-grid">
+                    <!-- Cartas em miniatura aqui -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Configurações -->
+        <div id="modal-config" class="modal-overlay oculta">
+            <div class="modal-conteudo modal-pequeno">
+                <div class="modal-header">
+                    <h2>Configurações</h2>
+                    <button class="botao-fechar" onclick="FecharMenuConfig()">&times;</button>
+                </div>
+                <div class="menu-config-lista">
+                    <button class="btn-config-item" onclick="FecharMenuConfig()">Retomar Jogo</button>
+                    <button class="btn-config-item" onclick="AbrirBaralhoViaConfig()">Mostrar Baralho</button>
+                    <button class="btn-config-item btn-perigo" onclick="MenuDesistir()">Desistir</button>
+                    <button class="btn-config-item" id="btn-audio-toggle" onclick="ToggleAudio()">Desabilitar
+                        Áudio</button>
+                    <button class="btn-config-item btn-sair" onclick="FecharPrograma()">Fechar Programa</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="dados.js"></script>
+        <script src="script.js"></script>
+</body>
+
+</html>
