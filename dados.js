@@ -1,9 +1,10 @@
 // Banco de Dados do Jogo
 // Aqui ficam armazenadas todas as informações de Inimigos, Itens e Habilidades
 
-const BancoDeDados = {
+window.BancoDeDados = {
     JogadorBase: {
         nome: "Protagonista",
+        ehPrincipal: true, // Personagem Principal
         classe: "Guerreiro",
         vida: 160, vidaMaxima: 160,
         energia: 200, energiaMaxima: 200,
@@ -32,10 +33,37 @@ const BancoDeDados = {
         pontosHabilidade: 0,
         imagem: "Images/Personagens/Jogador.png"
     },
+    Unidades: {
+        Humanos: {
+            Guerreiro: [
+                { id: "h_g_1", nome: "Guerreiro Humano Nvl 1", nivel: 1, vida: 75, vidaMaxima: 75, ataque: 12, energia: 80, energiaMaxima: 80, armadura: 10, vigor: 10, esquiva: 4, precisao: 90, chanceCritico: 5, danoCritico: 175, penetracaoArmadura: 0, regeneracaoVida: 1, imagem: "Images/Personagens/HumanoGuerreiroNvl1.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 },
+                { id: "h_g_2", nome: "Guerreiro Humano Nvl 2", nivel: 2, vida: 115, vidaMaxima: 115, ataque: 15, energia: 100, energiaMaxima: 100, armadura: 25, vigor: 20, esquiva: 5, precisao: 95, chanceCritico: 8, danoCritico: 175, penetracaoArmadura: 0, regeneracaoVida: 2, imagem: "Images/Personagens/HumanoGuerreiroNvl2.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 },
+                { id: "h_g_3", nome: "Guerreiro Humano Nvl 3", nivel: 3, vida: 140, vidaMaxima: 140, ataque: 17, energia: 120, energiaMaxima: 120, armadura: 50, vigor: 40, esquiva: 7, precisao: 99, chanceCritico: 12, danoCritico: 175, penetracaoArmadura: 5, regeneracaoVida: 3, imagem: "Images/Personagens/HumanoGuerreiroNvl3.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 }
+            ],
+            Arqueiro: [
+                { id: "h_a_1", nome: "Arqueiro Humano Nvl 1", nivel: 1, vida: 60, vidaMaxima: 60, ataque: 18, energia: 80, energiaMaxima: 80, armadura: 0, vigor: 10, esquiva: 4, precisao: 100, chanceCritico: 10, danoCritico: 185, penetracaoArmadura: 5, regeneracaoVida: 1, imagem: "Images/Personagens/ArqueiroHumanoNvl1.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 },
+                { id: "h_a_2", nome: "Arqueiro Humano Nvl 2", nivel: 2, vida: 80, vidaMaxima: 80, ataque: 23, energia: 100, energiaMaxima: 100, armadura: 15, vigor: 20, esquiva: 5, precisao: 110, chanceCritico: 15, danoCritico: 195, penetracaoArmadura: 10, regeneracaoVida: 2, imagem: "Images/Personagens/ArqueiroHumanoNvl2.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 },
+                { id: "h_a_3", nome: "Arqueiro Humano Nvl 3", nivel: 3, vida: 100, vidaMaxima: 100, ataque: 27, energia: 120, energiaMaxima: 120, armadura: 30, vigor: 40, esquiva: 7, precisao: 120, chanceCritico: 20, danoCritico: 205, penetracaoArmadura: 15, regeneracaoVida: 3, imagem: "Images/Personagens/ArqueiroHumanoNvl3.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 }
+            ]
+        },
+        Orcs: {
+            Guerreiro: [
+                { id: "o_g_1", nome: "Guerreiro Orc Nvl 1", nivel: 1, vida: 75, vidaMaxima: 75, ataque: 12, energia: 80, energiaMaxima: 80, armadura: 10, vigor: 10, esquiva: 4, precisao: 90, chanceCritico: 5, danoCritico: 175, penetracaoArmadura: 0, regeneracaoVida: 1, imagem: "Images/Personagens/OrcGuerreiroNvl1.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 },
+                { id: "o_g_2", nome: "Guerreiro Orc Nvl 2", nivel: 2, vida: 115, vidaMaxima: 115, ataque: 15, energia: 100, energiaMaxima: 100, armadura: 25, vigor: 20, esquiva: 5, precisao: 95, chanceCritico: 8, danoCritico: 175, penetracaoArmadura: 0, regeneracaoVida: 2, imagem: "Images/Personagens/OrcGuerreiroNvl2.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 },
+                { id: "o_g_3", nome: "Guerreiro Orc Nvl 3", nivel: 3, vida: 140, vidaMaxima: 140, ataque: 17, energia: 120, energiaMaxima: 120, armadura: 50, vigor: 40, esquiva: 7, precisao: 99, chanceCritico: 12, danoCritico: 175, penetracaoArmadura: 5, regeneracaoVida: 3, imagem: "Images/Personagens/OrcGuerreiroNvl3.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 }
+            ],
+            Arqueiro: [
+                { id: "o_a_1", nome: "Arqueiro Orc Nvl 1", nivel: 1, vida: 60, vidaMaxima: 60, ataque: 18, energia: 80, energiaMaxima: 80, armadura: 0, vigor: 10, esquiva: 4, precisao: 100, chanceCritico: 10, danoCritico: 185, penetracaoArmadura: 5, regeneracaoVida: 1, imagem: "Images/Personagens/OrcArqueiroNvl1.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 },
+                { id: "o_a_2", nome: "Arqueiro Orc Nvl 2", nivel: 2, vida: 80, vidaMaxima: 80, ataque: 23, energia: 100, energiaMaxima: 100, armadura: 15, vigor: 20, esquiva: 5, precisao: 110, chanceCritico: 15, danoCritico: 195, penetracaoArmadura: 10, regeneracaoVida: 2, imagem: "Images/Personagens/OrcArqueiroNvl2.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 },
+                { id: "o_a_3", nome: "Arqueiro Orc Nvl 3", nivel: 3, vida: 100, vidaMaxima: 100, ataque: 27, energia: 120, energiaMaxima: 120, armadura: 30, vigor: 40, esquiva: 7, precisao: 120, chanceCritico: 20, danoCritico: 205, penetracaoArmadura: 15, regeneracaoVida: 3, imagem: "Images/Personagens/OrcArqueiroNvl3.png", mana: 0, manaMaxima: 0, ataqueMagico: 0, protecaoMagica: 0, rouboVida: 0, sorte: 0, penetracaoMagica: 0, determinacao: 100, determinacaoMaxima: 100 }
+            ]
+        }
+    },
     Inimigos: [
         {
             id: 1,
             nome: "Durotan",
+            ehPrincipal: true,
             vida: 150, vidaMaxima: 150,
             energia: 80, energiaMaxima: 80,
             mana: 20, manaMaxima: 20,
@@ -65,6 +93,7 @@ const BancoDeDados = {
         {
             id: 2,
             nome: "Igvuld",
+            ehPrincipal: true,
             vida: 120, vidaMaxima: 120,
             energia: 200, energiaMaxima: 200,
             mana: 100, manaMaxima: 100,
@@ -92,6 +121,7 @@ const BancoDeDados = {
         {
             id: 3,
             nome: "Zirgur",
+            ehPrincipal: true,
             vida: 100, vidaMaxima: 100,
             energia: 200, energiaMaxima: 200,
             mana: 40, manaMaxima: 40,
@@ -119,6 +149,7 @@ const BancoDeDados = {
         {
             id: 4,
             nome: "Gromn",
+            ehPrincipal: true,
             vida: 200, vidaMaxima: 200,
             energia: 200, energiaMaxima: 200,
             mana: 10, manaMaxima: 10,
@@ -198,24 +229,104 @@ const BancoDeDados = {
     ],
 
     CartasColecao: [
-        { id: 1, nome: "Ataque Básico", tipo: "Bronze", custoEnergia: 5, efeito: { danoMultiplicador: 1.1 }, raridade: "Comum", imagem: "Images/Cartas/AtaqueBasico.png", som: "Audio/Sons/HitEspada.mp3" },
-        { id: 2, nome: "Defesa Sólida", tipo: "Bronze", custoEnergia: 8, efeito: { armaduraBonus: 5 }, raridade: "Comum", imagem: "Images/Cartas/AtaquePreciso.png" },
-        { id: 3, nome: "Foco Arcano", tipo: "Bronze", custoMana: 5, efeito: { manaRegen: 5 }, raridade: "Comum", imagem: "Images/Cartas/AtaqueBasico.png" },
-        { id: 4, nome: "Sopro de Vida", tipo: "Bronze", custoMana: 10, efeito: { cura: 15 }, raridade: "Incomum", imagem: "Images/Cartas/AtaquePreciso.png" },
-        { id: 5, nome: "Ataque Preciso", tipo: "Prata", custoEnergia: 15, efeito: { danoMultiplicador: 1.8 }, raridade: "Raro", imagem: "Images/Cartas/AtaquePesado.png", som: "Audio/Sons/ComboForte.mp3" },
-        { id: 6, nome: "Escudo Espelhado", tipo: "Prata", custoMana: 12, efeito: { protecaoMagicaBonus: 10 }, raridade: "Raro", imagem: "Images/Cartas/AtaqueCerteiro.png" },
-        { id: 7, nome: "Lâmina de Sangue", tipo: "Prata", custoEnergia: 20, efeito: { danoMultiplicador: 1.5, rouboVida: 10 }, raridade: "Raro", imagem: "Images/Cartas/AtaquePesado.png" },
-        { id: 8, nome: "Agilidade Felina", tipo: "Prata", custoEnergia: 10, efeito: { esquivaBonus: 15 }, raridade: "Incomum", imagem: "Images/Cartas/AtaquePreciso.png" },
-        { id: 9, nome: "Fúria do Dragão", tipo: "Ouro", custoEnergia: 30, efeito: { danoMultiplicador: 2.5, penetracaoArmadura: 20 }, raridade: "Épico", imagem: "Images/Cartas/AtaquePesado.png" },
-        { id: 10, nome: "Benção de Gaia", tipo: "Ouro", custoMana: 25, efeito: { curaTotal: 50, determinacaoBonus: 10 }, raridade: "Épico", imagem: "Images/Cartas/AtaqueCerteiro.png" },
-        { id: 11, nome: "Tempestade Estática", tipo: "Ouro", custoMana: 35, efeito: { danoMagico: 40 }, raridade: "Épico", imagem: "Images/Cartas/AtaqueCerteiro.png" },
-        { id: 12, nome: "Olho do Destino", tipo: "Ouro", custoEnergia: 15, efeito: { chanceCriticoBonus: 30 }, raridade: "Raro", imagem: "Images/Cartas/AtaquePreciso.png" },
-        { id: 13, nome: "Eclipse Eterno", tipo: "Negra", custoEnergia: 50, efeito: { danoMultiplicador: 4.0, custoVida: 20 }, raridade: "Lendário", imagem: "Images/Cartas/AtaquePesado.png" },
-        { id: 14, nome: "Vazio Abissal", tipo: "Negra", custoMana: 60, efeito: { manaDrain: 30, danoMagico: 50 }, raridade: "Lendário", imagem: "Images/Cartas/AtaqueCerteiro.png" },
-        { id: 15, nome: "Sacrifício Supremo", tipo: "Negra", custoEnergia: 0, efeito: { determinacaoBonus: 50, custoVida: 40 }, raridade: "Lendário", imagem: "Images/Cartas/AtaquePreciso.png" },
-        { id: 16, nome: "Corte Dimensional", tipo: "Negra", custoEnergia: 40, efeito: { danoVerdadeiro: 60 }, raridade: "Lendário", imagem: "Images/Cartas/AtaquePesado.png" }
+        {
+            id: 1,
+            nome: "Ataque Básico",
+            tipo: "Bronze",
+            custoEnergia: 5,
+            efeito: { danoMultiplicador: 1.1 },
+            raridade: "Comum",
+            imagem: "Images/Cartas/AtaqueBasico.png",
+            som: "Audio/Sons/HitEspada.mp3"
+        },
+        {
+            id: 2,
+            nome: "Defesa Sólida",
+            tipo: "Bronze",
+            custoEnergia: 8,
+            efeito: { armaduraBonus: 5 },
+            raridade: "Comum",
+            imagem: "Images/Cartas/AtaquePreciso.png",
+            alvoAliado: true  // Buff em aliado
+        },
+        {
+            id: 3,
+            nome: "Fogo Arcano",
+            tipo: "Bronze",
+            custoMana: 5,
+            efeito: { danoMultiplicador: 1.2 },
+            raridade: "Comum",
+            imagem: "Images/Cartas/AtaqueBasico.png"
+        },
+        {
+            id: 4,
+            nome: "Sopro de Vida",
+            tipo: "Bronze",
+            custoMana: 10,
+            efeito: { cura: 15 },
+            raridade: "Incomum",
+            imagem: "Images/Cartas/AtaquePreciso.png",
+            alvoAliado: true  // Cura aliado
+        },
+        {
+            id: 5,
+            nome: "Ataque Preciso",
+            tipo: "Prata",
+            custoEnergia: 15,
+            efeito: { danoMultiplicador: 1.8 },
+            raridade: "Raro",
+            imagem: "Images/Cartas/AtaquePesado.png",
+            som: "Audio/Sons/ComboForte.mp3"
+        },
     ],
-
+    Efeitos: {
+        Envenenamento: {
+            nome: "Envenenamento",
+            niveis: {
+                1: { danoFixo: 5, danoPct: 0.05, redVigorPct: 0.60, redAtaquePct: 0.10, icone: "☠️" },
+                2: { danoFixo: 10, danoPct: 0.05, redVigorPct: 0.70, redAtaquePct: 0.15, icone: "☠️" },
+                3: { danoFixo: 15, danoPct: 0.05, redVigorPct: 0.80, redAtaquePct: 0.20, icone: "☠️" }
+            }
+        },
+        Atordoamento: {
+            nome: "Atordoamento",
+            tipo: "Controle",
+            niveis: {
+                1: { perdeTurno: true, icone: "💫" }
+            }
+        },
+        Concussao: {
+            nome: "Concussão",
+            niveis: {
+                1: { redPrecisao: 25, icone: "😵" }
+            }
+        },
+        Regeneracao: {
+            nome: "Regeneração",
+            tipo: "Buff",
+            niveis: {
+                1: { curaPct: 0.10, icone: "🌿" },
+                2: { curaPct: 0.20, icone: "🌿" },
+                3: { curaPct: 0.30, icone: "🌿" }
+            }
+        },
+        Sangramento: {
+            nome: "Sangramento",
+            niveis: {
+                1: { danoFixo: 5, danoPct: 0.075, redVigorPct: 0.25, icone: "🩸" },
+                2: { danoFixo: 10, danoPct: 0.075, redVigorPct: 0.30, icone: "🩸" },
+                3: { danoFixo: 15, danoPct: 0.075, redVigorPct: 0.40, icone: "🩸" }
+            }
+        },
+        Combustao: {
+            nome: "Combustão",
+            niveis: {
+                1: { danoFixo: 10, danoPct: 0.10, redVigorPct: 0.30, icone: "🔥" },
+                2: { danoFixo: 15, danoPct: 0.10, redVigorPct: 0.40, icone: "🔥" },
+                3: { danoFixo: 25, danoPct: 0.10, redVigorPct: 0.50, icone: "🔥" }
+            }
+        }
+    },
     TalentosColecao: [
         { id: 1, nome: "Força Guerreira", descricao: "+5 de Ataque Físico", efeito: { ataque: 5 }, imagem: "Images/Talentos/AtkFisico.png" },
         { id: 2, nome: "Sabedoria Arcana", descricao: "+5 de Ataque Mágico", efeito: { ataqueMagico: 5 }, imagem: "Images/Talentos/AtkMagico.png" },
@@ -228,5 +339,43 @@ const BancoDeDados = {
         { id: 9, nome: "Precisão Mortal", descricao: "+5% de Chance Crítica", efeito: { chanceCritico: 5 }, imagem: "Images/Talentos/Critico.png" },
         { id: 10, nome: "Golpe Devastador", descricao: "+25% de Dano Crítico", efeito: { danoCritico: 25 }, imagem: "Images/Talentos/DanoCritico.png" },
         { id: 11, nome: "Poder do Vigor", descricao: "+10 de Vigor", efeito: { vigor: 10 }, imagem: "Images/Talentos/Vigor.png" }
-    ]
+    ],
+
+    Historias: {
+        1: { titulo: "Capítulo I", subtitulo: "O Portão", texto: "Você chega ao portão do castelo envolto em névoa. Igvuld, o carcereiro das almas, guarda a entrada com seus servos brutais." },
+        2: { titulo: "Capítulo II", subtitulo: "O Pátio Interior", texto: "Durotan aguarda no pátio central. Sua força é lendária, e seu machado já partiu mil escudos." }
+    },
+
+    Dialogos: {
+        1: [ // Fase 1 - Igvuld
+            { orador: 'jogador', texto: "Igvuld! Vim acabar com seu reinado de terror!" },
+            { orador: 'inimigo', texto: "Ousado mortal... Você será apenas mais um corpo no meu castelo!" },
+            { orador: 'jogador', texto: "Veremos quem cairá hoje!" }
+        ],
+        2: [ // Fase 2 - Durotan
+            { orador: 'inimigo', texto: "Impressionante... mas sua jornada termina aqui!" },
+            { orador: 'jogador', texto: "Ainda estou de pé. E você será o próximo a cair!" }
+        ]
+    },
+
+    Campanha: {
+        1: {
+            nome: "O Portão",
+            imagemInimigo: 'Images/Personagens/Igvuld.png',
+            inimigos: [
+                { tipo: 'Inimigo', nome: 'Igvuld' },
+                { tipo: 'Unidade', raca: 'Orcs', classe: 'Guerreiro', nivel: 0 }, // Indica índice no array ou busca
+                { tipo: 'Unidade', raca: 'Orcs', classe: 'Guerreiro', nivel: 0 }
+            ],
+            aliadosExtras: [] // Se quiser adicionar o arqueiro futuramente via dados
+        },
+        2: {
+            nome: "O Pátio",
+            imagemInimigo: 'Images/Personagens/Durotan.png',
+            inimigos: [
+                { tipo: 'Inimigo', nome: 'Durotan' }
+            ],
+            aliadosExtras: []
+        }
+    }
 };

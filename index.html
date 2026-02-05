@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secrecy RPG</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dialogo-styles.css">
+    <link rel="stylesheet" href="historia-styles.css">
+    <link rel="stylesheet" href="css/targeting.css">
 </head>
 
 <body>
@@ -65,6 +68,53 @@
         <!-- Tela do Mapa da Campanha (REMOVIDA) -->
         <!-- O jogo agora segue um fluxo linear de combates -->
 
+        <!-- Tela de Narrativa/História (Estilo Livro) -->
+        <section id="tela-historia" class="tela oculta">
+            <div class="livro-container">
+                <div class="pagina-esquerda">
+                    <h2 id="historia-titulo" class="titulo-capitulo">Capítulo I</h2>
+                    <h3 id="historia-subtitulo" class="subtitulo-capitulo">O Castelo de Igvuld</h3>
+                    <div class="separador-livro">❦</div>
+                    <p id="historia-texto" class="texto-livro">
+                        Lorem ipsum dolor sit amet...
+                    </p>
+                </div>
+                <button id="btn-iniciar-historia" class="botao-livro">Virar Página</button>
+            </div>
+        </section>
+
+        <!-- Tela de Diálogo Pré-Combate -->
+        <section id="tela-dialogo-combate" class="tela oculta">
+            <div class="dialogo-combate-container">
+                <!-- Personagem Jogador (Esquerda) -->
+                <div class="personagem-dialogo jogador-dialogo" id="personagem-jogador-dialogo">
+                    <div class="avatar-dialogo" id="avatar-jogador-dialogo"></div>
+                    <div class="balao-fala balao-jogador oculta" id="balao-jogador">
+                        <div class="texto-balao"></div>
+                        <div class="seta-balao"></div>
+                    </div>
+                </div>
+
+                <!-- Divisor VS -->
+                <div class="vs-dialogo">VS</div>
+
+                <!-- Personagem Inimigo (Direita) -->
+                <div class="personagem-dialogo inimigo-dialogo" id="personagem-inimigo-dialogo">
+                    <div class="avatar-dialogo" id="avatar-inimigo-dialogo"></div>
+                    <div class="balao-fala balao-inimigo oculta" id="balao-inimigo">
+                        <div class="texto-balao"></div>
+                        <div class="seta-balao"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles de Diálogo -->
+            <div class="controles-dialogo-bottom">
+                <button class="botao-dialogo" id="btn-pular-dialogo">Pular Diálogo</button>
+                <button class="botao-dialogo botao-principal" id="btn-proximo-dialogo">Continuar</button>
+            </div>
+        </section>
+
         <!-- Tela de Vitória Comemorativa -->
         <section id="tela-vitoria" class="tela-especial oculta">
             <div class="vitoria-content">
@@ -121,6 +171,8 @@
                         <h3 class="nome-hud text-truncate">Cavaleiros</h3>
                         <button class="botao-info-stats" data-alvo="jogador">▶</button>
                     </div>
+                    <!-- Container de Efeitos -->
+                    <div id="efeitos-jogador" class="efeitos-ativos-hud"></div>
 
                     <!-- Barras (Primeiro) -->
                     <div class="recipiente-barra-status">
@@ -279,6 +331,8 @@
                         <button class="botao-info-stats" data-alvo="inimigo">◀</button>
                         <h3 class="nome-hud text-truncate" id="nome-inimigo-hud">Inimigo</h3>
                     </div>
+                    <!-- Container de Efeitos -->
+                    <div id="efeitos-inimigo" class="efeitos-ativos-hud"></div>
 
                     <!-- Barras (Primeiro) -->
                     <div class="recipiente-barra-status">
@@ -407,8 +461,11 @@
                 <h2 id="titulo-modal-atributos">Atributos</h2>
                 <button class="botao-fechar" onclick="FecharDetalhesAtributos()">&times;</button>
             </div>
-            <div id="lista-atributos-detalhada" class="grid-atributos-detalhada">
-                <!-- Preenchido via JS -->
+            <div class="modal-body-atributos">
+                <div id="imagem-atributo-destaque" class="imagem-atributo-destaque"></div>
+                <div id="lista-atributos-detalhada" class="grid-atributos-detalhada">
+                    <!-- Preenchido via JS -->
+                </div>
             </div>
         </div>
     </div>
@@ -445,7 +502,16 @@
     </div>
 
     <script src="dados.js"></script>
-    <script src="script.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/targeting.js"></script>
+    <script src="js/dialogo.js"></script>
+    <script src="js/combat.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>
