@@ -13,6 +13,65 @@ window.Navigation = {
         UI.TrocarTela('tela-campanha');
     },
 
+    MostrarMapaCampanha: function () {
+        Utils.Log("Navigation.MostrarMapaCampanha");
+
+        // Atualiza visual dos nodes baseado no progresso
+        const desbloqueadas = EstadoDoJogo.fasesDesbloqueadas || 1;
+
+        for (let i = 1; i <= 7; i++) {
+            const node = document.getElementById(`node-${i}`);
+            if (node) {
+                if (i <= desbloqueadas) {
+                    node.classList.remove('bloqueado');
+                    node.classList.add('ativo');
+                } else {
+                    node.classList.add('bloqueado');
+                    node.classList.remove('ativo');
+                }
+            }
+        }
+
+        // Posiciona o marcador no nível mais avançado desbloqueado
+        this.AtualizarMarcadorMapa(desbloqueadas);
+
+        UI.TrocarTela('tela-mapa-campanha');
+    },
+
+    AtualizarMarcadorMapa: function (faseId) {
+        const node = document.getElementById(`node-${faseId}`);
+        const marcador = document.getElementById('marcador-jogador');
+
+        if (node && marcador) {
+            setTimeout(() => {
+                const centerX = node.offsetLeft + (node.offsetWidth / 2);
+                const topY = node.offsetTop;
+
+                marcador.style.left = centerX + 'px';
+                marcador.style.top = topY + 'px';
+            }, 300);
+        }
+    },
+
+    SelecionarFaseMapa: function (faseId) {
+        if (faseId > (EstadoDoJogo.fasesDesbloqueadas || 1)) {
+            UI.ExibirMensagem("Esta fase ainda está bloqueada!", "erro");
+            return;
+        }
+
+        Utils.Log(`Navigation.SelecionarFaseMapa -> ${faseId}`);
+
+        // Move o marcador para a fase clicada antes de iniciar
+        this.AtualizarMarcadorMapa(faseId);
+
+        EstadoDoJogo.faseAtual = faseId;
+
+        // Pequeno delay visual antes de trocar de tela
+        setTimeout(() => {
+            this.MostrarHistoria(faseId);
+        }, 400);
+    },
+
     SelecionarFase: function (faseId) {
         EstadoDoJogo.faseAtual = faseId;
         this.MostrarHistoria(faseId);
@@ -120,8 +179,18 @@ window.Navigation = {
 
     FinalizarCombate: function (vitoria) {
         if (vitoria) {
+            // Se venceu a fase atual e era a última desbloqueada, desbloqueia a próxima
+            if (EstadoDoJogo.faseAtual === (EstadoDoJogo.fasesDesbloqueadas || 1) && (EstadoDoJogo.fasesDesbloqueadas || 1) < 7) {
+                EstadoDoJogo.fasesDesbloqueadas = (EstadoDoJogo.fasesDesbloqueadas || 1) + 1;
+            }
+
             UI.TrocarTela('tela-vitoria');
-            // Logica de XP/Loot aqui
+
+            // Configura botão de continuar para levar ao mapa
+            const btnVitoria = document.getElementById('btn-vitoria-continuar');
+            if (btnVitoria) {
+                btnVitoria.onclick = () => this.MostrarMapaCampanha();
+            }
         } else {
             UI.TrocarTela('tela-derrota');
         }

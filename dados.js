@@ -173,6 +173,34 @@ window.BancoDeDados = {
             regeneracaoMana: 0,
             imagem: "Images/Personagens/Gromn.png",
             recompensas: { xp: 60, ouro: 30 }
+        },
+        {
+            id: 5,
+            nome: "Cavaleiro Esquecido",
+            ehPrincipal: true,
+            vida: 110, vidaMaxima: 110,
+            energia: 150, energiaMaxima: 150,
+            mana: 50, manaMaxima: 50,
+            ataque: 22,
+            ataqueMagico: 15,
+            ataqueEsmagador: 10,
+            armadura: 40,
+            protecaoMagica: 30,
+            esquiva: 15,
+            determinacao: 150, determinacaoMaxima: 150,
+            chanceCritico: 10,
+            danoCritico: 160,
+            rouboVida: 5,
+            sorte: 8,
+            precisao: 90,
+            penetracaoArmadura: 5,
+            penetracaoMagica: 10,
+            vigor: 15,
+            regeneracaoEnergia: 8,
+            regeneracaoVida: 4,
+            regeneracaoMana: 3,
+            imagem: "Images/Personagens/ForgottenKnight.png",
+            recompensas: { xp: 55, ouro: 25 }
         }
     ],
 
@@ -342,40 +370,98 @@ window.BancoDeDados = {
     ],
 
     Historias: {
-        1: { titulo: "Capítulo I", subtitulo: "O Portão", texto: "Você chega ao portão do castelo envolto em névoa. Igvuld, o carcereiro das almas, guarda a entrada com seus servos brutais." },
-        2: { titulo: "Capítulo II", subtitulo: "O Pátio Interior", texto: "Durotan aguarda no pátio central. Sua força é lendária, e seu machado já partiu mil escudos." }
+        1: { titulo: "Capítulo I", subtitulo: "A jornada", texto: "Você inicia sua jornada com um único objetivo: conquistar o reino do orc Gromn, o conquistador. O caminho é longo e perigoso, mas sua determinação é inabalável." },
+        2: { titulo: "Capítulo II", subtitulo: "Luta contra Igvuld", texto: "Na fronteira da terra dos Orcs, a névoa se dissipa para revelar uma figura imponente. Igvuld bloqueia o caminho, e o aço será a única linguagem que ele entende." },
+        3: { titulo: "Capítulo III", subtitulo: "Encontro aleatório", texto: "Emboscadas surgem de todos os lados. Entre lacaios e mercenários, você encontra o Cavaleiro Esquecido e descobre que deve enfrentar Zirgur para derrubar o feitiço que protege o castelo." },
+        4: { titulo: "Capítulo IV", subtitulo: "Luta contra Zirgur", texto: "Você chega à torre negra. Zirgur aguarda no topo, tecendo magias de morte. Quebre o feitiço e abra caminho para o castelo." },
+        5: { titulo: "Capítulo V", subtitulo: "Encontro do portão", texto: "O portão monumental de Gromn está à vista. Guardas tentam uma resistência desesperada, mas eles parecem fracos demais diante da sua fúria." },
+        6: { titulo: "Capítulo VI", subtitulo: "Luta contra Durotan", texto: "Dentro do castelo, o lendário Durotan aparece. Após uma batalha épica, em seu último suspiro, ele revela a terrível verdade: Gromn está atacando sua cidade natal!" },
+        7: { titulo: "Capítulo VII", subtitulo: "O Retorno ao reino", texto: "Você cavalga de volta desesperadamente. Sua cidade está em chamas. Gromn, o conquistador, aguarda no centro da praça. A batalha final começa agora!" }
     },
 
     Dialogos: {
-        1: [ // Fase 1 - Igvuld
-            { orador: 'jogador', texto: "Igvuld! Vim acabar com seu reinado de terror!" },
-            { orador: 'inimigo', texto: "Ousado mortal... Você será apenas mais um corpo no meu castelo!" },
-            { orador: 'jogador', texto: "Veremos quem cairá hoje!" }
+        1: [
+            { orador: 'jogador', texto: "Gromn cairá, e seu reino será meu!" },
+            { orador: 'inimigo', texto: "Muitos tentaram, todos viraram adubo para as planícies." }
         ],
-        2: [ // Fase 2 - Durotan
-            { orador: 'inimigo', texto: "Impressionante... mas sua jornada termina aqui!" },
-            { orador: 'jogador', texto: "Ainda estou de pé. E você será o próximo a cair!" }
+        2: [
+            { orador: 'jogador', texto: "Saia da frente, Igvuld. Não tenho tempo para jogos." },
+            { orador: 'inimigo', texto: "Ninguém cruza esta fronteira enquanto eu respirar!" }
+        ],
+        3: [
+            { orador: 'inimigo', texto: "Peguem-no! Pelas ordens de Zirgur!" },
+            { orador: 'jogador', texto: "Um cavaleiro vindo do esquecimento? Que seja." }
+        ],
+        4: [
+            { orador: 'inimigo', texto: "Minha torre será seu túmulo, mortal!" },
+            { orador: 'jogador', texto: "Seu feitiço acaba hoje, Zirgur!" }
+        ],
+        5: [
+            { orador: 'inimigo', texto: "Parem-no! Não deixem que chegue ao portão!" },
+            { orador: 'jogador', texto: "É só isso que Gromn tem a oferecer?" }
+        ],
+        6: [
+            { orador: 'inimigo', texto: "Você é forte... mas Gromn já venceu. Suas terras queimam enquanto lutamos!" },
+            { orador: 'jogador', texto: "Durotan! Onde ele está?!" }
+        ],
+        7: [
+            { orador: 'inimigo', texto: "Veja sua cidade queimar! Eu sou Gromn, o Conquistador!" },
+            { orador: 'jogador', texto: "Pague pelo que fez com o meu povo!" }
         ]
     },
 
     Campanha: {
         1: {
-            nome: "O Portão",
+            nome: "A Jornada",
+            imagemInimigo: 'Images/Personagens/OrcGuerreiroNvl1.png',
+            inimigos: [
+                { tipo: 'Unidade', raca: 'Orcs', classe: 'Guerreiro', nivel: 0 }
+            ]
+        },
+        2: {
+            nome: "Fronteira Orc",
             imagemInimigo: 'Images/Personagens/Igvuld.png',
             inimigos: [
                 { tipo: 'Inimigo', nome: 'Igvuld' },
-                { tipo: 'Unidade', raca: 'Orcs', classe: 'Guerreiro', nivel: 0 }, // Indica índice no array ou busca
                 { tipo: 'Unidade', raca: 'Orcs', classe: 'Guerreiro', nivel: 0 }
-            ],
-            aliadosExtras: [] // Se quiser adicionar o arqueiro futuramente via dados
+            ]
         },
-        2: {
-            nome: "O Pátio",
+        3: {
+            nome: "Planícies Enevoadas",
+            imagemInimigo: 'Images/Personagens/ForgottenKnight.png',
+            inimigos: [
+                { tipo: 'Inimigo', nome: 'Cavaleiro Esquecido' },
+                { tipo: 'Unidade', raca: 'Orcs', classe: 'Arqueiro', nivel: 0 }
+            ]
+        },
+        4: {
+            nome: "Torre de Zirgur",
+            imagemInimigo: 'Images/Personagens/Zirgur.png',
+            inimigos: [
+                { tipo: 'Inimigo', nome: 'Zirgur' }
+            ]
+        },
+        5: {
+            nome: "Portão Monumental",
+            imagemInimigo: 'Images/Personagens/OrcGuerreiroNvl1.png',
+            inimigos: [
+                { tipo: 'Unidade', raca: 'Orcs', classe: 'Guerreiro', nivel: 0 },
+                { tipo: 'Unidade', raca: 'Orcs', classe: 'Guerreiro', nivel: 0 }
+            ]
+        },
+        6: {
+            nome: "Salão Real",
             imagemInimigo: 'Images/Personagens/Durotan.png',
             inimigos: [
                 { tipo: 'Inimigo', nome: 'Durotan' }
-            ],
-            aliadosExtras: []
+            ]
+        },
+        7: {
+            nome: "Cidade em Chamas",
+            imagemInimigo: 'Images/Personagens/Gromn.png',
+            inimigos: [
+                { tipo: 'Inimigo', nome: 'Gromn' }
+            ]
         }
     }
 };

@@ -1,4 +1,4 @@
-@import url('https://fonts.cdnfonts.com/css/vecna');
+﻿@import url('https://fonts.cdnfonts.com/css/vecna');
 @import url('https://fonts.cdnfonts.com/css/magnefico');
 @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@100..900&display=swap');
 /* Tentativa de importação via CDNFonts */
@@ -405,15 +405,15 @@ body {
     gap: 2rem;
     position: relative;
     z-index: 100;
-    overflow-y: auto;
+    overflow: hidden;
     min-height: 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--cor-destaque) rgba(0, 0, 0, 0.3);
+
+
 }
 
 .painel-lateral {
     pointer-events: auto;
-    width: clamp(250px, 28vw, 450px);
+    width: clamp(200px, 28vw, 450px);
     background: rgba(0, 0, 0, 0.85);
     color: #f5f5f5;
     backdrop-filter: blur(10px);
@@ -505,22 +505,24 @@ body {
 /* Novo Grid de Atributos */
 .grid-atributos {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
-    grid-gap: clamp(4px, 0.5vw, 10px);
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: clamp(4px, 0.5vw, 6px);
     margin-top: 1rem;
     width: 100%;
+    overflow: hidden;
 }
 
 .card-atributo {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 6px;
-    padding: clamp(4px, 0.8vw, 8px);
+    padding: clamp(2px, 0.4vw, 5px);
     display: flex;
     align-items: center;
-    gap: clamp(4px, 0.5vw, 8px);
+    gap: 2px;
     transition: all 0.2s ease;
     flex: 1;
+    min-width: 0;
 }
 
 .card-atributo:hover {
@@ -564,7 +566,7 @@ body {
 }
 
 .valor-atual {
-    font-size: clamp(0.8rem, 1.1vw, 1.3rem);
+    font-size: clamp(0.7rem, 1.1vw, 1rem);
     font-weight: bold;
     color: #fff;
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
@@ -626,6 +628,9 @@ body {
 
 /* Ajustes para o lado direito (Inimigo) */
 .painel-lateral.direita .grid-atributos {
+    display: grid;
+    gap: 4px;
+    overflow: hidden;
     direction: rtl;
     /* Inverte direção visualmente */
 }
@@ -642,11 +647,6 @@ body {
 
 /* Forçar que no mobile o grid de atributos ocupe mais colunas se necessário */
 @media (max-width: 1200px) {
-    .grid-atributos {
-        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-        gap: 4px;
-    }
-
     .painel-lateral {
         width: clamp(240px, 35vw, 400px);
     }
@@ -1214,30 +1214,6 @@ body {
     }
 }
 
-@keyframes tremerDano {
-
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    20% {
-        transform: translateX(-10px);
-    }
-
-    40% {
-        transform: translateX(10px);
-    }
-
-    60% {
-        transform: translateX(-5px);
-    }
-
-    80% {
-        transform: translateX(5px);
-    }
-}
-
 .controles {
     display: flex;
     flex-direction: row;
@@ -1276,12 +1252,6 @@ body {
     text-transform: uppercase;
 }
 
-.botao-acao::before {
-    content: '◈';
-    font-size: 0.8rem;
-    opacity: 0.7;
-}
-
 .botao-acao:hover {
     background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
     color: #111;
@@ -1291,26 +1261,7 @@ body {
     text-shadow: none;
 }
 
-.botao-acao:active {
-    transform: translateY(-2px) scale(0.98);
-}
-
-/* Animações */
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* --- Responsividade Geral --- */
-
-/* Telas Grandes / Ultrawide */
+/* Telas Grandes */
 @media (min-width: 1921px) {
     .layout-combate {
         max-width: 1800px;
@@ -1332,12 +1283,6 @@ body {
     .arena {
         gap: 1rem;
     }
-
-    .visual-personagem {
-        width: 150px;
-        /* Reduzido de 220px */
-        height: 150px;
-    }
 }
 
 /* Tablets em Modo Retrato */
@@ -1345,7 +1290,7 @@ body {
     .layout-combate {
         flex-direction: column;
         justify-content: flex-start;
-        overflow-y: auto;
+        overflow: hidden;
         gap: 2rem;
         padding-top: 4rem;
     }
@@ -1357,18 +1302,12 @@ body {
 
     .arena {
         order: -1;
-        /* Personagens sobem um pouco */
         margin-top: 2rem;
     }
 
     .visual-personagem {
         width: 180px;
         height: 180px;
-    }
-
-    .campanhas-container {
-        flex-wrap: wrap;
-        justify-content: center;
     }
 }
 
@@ -1391,19 +1330,20 @@ body {
 
     .grid-atributos {
         grid-template-columns: repeat(3, 1fr);
-        gap: 4px;
+        gap: 2px;
+        width: 100%;
     }
 
     .card-atributo {
-        padding: 2px;
+        padding: 1px;
     }
 
     .valor-atual {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
 
     .label-atrib {
-        font-size: 0.65rem;
+        font-size: 0.55rem;
     }
 
     .arena {
@@ -1438,7 +1378,7 @@ body {
         flex-direction: column;
         align-items: center;
         gap: 1rem;
-        overflow-y: auto;
+        overflow: hidden;
         max-height: 70vh;
         padding: 1rem;
     }
@@ -1977,7 +1917,7 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 1.5rem;
-    overflow-y: auto;
+    overflow: hidden;
     padding-right: 1rem;
 }
 
@@ -2158,7 +2098,7 @@ body {
     max-width: 500px;
     height: auto;
     max-height: 90vh;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 .grid-atributos-detalhada {
@@ -2560,7 +2500,8 @@ body {
     text-shadow: 0 0 2px black;
     font-weight: bold;
 }
-/* Estilos Adicionados pela Refatora��o JS */
+
+/* Estilos Adicionados pela Refatoração JS */
 #container-cartas {
     position: absolute;
     bottom: 15%;
@@ -2575,7 +2516,7 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     z-index: 500;
-    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
     max-width: 90%;
 }
 
@@ -2595,8 +2536,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    text-shadow: 0 2px 2px rgba(0,0,0,0.8);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.8);
 }
 
 .carta-combate:hover {
@@ -2608,5 +2549,28 @@ body {
 }
 
 /* Fix for Request 2: Name Box Size */
-.nome-hud-container { width: auto !important; min-width: 250px; max-width: 400px; display: flex; align-items: center; gap: 10px; }
-.nome-hud { white-space: normal !important; overflow: visible !important; font-size: 1.4rem !important; }
+.nome-hud-container {
+    width: auto !important;
+    min-width: 250px;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nome-hud {
+    white-space: normal !important;
+    overflow: visible !important;
+    font-size: 1.4rem !important;
+}
+
+/* ========================================== 
+
+
+
+@media (max-width: 480px) {
+    .grid-atributos { grid-template-columns: 1fr 1fr; }
+    .card-atributo { padding: 2px; }
+    .valor-atual { font-size: 0.8rem; }
+    .label-atrib { font-size: 0.6rem; }
+}

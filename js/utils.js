@@ -26,11 +26,35 @@ window.Utils = {
         try {
             const audio = new Audio(path);
             audio.volume = volume;
-            audio.play().catch(e => console.warn("Erro ao tocar som:", path, e));
+            audio.play().catch(e => {
+                // Silenciar erros de interação do navegador se necessário
+                if (e.name !== "NotAllowedError") {
+                    console.warn("Erro ao tocar som:", path, e);
+                }
+            });
             return audio;
         } catch (e) {
             console.warn("Erro no áudio:", e);
         }
+    },
+
+    // Atalho para sons de clique de interface
+    PlayClick: function (tipo = null) {
+        if (!window.AudioConfig) return;
+
+        const clicks = [
+            AudioConfig.Interface.Click1,
+            AudioConfig.Interface.Click2,
+            AudioConfig.Interface.Click3,
+            AudioConfig.Interface.Click4
+        ];
+
+        let chosen = tipo;
+        if (!chosen) {
+            chosen = clicks[this.Random(0, clicks.length - 1)];
+        }
+
+        return this.PlaySound(chosen, 0.4);
     }
 };
 

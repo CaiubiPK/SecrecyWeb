@@ -335,6 +335,7 @@ window.Combate = {
         const hitChance = atacante.precisao - defensor.esquiva;
         if (Math.random() * 100 > hitChance) {
             UI.ExibirMensagem("Errou!", "erro");
+            Utils.PlaySound(AudioConfig.Sons.Desvio, 0.4);
             return { sucesso: false, tipo: 'esquiva' };
         }
 
@@ -366,6 +367,8 @@ window.Combate = {
         if (!inimigosVivos) {
             EstadoDoJogo.turno = -1; // Fim
             UI.ExibirMensagem("VITÓRIA!", "vitoria");
+            // Parar musica de combate se houver e tocar vitória
+            Utils.PlaySound(AudioConfig.CaminhoMusicaVitoria, 0.6);
             if (window.Navigation) window.Navigation.FinalizarCombate(true);
             return true;
         }
@@ -377,6 +380,7 @@ window.Combate = {
         if (!liderVivo) {
             EstadoDoJogo.turno = -1;
             UI.ExibirMensagem("DERROTA!", "derrota");
+            Utils.PlaySound('Audio/Sons/Sons de interface/Fracasso.mp3', 0.8);
             setTimeout(() => location.reload(), 3000); // Reload simples
             return true;
         }

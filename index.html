@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="dialogo-styles.css">
     <link rel="stylesheet" href="historia-styles.css">
     <link rel="stylesheet" href="css/targeting.css">
+    <link rel="stylesheet" href="css/mapa-campanha.css">
+    <link rel="stylesheet" href="css/campanhas.css">
 </head>
 
 <body>
@@ -41,7 +43,9 @@
             <!-- Container Fullscreen removido pois o mapa foi removido -->
             <div class="campanhas-container">
                 <div class="card-campanha ativa" id="campanha-castelo">
-                    <div class="decoracao-card">⚔️</div>
+                    <div class="decoracao-card">
+                        <img src="Images/Campanhas/CampanhaDoCastelo.png" alt="O Castelo de Igvuld">
+                    </div>
                     <h3>O Castelo de Igvuld</h3>
                     <p>Enfrente a tirania no coração do reino.</p>
                     <div class="tag-status">Disponível</div>
@@ -65,8 +69,75 @@
             </div>
         </section>
 
-        <!-- Tela do Mapa da Campanha (REMOVIDA) -->
-        <!-- O jogo agora segue um fluxo linear de combates -->
+        <!-- Tela do Mapa da Campanha -->
+        <section id="tela-mapa-campanha" class="tela oculta">
+            <h2 class="titulo-medieval">Mapa da Jornada</h2>
+            <div class="mapa-wrapper">
+                <div class="mapa-container">
+                    <div class="mapa-caminho">
+                        <!-- Marcador do Jogador -->
+                        <div id="marcador-jogador" class="marcador-jogador">
+                            <img src="Images/Personagens/Jogador.png" alt="Herói">
+                        </div>
+
+                        <!-- Nível 1 -->
+                        <div class="mapa-node ativo" id="node-1" onclick="Navigation.SelecionarFaseMapa(1)">
+                            <div class="node-icon">Ⅰ</div>
+                            <div class="node-tooltip">Cap. 1: A Jornada</div>
+                        </div>
+
+                        <div class="mapa-link"></div>
+
+                        <!-- Nível 2 -->
+                        <div class="mapa-node bloqueado" id="node-2" onclick="Navigation.SelecionarFaseMapa(2)">
+                            <div class="node-icon">Ⅱ</div>
+                            <div class="node-tooltip">Cap. 2: Igvuld</div>
+                        </div>
+
+                        <div class="mapa-link"></div>
+
+                        <!-- Nível 3 -->
+                        <div class="mapa-node bloqueado" id="node-3" onclick="Navigation.SelecionarFaseMapa(3)">
+                            <div class="node-icon">Ⅲ</div>
+                            <div class="node-tooltip">Cap. 3: Lacaios</div>
+                        </div>
+
+                        <div class="mapa-link"></div>
+
+                        <!-- Nível 4 -->
+                        <div class="mapa-node bloqueado" id="node-4" onclick="Navigation.SelecionarFaseMapa(4)">
+                            <div class="node-icon">Ⅳ</div>
+                            <div class="node-tooltip">Cap. 4: Zirgur</div>
+                        </div>
+
+                        <div class="mapa-link"></div>
+
+                        <!-- Nível 5 -->
+                        <div class="mapa-node bloqueado" id="node-5" onclick="Navigation.SelecionarFaseMapa(5)">
+                            <div class="node-icon">Ⅴ</div>
+                            <div class="node-tooltip">Cap. 5: O Portão</div>
+                        </div>
+
+                        <div class="mapa-link"></div>
+
+                        <!-- Nível 6 -->
+                        <div class="mapa-node bloqueado" id="node-6" onclick="Navigation.SelecionarFaseMapa(6)">
+                            <div class="node-icon">Ⅵ</div>
+                            <div class="node-tooltip">Cap. 6: Durotan</div>
+                        </div>
+
+                        <div class="mapa-link"></div>
+
+                        <!-- Nível 7 -->
+                        <div class="mapa-node bloqueado" id="node-7" onclick="Navigation.SelecionarFaseMapa(7)">
+                            <div class="node-icon">Ⅶ</div>
+                            <div class="node-tooltip">Cap. 7: Gromn</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="botao-medieval btn-voltar-mapa" onclick="UI.TrocarTela('tela-campanha')">Voltar</button>
+        </section>
 
         <!-- Tela de Narrativa/História (Estilo Livro) -->
         <section id="tela-historia" class="tela oculta">

@@ -18,7 +18,8 @@ window.UI = {
                 Vitoria: document.getElementById('tela-vitoria'),
                 Talentos: document.getElementById('menu-talentos'),
                 DialogoCombate: document.getElementById('tela-dialogo-combate'),
-                Historia: document.getElementById('tela-historia')
+                Historia: document.getElementById('tela-historia'),
+                MapaCampanha: document.getElementById('tela-mapa-campanha')
             },
             HUD: {
                 Jogador: this.MapearHUD('jogador'),
@@ -194,6 +195,10 @@ window.UI = {
 
         display.classList.remove('oculta');
 
+        // Sons de feedback
+        if (tipo === 'erro') Utils.PlaySound(AudioConfig.Interface.Erro, 0.5);
+        if (tipo === 'vitoria' || tipo === 'sucesso') Utils.PlaySound(AudioConfig.Interface.Sucesso, 0.5);
+
         EstadoDoJogo.timerMensagem = setTimeout(() => {
             display.classList.add('oculta');
         }, 3000);
@@ -232,7 +237,8 @@ window.UI = {
             setTimeout(() => {
                 elAlvo.classList.add('tomar-dano');
                 setTimeout(() => elAlvo.classList.remove('tomar-dano'), 400);
-                Utils.PlaySound('Audio/Sons/HitEspada.mp3', 0.5); // Som generico de impacto
+                // Som de impacto centralizado
+                Utils.PlaySound(AudioConfig.Sons.HitEspada, 0.5);
             }, 250);
         }
     },

@@ -11,6 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Event Listeners Globais
 
+    // Som para TODOS os botões
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest('button, .botao, .card-campanha, .botao-brilho, .botao-livro');
+        if (target) {
+            Utils.PlayClick();
+        }
+    });
+
     // Tela Inicial
     document.getElementById('botao-iniciar')?.addEventListener('click', () => {
         Navigation.IniciarJogo();
@@ -26,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('campanha-castelo')?.addEventListener('click', () => {
         // Inicializa Baralho antes da primeira fase
         InicializarBaralhoPadrao();
-        Navigation.SelecionarFase(1);
+        Navigation.MostrarMapaCampanha();
     });
 
     // Botões de Ação (Combate)
@@ -78,3 +86,11 @@ function AbrirMenuAtaque() {
     btnVoltar.onclick = () => container.classList.add('oculta');
     container.appendChild(btnVoltar);
 }
+
+// Atualiza marcador se a janela for redimensionada 
+window.addEventListener('resize', () => { 
+    const telaMapa = document.getElementById('tela-mapa-campanha'); 
+    if (telaMapa && !telaMapa.classList.contains('oculta')) { 
+        Navigation.AtualizarMarcadorMapa(EstadoDoJogo.faseAtual || 1); 
+    } 
+});

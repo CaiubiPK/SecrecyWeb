@@ -6,9 +6,9 @@
     background: radial-gradient(circle at center, #1a1a1d 0%, #000 100%);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    padding: 2rem;
+    padding: 2rem 2rem 6rem 2rem;
     overflow: hidden;
 }
 
@@ -189,7 +189,8 @@
     display: flex;
     gap: 2rem;
     justify-content: center;
-    margin-top: 2rem;
+    margin-top: auto;
+    margin-bottom: 2rem;
     z-index: 100;
 }
 
@@ -270,4 +271,17 @@
 /* Ajuste Fino para Transições Suaves */
 .personagem-dialogo .avatar-dialogo {
     transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+@media (max-width: 600px) { 
+    .avatar-dialogo { 
+        width: 180px; 
+        height: 180px; 
+    } 
+    .botao-dialogo { 
+        padding: 0.8rem 1.5rem; 
+        font-size: 1rem; 
+    } 
+    .texto-balao { 
+        font-size: 1.1rem; 
+    } 
 }

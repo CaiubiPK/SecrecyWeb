@@ -6,12 +6,43 @@
 // Configurações de Áudio
 window.AudioConfig = {
     CaminhoMusicaDeFundo: 'Audio/Musicas/Musica de fundo.mp3',
-    CaminhoSomGirarRoleta: 'Audio/Sons/spin.mp3',
-    CaminhoSomConfirmarSelecao: 'Audio/Sons/spin.mp3',
-    CaminhoSomContagemRegressiva: 'Audio/Sons/spin.mp3',
-    CaminhoSomInicioCombate: 'Audio/Sons/spin.mp3',
-    CaminhoSomCura: 'Audio/Sons/Curando.mp3',
-    CaminhoMusicaVitoria: 'Audio/Musicas/vitória.mp3'
+    CaminhoMusicaVitoria: 'Audio/Musicas/vitória.mp3',
+
+    // Interface
+    Interface: {
+        Click1: 'Audio/Sons/Sons de interface/Click1.mp3',
+        Click2: 'Audio/Sons/Sons de interface/Click2.mp3',
+        Click3: 'Audio/Sons/Sons de interface/Click3.mp3',
+        Click4: 'Audio/Sons/Sons de interface/Click4.mp3',
+        ClickGenerico: 'Audio/Sons/Sons de interface/Click.mp3',
+        Sucesso: 'Audio/Sons/Sons de interface/Sucesso.mp3',
+        Erro: 'Audio/Sons/Sons de interface/Erro1.mp3',
+        ErroGrave: 'Audio/Sons/Sons de interface/Erro2.mp3',
+        Fracasso: 'Audio/Sons/Sons de interface/Fracasso.mp3',
+        FracassoAlt: 'Audio/Sons/Sons de interface/Fracasso2.mp3',
+        LevelUp: 'Audio/Sons/Sons de interface/SubindoDeNivel.wav'
+    },
+
+    // Combate / Geral
+    Sons: {
+        AtaqueBasico: 'Audio/Sons/Sons Gerais/Ataque Básico.mp3',
+        HitEspada: 'Audio/Sons/Sons Gerais/HitEspada.mp3',
+        Cura: 'Audio/Sons/Sons Gerais/Curando.mp3',
+        Defendido: 'Audio/Sons/Sons Gerais/Defendido.mp3',
+        Desvio: 'Audio/Sons/Sons Gerais/Desvio1.mp3',
+        Desvio2: 'Audio/Sons/Sons Gerais/Desvio2.mp3',
+        Pocao: 'Audio/Sons/Sons Gerais/bebendoPocao.mp3',
+        PocaoQuebrando: 'Audio/Sons/Sons Gerais/PocaoQuebrando.mp3',
+        ChuvaDeFlechas: 'Audio/Sons/Sons Gerais/ChuvaDeFlechas.mp3',
+        FlechaNoCorpo: 'Audio/Sons/Sons Gerais/FlechaNoCorpo.mp3',
+        Soco: 'Audio/Sons/Sons Gerais/Soco.mp3',
+        GritoDurotan: 'Audio/Sons/Sons Gerais/GritoDurotan.mp3',
+        Combo3Hits: 'Audio/Sons/Sons Gerais/Combo3Hits2.mp3',
+        ComboForte: 'Audio/Sons/Sons Gerais/ComboForte.mp3',
+        OssoQuebrando: 'Audio/Sons/Sons Gerais/Osso quebrando.mp3',
+        Parry: 'Audio/Sons/Sons Gerais/Parry.mp3',
+        MagiaMortos: 'Audio/Sons/Sons Gerais/MagiaDosMortos.wav'
+    }
 };
 
 // Variáveis Globais de Música (para controle)

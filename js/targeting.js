@@ -109,6 +109,8 @@ window.Targeting = {
             return false;
         }
 
+        Utils.PlayClick(); // Som ao selecionar alvo
+
         if (this.tipoAlvo === 'single') {
             // Seleção única - executa imediatamente
             this.ExecutarAcao([{ tipo, indice }]);
