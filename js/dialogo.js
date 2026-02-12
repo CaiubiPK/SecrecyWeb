@@ -10,7 +10,10 @@ window.Dialogo = {
     Iniciar: function (faseId, imagemInimigo, onComplete) {
         Utils.Log(`Dialogo.Iniciar -> Fase ${faseId}`);
 
-        this.dialogoAtual = BancoDeDados.Dialogos[faseId] || [
+        const campanha = Object.values(BancoDeDados.Campanhas)[0];
+        const dadosNivel = campanha.niveis[faseId];
+
+        this.dialogoAtual = (dadosNivel && dadosNivel.dialogos) ? dadosNivel.dialogos : [
             { orador: 'inimigo', texto: "Prepare-se para lutar!" },
             { orador: 'jogador', texto: "Vamos lá!" }
         ];

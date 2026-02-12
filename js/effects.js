@@ -55,15 +55,26 @@ window.Efeitos = {
         this.RecalcularAtributos(personagem);
     },
 
-    AplicarTick: function (personagem, efeito, dados) {
+    AplicarTick: function (personagem, efeitoDet, dados) {
+        // Nota: 'efeitoDet' é a instância do efeito no personagem, 'dados' é a definição do banco de dados para aquele nível
         let dano = 0;
         let cura = 0;
+        let manaRegen = 0;
+        let energiaRegen = 0;
 
         if (dados.danoFixo || dados.danoPct) {
             dano = Math.floor((dados.danoFixo || 0) + (personagem.vidaMaxima * (dados.danoPct || 0)));
         }
         if (dados.curaPct) {
             cura = Math.floor(personagem.vidaMaxima * dados.curaPct);
+        }
+
+        // Novos tipos de regeneração
+        if (dados.manaPct) {
+            manaRegen = Math.floor(personagem.manaMaxima * dados.manaPct);
+        }
+        if (dados.energiaPct) {
+            energiaRegen = Math.floor(personagem.energiaMaxima * dados.energiaPct);
         }
 
         const idVisual = this.ObterIdVisual(personagem);
@@ -76,30 +87,51 @@ window.Efeitos = {
             personagem.vida = Math.min(personagem.vidaMaxima, personagem.vida + cura);
             if (idVisual) UI.MostrarIndicadorDano(idVisual, cura, 'cura');
         }
+        if (manaRegen > 0) {
+            personagem.mana = Math.min(personagem.manaMaxima, personagem.mana + manaRegen);
+            if (idVisual) UI.MostrarIndicadorDano(idVisual, manaRegen, 'mana'); // Precisa suportar tipo 'mana' na UI se possível, ou usa cura
+        }
+        if (energiaRegen > 0) {
+            personagem.energia = Math.min(personagem.energiaMaxima, personagem.energia + energiaRegen);
+            if (idVisual) UI.MostrarIndicadorDano(idVisual, energiaRegen, 'energia');
+        }
     },
 
     RecalcularAtributos: function (personagem) {
         if (!personagem.baseStatus) return;
 
         // Reseta aos valores base
-        // Nota: Assumindo que baseStatus foi salvo na inicialização do combate
         personagem.vigor = personagem.baseStatus.vigor;
         personagem.ataque = personagem.baseStatus.ataque;
         personagem.precisao = personagem.baseStatus.precisao;
-        // Adicione outros atributos aqui se necessário
+        personagem.armadura = personagem.baseStatus.armadura;
+        // Resetar outros se necessário
 
         if (!personagem.efeitos) return;
 
         personagem.efeitos.forEach(eff => {
-            const def = BancoDeDados.Efeitos[eff.nome];
-            const dados = def && def.niveis ? def.niveis[eff.nivel] : null;
+            const defBase = BancoDeDados.Efeitos[eff.nome];
+            if (!defBase) return;
+            const dados = defBase.niveis[eff.nivel];
 
             if (dados) {
+                // Debuffs
                 if (dados.redVigorPct) personagem.vigor = Math.floor(personagem.vigor * (1 - dados.redVigorPct));
                 if (dados.redAtaquePct) personagem.ataque = Math.floor(personagem.ataque * (1 - dados.redAtaquePct));
                 if (dados.redPrecisao) personagem.precisao = Math.max(0, personagem.precisao - dados.redPrecisao);
+
+                // Buffs (Novos)
+                if (dados.ataqueFixo) personagem.ataque += dados.ataqueFixo;
+                if (dados.ataquePct) personagem.ataque += Math.floor(personagem.baseStatus.ataque * dados.ataquePct);
+
+                if (dados.armaduraFixo) personagem.armadura += dados.armaduraFixo;
+                if (dados.armaduraPct) personagem.armadura += Math.floor(personagem.baseStatus.armadura * dados.armaduraPct);
             }
         });
+
+        // Garantir que não fica negativo
+        personagem.ataque = Math.max(0, personagem.ataque);
+        personagem.armadura = Math.max(0, personagem.armadura);
     },
 
     ObterIdVisual: function (personagem) {
@@ -110,7 +142,7 @@ window.Efeitos = {
         const idxI = EstadoDoJogo.inimigos.indexOf(personagem);
         if (idxI !== -1) return `inimigo-${idxI + 1}`;
 
-        return null; // Não visível
+        return null;
     },
 
     TemAtordoamento: function (personagem) {

@@ -235,6 +235,31 @@
             </div>
 
             <!-- Interface Principal Superior (HUDs e Arena) -->
+            <!-- Painel de Log de Combate (Fixo no Topo) -->
+            <div id="painel-log-combate" class="painel-log-combate">
+                <div class="cabecalho-log">
+                    <span class="titulo-log">Relatório de Batalha</span>
+                    <button id="btn-detalhes-log" class="btn-detalhes-log">Ver Tudo</button>
+                </div>
+                <div id="lista-log-recente" class="lista-log-recente">
+                    <!-- Itens serão inseridos via JS -->
+                    <div class="item-log sistema">Batalha iniciada...</div>
+                </div>
+            </div>
+
+            <!-- Modal de Log Completo (Oculto por padrão) -->
+            <div id="modal-log-completo" class="modal-overlay oculta">
+                <div class="modal-conteudo modal-log-conteudo">
+                    <div class="modal-header">
+                        <h2>Registro Completo de Combate</h2>
+                        <button class="fechar-modal" onclick="UI.FecharLogCompleto()">X</button>
+                    </div>
+                    <div id="conteudo-log-completo" class="log-scroll">
+                        <!-- Lista completa inserida via JS -->
+                    </div>
+                </div>
+            </div>
+
             <div class="layout-combate">
                 <!-- Status do Jogador (Esquerda) -->
                 <div class="status-jogador painel-lateral esquerda">
@@ -501,19 +526,16 @@
                 </div>
             </div>
 
-            <div class="controles">
-                <button class="botao-acao atacar" data-acao="atacar">Atacar</button>
-                <button class="botao-acao habilidade" data-acao="habilidade">Habilidades</button>
-                <button class="botao-acao descansar" data-acao="passar-turno">Passar Turno</button>
-                <button class="botao-acao mochila" data-acao="mochila">Mochila</button>
-            </div>
 
-            <!-- Seleção de Cartas (Sub-menu de Ataque) -->
-            <div id="container-cartas" class="oculta">
-                <div class="cartas-wrapper">
-                    <!-- As cartas serão geradas via JS aqui -->
-                </div>
-                <button class="botao-acao" onclick="FecharMenuAtaque()">Voltar</button>
+            <div class="controles">
+                <button class="botao-acao atacar" id="btn-acao-atacar"
+                    onclick="window.SistemaCombate.ClicarAtacar()">Atacar</button>
+                <button class="botao-acao habilidade" id="btn-acao-habilidade"
+                    onclick="window.SistemaCombate.ClicarHabilidade()">Habilidades</button>
+                <button class="botao-acao descansar" data-acao="passar-turno"
+                    onclick="window.SistemaCombate.PassarTurno()">Passar Turno</button>
+                <button class="botao-acao mochila"
+                    onclick="window.GerenciadorInterface.AbrirInventario()">Mochila</button>
             </div>
 
             <!-- Display de Mensagens Centralizado -->
@@ -554,6 +576,27 @@
         </div>
     </div>
 
+    <!-- Modal do Inventário -->
+    <div id="modal-inventario" class="modal-overlay oculta">
+        <div class="modal-conteudo modal-medio">
+            <div class="modal-header">
+                <h2>Inventário</h2>
+                <button class="botao-fechar" onclick="UI.FecharInventario()">&times;</button>
+            </div>
+            <div class="inventario-layout">
+                <div class="inventario-mochila-container">
+                    <img src="Images/ìcones/12.png" alt="Mochila" class="img-mochila">
+                </div>
+                <div class="inventario-grid" id="grid-inventario">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+            <div class="inventario-detalhes" id="inventario-detalhes">
+                <p class="placeholder">Selecione um item para ver detalhes.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Configurações -->
     <div id="modal-config" class="modal-overlay oculta">
         <div class="modal-conteudo modal-pequeno">
@@ -572,16 +615,57 @@
         </div>
     </div>
 
-    <script src="dados.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/state.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/effects.js"></script>
-    <script src="js/targeting.js"></script>
-    <script src="js/dialogo.js"></script>
-    <script src="js/combat.js"></script>
-    <script src="js/navigation.js"></script>
-    <script src="js/config.js"></script>
+    <!-- Modal de Efeitos Ativos -->
+    <div id="modal-efeitos" class="modal-overlay oculta">
+        <div class="modal-conteudo modal-pequeno">
+            <div class="modal-header">
+                <h2 id="titulo-modal-efeitos">Efeitos Ativos</h2>
+                <button class="botao-fechar" onclick="UI.FecharMenuEfeitos()">&times;</button>
+            </div>
+            <div id="lista-efeitos-detalhada" class="lista-efeitos-detalhada">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de Seleção de Cartas (Atacar/Habilidades) -->
+    <div id="container-cartas" class="modal-overlay oculta">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <h2 id="titulo-selecao-cartas">Selecione sua Ação</h2>
+                <button class="botao-fechar"
+                    onclick="window.GerenciadorInterface.FecharSelecaoCartas()">&times;</button>
+            </div>
+            <div id="cartas-wrapper-overlay" class="cartas-wrapper">
+                <!-- Preenchido via JS -->
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="botao-acao" onclick="window.GerenciadorInterface.FecharSelecaoCartas()">Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Arquivos do Sistema Refatorado (Ordem Importa) -->
+    <!-- 1. Dados e Estado -->
+    <script src="js/sistema/banco_de_dados.js"></script>
+    <script src="js/sistema/estado_jogo.js"></script>
+    <script src="js/utilitarios/uteis.js"></script>
+
+    <!-- 2. Módulos Independentes -->
+    <script src="js/modulos/gerenciador_audio.js"></script>
+    <script src="js/modulos/gerenciador_interface.js"></script>
+
+    <!-- 3. Subsistemas de Regra -->
+    <script src="js/sistema/sistema_efeitos.js"></script>
+    <script src="js/sistema/sistema_mira.js"></script>
+    <script src="js/sistema/sistema_inventario.js"></script>
+    <script src="js/sistema/sistema_dialogo.js"></script>
+    <script src="js/sistema/sistema_navegacao.js"></script>
+
+    <!-- 4. Lógica de Jogo -->
+    <script src="js/sistema/sistema_combate.js"></script>
+
+    <!-- 5. Entry Point -->
     <script src="js/main.js"></script>
 </body>
 

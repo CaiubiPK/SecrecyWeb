@@ -1,96 +1,84 @@
+/**
+ * PONTO DE ENTRADA PRINCIPAL
+ * Inicializa todos os subsistemas e prepara o jogo.
+ */
 
-// ==========================================
-// MAIN.JS - Inicialização e Eventos
-// ==========================================
+window.onload = function () {
+    console.log("🚀 [MAIN] Inicializando Secrecy RPG...");
 
-document.addEventListener('DOMContentLoaded', () => {
-    Utils.Log("Main", "Inicializando...");
+    if (!window.BancoDeDados) {
+        alert("Erro Crítico: Banco de Dados não carregado!");
+        return;
+    }
 
-    // 1. Inicializar Sistemas
-    UI.Init();
+    try {
+        window.EstadoJogo.Inicializar();
+        window.GerenciadorInterface.Inicializar();
+        window.SistemaInventario.Inicializar();
 
-    // 2. Event Listeners Globais
+        ConfigurarEventosIniciais();
+        ConfigurarEventosExtras();
 
-    // Som para TODOS os botões
-    document.addEventListener('click', (e) => {
-        const target = e.target.closest('button, .botao, .card-campanha, .botao-brilho, .botao-livro');
-        if (target) {
-            Utils.PlayClick();
-        }
-    });
+        window.GerenciadorInterface.TrocarTela('tela-inicial');
 
-    // Tela Inicial
-    document.getElementById('botao-iniciar')?.addEventListener('click', () => {
-        Navigation.IniciarJogo();
-    });
+    } catch (e) {
+        console.error("Erro na inicialização:", e);
+        alert("Erro ao iniciar jogo. Verifique o console.");
+    }
+};
 
-    // Tela Nome
-    document.getElementById('botao-confirmar-nome')?.addEventListener('click', () => {
-        const nome = document.getElementById('input-nome').value;
-        Navigation.ConfirmarNome(nome);
-    });
-
-    // Tela Campanha
-    document.getElementById('campanha-castelo')?.addEventListener('click', () => {
-        // Inicializa Baralho antes da primeira fase
-        InicializarBaralhoPadrao();
-        Navigation.MostrarMapaCampanha();
-    });
-
-    // Botões de Ação (Combate)
-    document.querySelectorAll('.botao-acao').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const acao = e.target.dataset.acao;
-            if (acao === 'atacar') AbrirMenuAtaque();
-            if (acao === 'passar-turno') Combate.PassarTurno();
-        });
-    });
-
-    // Inicialização final
-    // Inicialização final (Sem audio automático)
-});
-
-// Helper de Baralho (Poderia estar em State.js)
-function InicializarBaralhoPadrao() {
-    EstadoDoJogo.baralhoPersonalizado = [];
-    const db = BancoDeDados.CartasColecao;
-    // Exemplo: 5 Ataques Básicos
-    for (let i = 0; i < 5; i++) EstadoDoJogo.baralhoPersonalizado.push(db.find(c => c.nome === "Ataque Básico"));
-    // Exemplo: 2 Defesas
-    for (let i = 0; i < 2; i++) EstadoDoJogo.baralhoPersonalizado.push(db.find(c => c.nome === "Defesa Sólida"));
-}
-
-function AbrirMenuAtaque() {
-    const container = document.getElementById('container-cartas');
-    if (!container) return;
-
-    container.innerHTML = '';
-    container.classList.remove('oculta');
-
-    EstadoDoJogo.baralhoPersonalizado.forEach(carta => {
-        if (!carta) return;
-        const el = document.createElement('div');
-        el.className = 'carta-combate'; // Necessário CSS
-        el.textContent = carta.nome;
-        el.onclick = () => {
-            Combate.RealizarAtaqueJogador(carta);
-            container.classList.add('oculta');
+function ConfigurarEventosIniciais() {
+    // Botão Iniciar Jogo
+    const btnIniciar = document.getElementById('botao-iniciar');
+    if (btnIniciar) {
+        btnIniciar.onclick = () => {
+            window.GerenciadorAudio.TocarEfeito('Click1');
+            window.GerenciadorInterface.TrocarTela('tela-nome');
         };
-        container.appendChild(el);
-    });
+    }
 
-    // Botão Voltar
-    const btnVoltar = document.createElement('button');
-    btnVoltar.textContent = "Voltar";
-    btnVoltar.className = "botao-acao";
-    btnVoltar.onclick = () => container.classList.add('oculta');
-    container.appendChild(btnVoltar);
+    // Botão Confirmar Nome
+    const btnConfirmarNome = document.getElementById('botao-confirmar-nome');
+    if (btnConfirmarNome) {
+        btnConfirmarNome.onclick = () => {
+            const inputNome = document.getElementById('input-nome');
+            const nome = inputNome ? inputNome.value.trim() || "Viajante" : "Viajante";
+
+            window.EstadoJogo.Jogadores[0].nome = nome;
+            window.GerenciadorInterface.ExibirMensagem(`Bem-vindo, ${nome}!`);
+            window.GerenciadorAudio.TocarEfeito('Sucesso');
+
+            window.GerenciadorInterface.TrocarTela('tela-campanha');
+        };
+    }
+
+    // Seleção de Campanha (Castelo)
+    const cardCastelo = document.getElementById('campanha-castelo');
+    if (cardCastelo) {
+        cardCastelo.onclick = () => {
+            window.GerenciadorAudio.TocarEfeito('Click2');
+            window.Navigation.MostrarMapaCampanha();
+        };
+    }
+
+    // Botão "Passar Turno"
+    const btnPassar = document.querySelector('.botao-acao.descansar');
+    if (btnPassar) {
+        btnPassar.onclick = () => {
+            window.SistemaCombate.PassarTurno();
+        };
+    }
 }
 
-// Atualiza marcador se a janela for redimensionada 
-window.addEventListener('resize', () => { 
-    const telaMapa = document.getElementById('tela-mapa-campanha'); 
-    if (telaMapa && !telaMapa.classList.contains('oculta')) { 
-        Navigation.AtualizarMarcadorMapa(EstadoDoJogo.faseAtual || 1); 
-    } 
-});
+function ConfigurarEventosExtras() {
+    // Botões de Diálogo
+    const btnProx = document.getElementById('btn-proximo-dialogo');
+    if (btnProx) btnProx.onclick = () => window.SistemaDialogo.Avancar();
+
+    const btnPular = document.getElementById('btn-pular-dialogo');
+    if (btnPular) btnPular.onclick = () => window.SistemaDialogo.Pular();
+
+    const btnInventario = document.querySelector('.botao-acao.mochila');
+    if (btnInventario) btnInventario.onclick = () => window.GerenciadorInterface.AbrirInventario();
+}
+

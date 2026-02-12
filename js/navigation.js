@@ -9,6 +9,14 @@ window.Navigation = {
 
     ConfirmarNome: function (nome) {
         if (!nome) return;
+
+        // VERIFICAÇÃO DE SEGURANÇA: Garante que o jogador existe
+        if (!EstadoDoJogo.jogadores || !EstadoDoJogo.jogadores[0]) {
+            console.error("Estado do jogo não inicializado!");
+            UI.ExibirMensagem("Erro ao inicializar jogador. Tente novamente.", "erro");
+            return;
+        }
+
         EstadoDoJogo.jogadores[0].nome = nome;
         UI.TrocarTela('tela-campanha');
     },
@@ -78,7 +86,9 @@ window.Navigation = {
     },
 
     MostrarHistoria: function (faseId) {
-        const dados = BancoDeDados.Historias[faseId] || { titulo: "Desconhecido", texto: "..." };
+        const campanha = Object.values(BancoDeDados.Campanhas)[0];
+        const dadosNivel = campanha.niveis[faseId];
+        const dados = dadosNivel ? dadosNivel.historia : { titulo: "Desconhecido", texto: "..." };
 
         UI.Elementos.Historia.Titulo.textContent = dados.titulo;
         UI.Elementos.Historia.Subtitulo.textContent = dados.subtitulo || "";
@@ -91,8 +101,9 @@ window.Navigation = {
     },
 
     MostrarDialogo: function (faseId) {
-        const configFase = BancoDeDados.Campanha[faseId];
-        const imagem = configFase ? configFase.imagemInimigo : 'Images/FotoDr.jpeg';
+        const campanha = Object.values(BancoDeDados.Campanhas)[0];
+        const dadosNivel = campanha.niveis[faseId];
+        const imagem = dadosNivel ? dadosNivel.imagemInimigo : 'Images/FotoDr.jpeg';
 
         // Inicia o sistema de diálogo e passo o callback para iniciar combate
         window.Dialogo.Iniciar(faseId, imagem, () => {
@@ -102,9 +113,10 @@ window.Navigation = {
 
     IniciarCombateFase: function (faseId) {
         Utils.Log(`IniciarCombateFase -> ${faseId}`);
-        const configFase = BancoDeDados.Campanha[faseId];
+        const campanha = Object.values(BancoDeDados.Campanhas)[0];
+        const dadosNivel = campanha.niveis[faseId];
 
-        if (!configFase) {
+        if (!dadosNivel) {
             UI.ExibirMensagem("Fase não configurada no Banco de Dados!", "erro");
             return;
         }
@@ -117,7 +129,8 @@ window.Navigation = {
 
         // Construir lista de inimigos a partir dos dados
         let inimigos = [];
-        configFase.inimigos.forEach(item => {
+
+        dadosNivel.inimigos.forEach(item => {
             if (item.tipo === 'Inimigo') {
                 const base = BancoDeDados.Inimigos.find(i => i.nome === item.nome);
                 if (base) inimigos.push({ ...base });
@@ -127,12 +140,10 @@ window.Navigation = {
             }
         });
 
-        // Adicionar aliados extras se houver
-        if (configFase.aliadosExtras) {
-            configFase.aliadosExtras.forEach(item => {
-                const unidade = BancoDeDados.Unidades[item.raca][item.classe][item.nivel];
-                if (unidade) EstadoDoJogo.jogadores.push({ ...unidade });
-            });
+        // Aplicar cenário
+        const background = document.querySelector('.tela-jogo');
+        if (background && dadosNivel.cenario) {
+            background.style.backgroundImage = `url('${dadosNivel.cenario}')`;
         }
 
         Combate.Iniciar(inimigos);

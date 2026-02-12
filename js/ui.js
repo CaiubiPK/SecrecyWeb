@@ -32,7 +32,8 @@ window.UI = {
             Modais: {
                 Atributos: document.getElementById('modal-atributos'),
                 Baralho: document.getElementById('modal-baralho'),
-                Config: document.getElementById('modal-config')
+                Config: document.getElementById('modal-config'),
+                Inventario: document.getElementById('modal-inventario')
             },
             Historia: {
                 Titulo: document.getElementById('historia-titulo'),
@@ -62,6 +63,10 @@ window.UI = {
         // Configuração do Modal de Atributos
         window.FecharDetalhesAtributos = () => {
             document.getElementById('modal-atributos').classList.add('oculta');
+        };
+
+        window.FecharInventario = () => {
+            this.FecharInventario();
         };
 
         // Expor para compatibilidade com código legado se necessário
@@ -175,9 +180,58 @@ window.UI = {
                 el.className = 'efeito-icone';
                 el.innerHTML = `${icone} <div class="efeito-turnos">${eff.duracao}</div> <div class="efeito-stack">${eff.nivel}</div>`;
                 el.title = `${eff.nome} Nvl ${eff.nivel} (${eff.duracao} turnos)`;
+
+                // Clique para abrir menu de detalhes
+                el.onclick = () => this.AbrirMenuEfeitos(dados);
+
                 container.appendChild(el);
             });
         }
+    },
+
+    AbrirMenuEfeitos: function (personagem) {
+        Utils.Log(`UI.AbrirMenuEfeitos -> ${personagem.nome}`);
+        const modal = document.getElementById('modal-efeitos');
+        const lista = document.getElementById('lista-efeitos-detalhada');
+        const titulo = document.getElementById('titulo-modal-efeitos');
+
+        if (!modal || !lista) return;
+
+        titulo.textContent = `Efeitos: ${personagem.nome}`;
+        lista.innerHTML = '';
+
+        if (!personagem.efeitos || personagem.efeitos.length === 0) {
+            lista.innerHTML = '<p class="placeholder">Nenhum efeito ativo no momento.</p>';
+        } else {
+            personagem.efeitos.forEach(eff => {
+                const def = BancoDeDados.Efeitos[eff.nome];
+                const nivelInfo = def && def.niveis ? def.niveis[eff.nivel] : {};
+                const icone = nivelInfo.icone || "❓";
+                const desc = nivelInfo.descricao || "Sem descrição disponível.";
+
+                const item = document.createElement('div');
+                item.className = 'item-efeito-detalhe';
+                item.innerHTML = `
+                    <div class="item-efeito-icone">${icone}</div>
+                    <div class="item-efeito-corpo">
+                        <div class="item-efeito-nome">
+                            ${eff.nome}
+                            <span class="item-efeito-nvl">Nível ${eff.nivel}</span>
+                        </div>
+                        <div class="item-efeito-desc">${desc}</div>
+                        <div class="item-efeito-duracao">Faltam ${eff.duracao} turnos</div>
+                    </div>
+                `;
+                lista.appendChild(item);
+            });
+        }
+
+        modal.classList.remove('oculta');
+    },
+
+    FecharMenuEfeitos: function () {
+        const modal = document.getElementById('modal-efeitos');
+        if (modal) modal.classList.add('oculta');
     },
 
     ExibirMensagem: function (texto, tipo = "") {
@@ -202,6 +256,87 @@ window.UI = {
         EstadoDoJogo.timerMensagem = setTimeout(() => {
             display.classList.add('oculta');
         }, 3000);
+
+        // ADICIONAR TAMBÉM AO LOG DE COMBATE
+        this.AdicionarAoLog(texto, tipo);
+    },
+
+    // ==========================================
+    // SISTEMA DE LOG DE COMBATE
+    // ==========================================
+
+    AdicionarAoLog: function (mensagem, tipo = 'sistema') {
+        // Inicializa log se não existir
+        if (!EstadoDoJogo.logCombate) EstadoDoJogo.logCombate = [];
+
+        // Adiciona timestamp
+        const entrada = {
+            mensagem: mensagem,
+            tipo: tipo, // 'jogador', 'inimigo', 'sistema'
+            timestamp: Date.now()
+        };
+
+        EstadoDoJogo.logCombate.push(entrada);
+
+        // Limita a 100 entradas para evitar overflow de memória
+        if (EstadoDoJogo.logCombate.length > 100) {
+            EstadoDoJogo.logCombate.shift();
+        }
+
+        // Atualiza visual do log recente
+        this.AtualizarLogRecente();
+    },
+
+    AtualizarLogRecente: function () {
+        const container = document.getElementById('lista-log-recente');
+        if (!container) return;
+
+        // Pega as últimas 3 mensagens
+        const mensagensRecentes = EstadoDoJogo.logCombate.slice(-3).reverse();
+
+        container.innerHTML = '';
+
+        mensagensRecentes.forEach(entrada => {
+            const item = document.createElement('div');
+            item.className = `item-log ${entrada.tipo}`;
+            item.textContent = entrada.mensagem;
+            container.appendChild(item);
+        });
+    },
+
+    AbrirLogCompleto: function () {
+        const modal = document.getElementById('modal-log-completo');
+        const conteudo = document.getElementById('conteudo-log-completo');
+
+        if (!modal || !conteudo) return;
+
+        conteudo.innerHTML = '';
+
+        if (!EstadoDoJogo.logCombate || EstadoDoJogo.logCombate.length === 0) {
+            conteudo.innerHTML = '<p class="placeholder">Nenhuma ação registrada ainda.</p>';
+        } else {
+            // Mostra todas as entradas, mais recentes primeiro
+            const todasMensagens = [...EstadoDoJogo.logCombate].reverse();
+
+            todasMensagens.forEach(entrada => {
+                const item = document.createElement('div');
+                item.className = `item-log ${entrada.tipo}`;
+                item.textContent = entrada.mensagem;
+                conteudo.appendChild(item);
+            });
+        }
+
+        modal.classList.remove('oculta');
+    },
+
+    FecharLogCompleto: function () {
+        const modal = document.getElementById('modal-log-completo');
+        if (modal) modal.classList.add('oculta');
+    },
+
+    LimparLog: function () {
+        EstadoDoJogo.logCombate = [];
+        this.AtualizarLogRecente();
     },
 
     MostrarIndicadorDano: function (slotId, valor, tipo) { // slotId: 'jogador-1', 'inimigo-1'
@@ -311,6 +446,106 @@ window.UI = {
 
         // Mostrar Modal
         modal.classList.remove('oculta');
+    },
+
+    AbrirInventario: function () {
+        this.RenderizarInventario();
+        document.getElementById('modal-inventario').classList.remove('oculta');
+    },
+
+    FecharInventario: function () {
+        const modal = document.getElementById('modal-inventario');
+        if (modal) modal.classList.add('oculta');
+    },
+
+    RenderizarInventario: function () {
+        const grid = document.getElementById('grid-inventario');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const jogador = EstadoDoJogo.jogadores[0];
+        // Ensure inventario exists
+        if (!jogador.inventario) jogador.inventario = new Array(12).fill(null);
+
+        jogador.inventario.forEach((item, index) => {
+            const slot = document.createElement('div');
+            slot.className = item ? 'inventario-slot slot-cheio' : 'inventario-slot slot-vazio';
+            slot.onclick = () => this.SelecionarItemInventario(item, index);
+
+            if (item) {
+                const img = document.createElement('img');
+                img.src = item.imagem || "Images/Itens/PocaoDeVida.png"; // Fallback
+                slot.appendChild(img);
+            }
+
+            grid.appendChild(slot);
+        });
+    },
+
+    SelecionarItemInventario: function (item, index) {
+        const detalhes = document.getElementById('inventario-detalhes');
+        if (!detalhes) return;
+
+        if (!item) {
+            detalhes.innerHTML = '<p class="placeholder">Espaço vazio.</p>';
+            return;
+        }
+
+        detalhes.innerHTML = `
+            <div style="display:flex; gap:10px; align-items:center; width:100%;">
+                <div style="flex:1;">
+                    <strong style="color:var(--cor-destaque)">${item.nome}</strong>
+                    <p style="color:#aaa; font-size:0.8rem;">${item.descricao || "Sem descrição."}</p>
+                </div>
+                <button class="botao-acao" style="padding:5px 10px; font-size:0.8rem;" onclick="UI.UsarItem(${index})">Usar</button>
+            </div>
+        `;
+    },
+
+    UsarItem: function (index) {
+        const jogador = EstadoDoJogo.jogadores[0];
+        const item = jogador.inventario[index];
+        if (!item) return;
+
+        // Se estiver em combate, delega para o sistema de combate que gerencia turnos
+        if (EstadoDoJogo.turno === 0 || EstadoDoJogo.turno === 1) { // 0=Jogador, 1=Inimigo
+            Combate.UsarItem(index);
+        } else {
+            // Uso fora de combate (Cura livre, Mana livre)
+            let usou = false;
+            if (item.efeito) {
+                if (item.efeito.curaPct) {
+                    const valor = Math.floor(jogador.vidaMaxima * item.efeito.curaPct);
+                    if (jogador.vida < jogador.vidaMaxima) {
+                        jogador.vida = Math.min(jogador.vidaMaxima, jogador.vida + valor);
+                        UI.ExibirMensagem(`Recuperou ${valor} de Vida!`);
+                        usou = true;
+                    } else {
+                        UI.ExibirMensagem("Vida já está cheia!");
+                    }
+                }
+                else if (item.efeito.manaPct) {
+                    const valor = Math.floor(jogador.manaMaxima * item.efeito.manaPct);
+                    if (jogador.mana < jogador.manaMaxima) {
+                        jogador.mana = Math.min(jogador.manaMaxima, jogador.mana + valor);
+                        UI.ExibirMensagem(`Recuperou ${valor} de Mana!`);
+                        usou = true;
+                    } else {
+                        UI.ExibirMensagem("Mana já está cheia!");
+                    }
+                }
+                else {
+                    UI.ExibirMensagem("Este item só pode ser usado em combate.");
+                }
+            }
+
+            if (usou && (item.tipo === 'consumivel' || item.tipo === 'consumivel-dano')) {
+                jogador.inventario[index] = null;
+                this.RenderizarInventario();
+                this.SelecionarItemInventario(null, index);
+                UI.AtualizarInterface();
+            }
+        }
     }
 };
 

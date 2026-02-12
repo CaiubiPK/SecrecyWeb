@@ -12,8 +12,41 @@ window.Combate = {
         EstadoDoJogo.inimigoFoco = 0;
         EstadoDoJogo.alvoSelecionado = 0;
 
+        // Controle de Turno e Itens
+        EstadoDoJogo.itensUsadosNoTurno = 0;
+        EstadoDoJogo.facasGastas = 0;
+
+        // Inicializar Log de Combate
+        EstadoDoJogo.logCombate = [];
+        UI.LimparLog();
+
         // Setup Inicial
         this.SnapshotAtributos();
+
+        // MODO DEPURAÇÃO: Encher inventário com itens variados
+        if (EstadoDoJogo.jogadores.length > 0 && BancoDeDados.Itens) {
+            const lider = EstadoDoJogo.jogadores[0];
+            if (!lider.inventario) lider.inventario = new Array(12).fill(null);
+
+            // Itens para teste
+            const itensTeste = [
+                BancoDeDados.Itens.find(i => i.nome === "Poção de Vida Média"),
+                BancoDeDados.Itens.find(i => i.nome === "Poção de Mana Média"),
+                BancoDeDados.Itens.find(i => i.nome === "Poção de Energia Média"),
+                BancoDeDados.Itens.find(i => i.nome === "Poção de Ataque Pequena"),
+                BancoDeDados.Itens.find(i => i.nome === "Facas de Arremesso"),
+                BancoDeDados.Itens.find(i => i.nome === "Óleo Rúnico"),
+                BancoDeDados.Itens.find(i => i.nome === "Poção Misteriosa"),
+                BancoDeDados.Itens.find(i => i.nome === "Poção de Veneno"),
+                BancoDeDados.Itens.find(i => i.nome === "Poção de Defesa Pequena"),
+                BancoDeDados.Itens.find(i => i.nome === "Poção de Vida Grande"),
+                BancoDeDados.Itens.find(i => i.nome === "Poção de Ataque Grande"),
+                BancoDeDados.Itens.find(i => i.nome === "Facas de Arremesso")
+            ];
+
+            lider.inventario = itensTeste.map(i => i ? { ...i } : null);
+        }
+
         this.OcultarSlotsVazios();
 
         UI.AtualizarInterface();
@@ -41,7 +74,7 @@ window.Combate = {
                     if (nome) {
                         nome.textContent = jogador.ehPrincipal
                             ? jogador.nome
-                            : `${jogador.nome} (Nvl ${jogador.nivel || 1})`;
+                            : `${jogador.nome} Nvl ${jogador.nivel || 1}`;
                     }
                 } else {
                     el.classList.add('oculta');
@@ -64,7 +97,7 @@ window.Combate = {
                     if (nome) {
                         nome.textContent = inimigo.ehPrincipal
                             ? inimigo.nome
-                            : `${inimigo.nome} (Nvl ${inimigo.nivel || 1})`;
+                            : `${inimigo.nome} Nvl ${inimigo.nivel || 1}`;
                     }
                 } else {
                     el.classList.add('oculta');
@@ -90,6 +123,7 @@ window.Combate = {
     IniciarTurnoJogador: function () {
         Utils.Log("Turno Jogador");
         EstadoDoJogo.turno = 0;
+        EstadoDoJogo.itensUsadosNoTurno = 0; // Resetar contador de itens
         const lider = EstadoDoJogo.jogadores[0];
 
         // Regeneração
@@ -104,6 +138,172 @@ window.Combate = {
 
         UI.ExibirMensagem("Seu Turno! Energias Recuperadas.");
         UI.AtualizarInterface();
+    },
+
+    UsarItem: function (indexItem) {
+        // Verifica se é turno do jogador
+        if (EstadoDoJogo.turno !== 0) {
+            UI.ExibirMensagem("Não é seu turno!", "erro");
+            return;
+        }
+
+        const jogador = EstadoDoJogo.jogadores[0];
+        const item = jogador.inventario[indexItem];
+
+        if (!item) return;
+
+        // Regra: Pode usar até 2 itens sem passar a vez. O 3º item passa a vez automaticamente.
+        if (EstadoDoJogo.itensUsadosNoTurno >= 3) {
+            UI.ExibirMensagem("Você já usou muitos itens neste turno!", "erro");
+            return;
+        }
+
+        // --- Lógica de Efeitos do Item ---
+        let usouComSucesso = true;
+
+        // 1. Itens Especiais com Lógica Customizada
+        if (item.efeito && item.efeito.especial) {
+            if (item.efeito.especial === "FacasArremesso") {
+                // Ataca inimigo aleatório ou focado
+                const alvo = EstadoDoJogo.inimigos.find(i => i.vida > 0); // Simplificado: Primeiro vivo
+                if (alvo) {
+                    // Dano: 90% a 125% do Ataque
+                    const fator = 0.9 + (Math.random() * 0.35);
+                    const dano = Math.floor(jogador.ataque * fator);
+                    alvo.vida = Math.max(0, alvo.vida - dano);
+
+                    const idAlvo = Efeitos.ObterIdVisual(alvo);
+                    UI.AnimarAtaque('jogador-1', idAlvo);
+                    UI.MostrarIndicadorDano(idAlvo, dano, 'dano');
+                    UI.ExibirMensagem(`Arremessou faca em ${alvo.nome}!`);
+
+                    // Chances de Sangramento
+                    const chance = Math.random() * 100;
+                    if (chance < 5) Efeitos.Adicionar(alvo, "Sangramento", 2, 3);
+                    else if (chance < 8 + 5) Efeitos.Adicionar(alvo, "Sangramento", 2, 2);
+                    else if (chance < 12 + 8 + 5) Efeitos.Adicionar(alvo, "Sangramento", 2, 1);
+
+                    EstadoDoJogo.facasGastas++;
+                } else {
+                    UI.ExibirMensagem("Sem alvos!", "erro");
+                    usouComSucesso = false;
+                }
+            }
+            else if (item.efeito.especial === "OleoRunico") {
+                const chance = Math.random() * 100;
+                let nivel = 0;
+                if (chance < 40) nivel = 1;
+                else if (chance < 70) nivel = 2; // 40 + 30
+                else if (chance < 85) nivel = 3; // 70 + 15
+
+                if (nivel > 0) {
+                    Efeitos.Adicionar(jogador, "ArmaCombustao", 3, nivel);
+                    UI.ExibirMensagem(`Arma em chamas Nvl ${nivel}!`);
+                } else {
+                    UI.ExibirMensagem("O óleo falhou...", "erro");
+                }
+            }
+            else if (item.efeito.especial === "PocaoVeneno") {
+                const chance = Math.random() * 100;
+                let nivel = 0;
+                if (chance < 40) nivel = 1;
+                else if (chance < 70) nivel = 2;
+                else if (chance < 85) nivel = 3;
+
+                if (nivel > 0) {
+                    Efeitos.Adicionar(jogador, "ArmaEnvenenada", 3, nivel);
+                    UI.ExibirMensagem(`Arma envenenada Nvl ${nivel}!`);
+                } else {
+                    UI.ExibirMensagem("O veneno falhou...", "erro");
+                }
+            }
+            else if (item.efeito.especial === "PocaoMisteriosa") {
+                const numEfeitos = 1 + Math.floor(Math.random() * 3); // 1 a 3
+                const possiveis = [
+                    { nome: "BuffDefesa", prob: 0.05, nivel: 1 },
+                    { nome: "BuffDivino", prob: 0.05, nivel: 1 },
+                    { nome: "BuffAtaque", nivel: 1 },
+                    { nome: "Regeneracao", nivel: 1 },
+                    { nome: "RegeneracaoMana", nivel: 1 },
+                    { nome: "Envenenamento", nivel: 1 },
+                    { nome: "Combustão", nivel: 1 }
+                ];
+
+                UI.ExibirMensagem("Bebendo poção misteriosa...");
+                for (let i = 0; i < numEfeitos; i++) {
+                    const sorteado = possiveis[Math.floor(Math.random() * possiveis.length)];
+                    Efeitos.Adicionar(jogador, sorteado.nome, 2, sorteado.nivel);
+                }
+            }
+        }
+        // 2. Itens Padrão (Cura, Mana, Buffs)
+        else {
+            if (item.efeito && item.efeito.status) {
+                Efeitos.Adicionar(jogador, item.efeito.status, item.efeito.duracao || 2, item.efeito.nivel || 1);
+            }
+
+            if (item.efeito && item.efeito.curaPct) {
+                const valor = Math.floor(jogador.vidaMaxima * item.efeito.curaPct);
+                jogador.vida = Math.min(jogador.vidaMaxima, jogador.vida + valor);
+                UI.MostrarIndicadorDano('jogador-1', valor, 'cura');
+            }
+            if (item.efeito && item.efeito.manaPct) {
+                const valor = Math.floor(jogador.manaMaxima * item.efeito.manaPct);
+                jogador.mana = Math.min(jogador.manaMaxima, jogador.mana + valor);
+                UI.MostrarIndicadorDano('jogador-1', valor, 'cura');
+            }
+            if (item.efeito && item.efeito.energiaPct) {
+                const valor = Math.floor(jogador.energiaMaxima * item.efeito.energiaPct);
+                jogador.energia = Math.min(jogador.energiaMaxima, jogador.energia + valor);
+                UI.MostrarIndicadorDano('jogador-1', valor, 'cura');
+            }
+
+            // Descrição genérica
+            UI.ExibirMensagem(`Usou ${item.nome}!`);
+        }
+
+        if (usouComSucesso) {
+            // Consumir
+            if (item.tipo === 'consumivel' || item.tipo === 'consumivel-dano') {
+                jogador.inventario[indexItem] = null;
+                UI.RenderizarInventario(); // Atualiza visual do inventário
+                // Se o inventário estiver aberto, re-seleciona para limpar detalhes
+                UI.SelecionarItemInventario(null, indexItem);
+            }
+
+            EstadoDoJogo.itensUsadosNoTurno++;
+
+            // Verifica passiva de turno
+            if (EstadoDoJogo.itensUsadosNoTurno >= 3) {
+                UI.ExibirMensagem("Exaustão! Turno Encerrado.");
+                this.PassarTurno();
+            } else {
+                UI.ExibirMensagem(`${3 - EstadoDoJogo.itensUsadosNoTurno} usos de itens restantes.`);
+            }
+
+            UI.AtualizarInterface();
+        }
+    },
+
+    AplicarEfeitosOnHit: function (atacante, defensor) {
+        if (!atacante.efeitos) return;
+
+        atacante.efeitos.forEach(eff => {
+            if (eff.nome === "ArmaCombustao") {
+                const def = BancoDeDados.Efeitos.ArmaCombustao.niveis[eff.nivel];
+                if (Math.random() < def.chanceAplicar) {
+                    Efeitos.Adicionar(defensor, "Combustão", 3, def.nivelAplicar);
+                    UI.ExibirMensagem("Inimigo incendiado!");
+                }
+            }
+            if (eff.nome === "ArmaEnvenenada") {
+                const def = BancoDeDados.Efeitos.ArmaEnvenenada.niveis[eff.nivel];
+                if (Math.random() < def.chanceAplicar) {
+                    Efeitos.Adicionar(defensor, "Envenenamento", 3, def.nivelAplicar);
+                    UI.ExibirMensagem("Inimigo envenenado!");
+                }
+            }
+        });
     },
 
     PassarTurno: function () {
@@ -330,6 +530,54 @@ window.Combate = {
         }, delay + 300);
     },
 
+    VerificarFimCombate: function () {
+        const inimigosVivos = EstadoDoJogo.inimigos.some(i => i.vida > 0);
+        if (!inimigosVivos) {
+            EstadoDoJogo.turno = -1; // Fim
+            UI.ExibirMensagem("VITÓRIA!", "vitoria");
+            // Parar musica de combate se houver e tocar vitória
+            Utils.PlaySound(AudioConfig.CaminhoMusicaVitoria, 0.6);
+
+            // Facas de arremesso recuperação
+            if (EstadoDoJogo.facasGastas > 0) {
+                const jogador = EstadoDoJogo.jogadores[0];
+                // 20% + Sorte 
+                const chance = 20 + (jogador.sorte || 0);
+                let recuperadas = 0;
+                for (let i = 0; i < EstadoDoJogo.facasGastas; i++) {
+                    if (Math.random() * 100 < chance) recuperadas++;
+                }
+
+                if (recuperadas > 0 && jogador.inventario) {
+                    const itemFacas = BancoDeDados.Itens.find(it => it.nome === "Facas de Arremesso");
+                    if (itemFacas) {
+                        for (let i = 0; i < recuperadas; i++) {
+                            const slot = jogador.inventario.findIndex(x => x === null);
+                            if (slot !== -1) jogador.inventario[slot] = { ...itemFacas };
+                        }
+                        setTimeout(() => UI.ExibirMensagem(`Recuperou ${recuperadas} Facas!`), 1500);
+                    }
+                }
+            }
+
+            if (window.Navigation) window.Navigation.FinalizarCombate(true);
+            return true;
+        }
+        return false;
+    },
+
+    VerificarGameOver: function () {
+        const liderVivo = EstadoDoJogo.jogadores[0].vida > 0;
+        if (!liderVivo) {
+            EstadoDoJogo.turno = -1;
+            UI.ExibirMensagem("DERROTA!", "derrota");
+            Utils.PlaySound('Audio/Sons/Sons de interface/Fracasso.mp3', 0.8);
+            setTimeout(() => location.reload(), 3000); // Reload simples
+            return true;
+        }
+        return false;
+    },
+
     CalcularDano: function (atacante, defensor, multiplicador, ehMagico) {
         // Esquiva
         const hitChance = atacante.precisao - defensor.esquiva;
@@ -359,33 +607,13 @@ window.Combate = {
         // Aplica
         defensor.vida = Math.max(0, defensor.vida - danoFinal);
 
+        // Aplicar Efeitos OnHit (ex: arma com fogo/veneno)
+        if (!ehMagico && window.Combate.AplicarEfeitosOnHit) {
+            window.Combate.AplicarEfeitosOnHit(atacante, defensor);
+        }
+
         return { sucesso: true, dano: danoFinal, critico: isCrit };
     },
-
-    VerificarFimCombate: function () {
-        const inimigosVivos = EstadoDoJogo.inimigos.some(i => i.vida > 0);
-        if (!inimigosVivos) {
-            EstadoDoJogo.turno = -1; // Fim
-            UI.ExibirMensagem("VITÓRIA!", "vitoria");
-            // Parar musica de combate se houver e tocar vitória
-            Utils.PlaySound(AudioConfig.CaminhoMusicaVitoria, 0.6);
-            if (window.Navigation) window.Navigation.FinalizarCombate(true);
-            return true;
-        }
-        return false;
-    },
-
-    VerificarGameOver: function () {
-        const liderVivo = EstadoDoJogo.jogadores[0].vida > 0;
-        if (!liderVivo) {
-            EstadoDoJogo.turno = -1;
-            UI.ExibirMensagem("DERROTA!", "derrota");
-            Utils.PlaySound('Audio/Sons/Sons de interface/Fracasso.mp3', 0.8);
-            setTimeout(() => location.reload(), 3000); // Reload simples
-            return true;
-        }
-        return false;
-    }
 };
 
 // Aliases Globais
