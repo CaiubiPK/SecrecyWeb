@@ -38,6 +38,10 @@ window.SistemaDialogo = {
         if (avatarInimigo) avatarInimigo.style.backgroundImage = `url('${nivel.imagemInimigo || "Images/FotoDr.jpeg"}')`;
 
         window.GerenciadorInterface.TrocarTela('tela-dialogo-combate');
+
+        //Colocarsom - Início do Diálogo / Ambiente Tenso
+        window.GerenciadorAudio.TocarMusica('Audio/Musicas/Crescendo.mp3');
+
         this.MostrarFalaAtual();
     },
 
@@ -67,12 +71,14 @@ window.SistemaDialogo = {
 
     Avancar: function () {
         this.IndiceAtual++;
-        window.GerenciadorAudio.TocarEfeito('Click3');
+        //Colocarsom - Avançar Texto / Voz
+        // window.GerenciadorAudio.TocarEfeito('Audio/Interface/Voz_NPC.mp3');
+        window.GerenciadorAudio.TocarEfeito('Click6'); // Mantendo original por enquanto
         this.MostrarFalaAtual();
     },
 
     Pular: function () {
-        window.GerenciadorAudio.TocarEfeito('Click4');
+        window.GerenciadorAudio.TocarEfeito('Click6');
         this.Finalizar();
     },
 

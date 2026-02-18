@@ -54,6 +54,8 @@ window.SistemaInventario = {
     },
 
     AplicarEfeitoItem: function (item, alvos) {
+        const jogador = window.EstadoJogo.Jogadores[0];
+
         alvos.forEach(alvoDef => {
             const alvo = alvoDef.tipo === 'aliado'
                 ? window.EstadoJogo.Jogadores[alvoDef.indice]
@@ -62,14 +64,20 @@ window.SistemaInventario = {
             if (item.efeito.atributo === 'vida') {
                 const cura = item.efeito.valor;
                 alvo.vida = Math.min(alvo.vida + cura, alvo.vidaMaxima);
-                window.GerenciadorInterface.ExibirMensagem(`Recuperou ${cura} de Vida.`);
-                window.GerenciadorInterface.MostrarIndicadorFlutuante('jogador-1', cura, 'cura'); // Assumindo jogador
+                window.GerenciadorInterface.AdicionarAoLog(
+                    `${jogador.nome} usou ${item.nome}, recuperando ${cura} de vida`,
+                    'item'
+                );
+                window.GerenciadorInterface.MostrarIndicadorFlutuante('jogador-1', cura, 'cura');
             }
             else if (item.efeito.especial === 'FacasArremesso') {
                 const dano = 20 + window.Uteis.GerarNumeroAleatorio(1, 10);
                 alvo.vida = Math.max(0, alvo.vida - dano);
-                window.GerenciadorInterface.ExibirMensagem(`Faca causou ${dano} de dano!`);
-                window.GerenciadorInterface.MostrarIndicadorFlutuante('inimigo-1', dano, 'dano'); // Assumindo inimigo
+                window.GerenciadorInterface.AdicionarAoLog(
+                    `${jogador.nome} usou ${item.nome}, causando ${dano} de dano em ${alvo.nome}`,
+                    'item'
+                );
+                window.GerenciadorInterface.MostrarIndicadorFlutuante('inimigo-1', dano, 'dano');
             }
         });
 

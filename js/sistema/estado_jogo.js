@@ -8,6 +8,9 @@ window.EstadoJogo = {
     // Entidades Vivas na Batalha
     Jogadores: [],
     Inimigos: [],
+    InimigoSelecionadoIndice: 0, // Índice do inimigo cujos atributos estão sendo exibidos no HUD
+    Deck: [], // Baralho atual do jogador
+    Mao: [], // Cartas na mão atual
 
     // Controle de Fluxo
     Turno: 0, // 0: Jogador, 1: Inimigo, -1: Encerrado

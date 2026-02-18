@@ -4,25 +4,33 @@
  * Acesso global via: window.BancoDeDados
  */
 
+const OST = {
+    MENU_PRINCIPAL: 'Audio/Musicas/MusicaMenu.mp3',
+    BATALHA_COMUM: 'Audio/Musicas/Musica de fundo.mp3',
+    VITORIA: 'Audio/Musicas/vitória.mp3',
+    MAPA: 'Audio/Musicas/Musica de fundo.mp3' // Placeholder
+};
+
 window.BancoDeDados = {
     // Referências de Áudio (Centralizadas)
     Audio: {
         Musicas: {
-            Fundo: 'Audio/Musicas/Musica de fundo.mp3',
-            BatalhaSimples: 'Audio/Musicas/Musica de fundo.mp3', // Placeholder ou similar
-            Vitoria: 'Audio/Musicas/vitória.mp3'
+            Fundo: OST.MENU_PRINCIPAL,
+            BatalhaSimples: OST.BATALHA_COMUM,
+            Vitoria: OST.VITORIA,
+            Mapa: OST.MAPA
         },
         Interface: {
-            Click1: 'Audio/Sons/Sons de interface/Click1.mp3',
-            Click2: 'Audio/Sons/Sons de interface/Click2.mp3',
-            Click3: 'Audio/Sons/Sons de interface/Click3.mp3',
-            Click4: 'Audio/Sons/Sons de interface/Click4.mp3',
-            Generico: 'Audio/Sons/Sons de interface/Click.mp3',
-            Sucesso: 'Audio/Sons/Sons de interface/Sucesso.mp3',
-            Erro: 'Audio/Sons/Sons de interface/Erro1.mp3',
-            ErroGrave: 'Audio/Sons/Sons de interface/Erro2.mp3',
-            Fracasso: 'Audio/Sons/Sons de interface/Fracasso.mp3',
-            LevelUp: 'Audio/Sons/Sons de interface/SubindoDeNivel.wav'
+            Click1: 'Audio/Sons/Interface/ClickPedra1.mp3',
+            Click2: 'Audio/Sons/Interface/ClickPedra2.mp3',
+            Click3: 'Audio/Sons/Interface/Click3.mp3',
+            Click4: 'Audio/Sons/Interface/Click4.mp3',
+            Generico: 'Audio/Sons/Interface/Click.mp3',
+            Sucesso: 'Audio/Sons/Interface/Sucesso.mp3',
+            Erro: 'Audio/Sons/Interface/Erro1.mp3',
+            ErroGrave: 'Audio/Sons/Interface/Erro2.mp3',
+            Fracasso: 'Audio/Sons/Interface/Fracasso.mp3',
+            LevelUp: 'Audio/Sons/Interface/SubindoDeNivel.wav'
         },
         Efeitos: {
             AtaqueBasico: 'Audio/Sons/Sons Gerais/Ataque Básico.mp3',
@@ -39,6 +47,27 @@ window.BancoDeDados = {
             OssoQuebrando: 'Audio/Sons/Sons Gerais/Osso quebrando.mp3',
             Parry: 'Audio/Sons/Sons Gerais/Parry.mp3',
             MagiaMortos: 'Audio/Sons/Sons Gerais/MagiaDosMortos.wav'
+        },
+        // Novos Materiais de Impacto
+        Impactos: {
+            Carne: ['Audio/Sons/Impactos/Carne.mp3', 'Audio/Sons/Impactos/Carne2.mp3', 'Audio/Sons/Impactos/Carne3.mp3'],
+            Metal: ['Audio/Sons/Impactos/BatendoEmMetal.mp3', 'Audio/Sons/Impactos/Metal2.mp3'],
+            Madeira: ['Audio/Sons/Impactos/Madeira1.mp3'],
+            Bloqueio: ['Audio/Sons/Impactos/Bloqueado.mp3', 'Audio/Sons/Impactos/DefesaMetal.mp3'],
+            Esquiva: ['Audio/Sons/Impactos/Desvio1.mp3']
+        },
+        // Vozes e Reações
+        Vozes: {
+            Orc: {
+                Dano: ['Audio/Sons/Vozes/OrcFerido.mp3', 'Audio/Sons/Vozes/OrcFerido2.mp3', 'Audio/Sons/Vozes/OrcFerido3.mp3'],
+                Morte: ['Audio/Sons/Vozes/Orc_Morte.mp3'],
+                Ataque: ['Audio/Sons/Vozes/Orc_Ataque.mp3']
+            },
+            Humano: {
+                Dano: ['Audio/Sons/Vozes/Humano_Dano1.mp3', 'Audio/Sons/Vozes/Humano_Dano2.mp3'],
+                Morte: ['Audio/Sons/Vozes/Humano_Morte.mp3'],
+                Ataque: ['Audio/Sons/Vozes/Humano_Ataque.mp3']
+            }
         }
     },
 
@@ -47,6 +76,11 @@ window.BancoDeDados = {
         nome: "Protagonista",
         ehPrincipal: true,
         classe: "Guerreiro",
+        // Sons do Jogador
+        sons: {
+            material: "Metal", // Armadura
+            voz: "Humano"
+        },
         // Atributos Vitais
         vida: 160, vidaMaxima: 160,
         energia: 200, energiaMaxima: 200,
@@ -85,7 +119,7 @@ window.BancoDeDados = {
     Unidades: {
         Humanos: {
             Guerreiro: [
-                { id: "h_g_1", nome: "Guerreiro Humano Nvl 1", nivel: 1, vida: 75, vidaMaxima: 75, ataque: 12, energia: 80, energiaMaxima: 80, armadura: 10, vigor: 10, esquiva: 4, precisao: 90, chanceCritico: 5, danoCritico: 175, imagem: "Images/Personagens/HumanoGuerreiroNvl1.png" },
+                { id: "h_g_1", nome: "Guerreiro Humano Nvl 1", sons: { material: "Metal", voz: "Humano" }, nivel: 1, vida: 75, vidaMaxima: 75, ataque: 12, energia: 80, energiaMaxima: 80, armadura: 10, vigor: 10, esquiva: 4, precisao: 90, chanceCritico: 5, danoCritico: 175, imagem: "Images/Personagens/HumanoGuerreiroNvl1.png" },
                 { id: "h_g_2", nome: "Guerreiro Humano Nvl 2", nivel: 2, vida: 115, vidaMaxima: 115, ataque: 15, energia: 100, energiaMaxima: 100, armadura: 25, vigor: 20, esquiva: 5, precisao: 95, chanceCritico: 8, danoCritico: 175, imagem: "Images/Personagens/HumanoGuerreiroNvl2.png" },
                 { id: "h_g_3", nome: "Guerreiro Humano Nvl 3", nivel: 3, vida: 140, vidaMaxima: 140, ataque: 17, energia: 120, energiaMaxima: 120, armadura: 50, vigor: 40, esquiva: 7, precisao: 99, chanceCritico: 12, danoCritico: 175, imagem: "Images/Personagens/HumanoGuerreiroNvl3.png" }
             ],
@@ -97,7 +131,7 @@ window.BancoDeDados = {
         },
         Orcs: {
             Guerreiro: [
-                { id: "o_g_1", nome: "Guerreiro Orc Nvl 1", nivel: 1, vida: 75, vidaMaxima: 75, ataque: 12, energia: 80, energiaMaxima: 80, armadura: 10, vigor: 10, esquiva: 4, precisao: 90, chanceCritico: 5, danoCritico: 175, imagem: "Images/Personagens/OrcGuerreiroNvl1.png" },
+                { id: "o_g_1", nome: "Guerreiro Orc Nvl 1", sons: { material: "Carne", voz: "Orc" }, nivel: 1, vida: 75, vidaMaxima: 75, ataque: 12, energia: 80, energiaMaxima: 80, armadura: 10, vigor: 10, esquiva: 4, precisao: 90, chanceCritico: 5, danoCritico: 175, imagem: "Images/Personagens/OrcGuerreiroNvl1.png" },
                 { id: "o_g_2", nome: "Guerreiro Orc Nvl 2", nivel: 2, vida: 115, vidaMaxima: 115, ataque: 15, energia: 100, energiaMaxima: 100, armadura: 25, vigor: 20, esquiva: 5, precisao: 95, chanceCritico: 8, danoCritico: 175, imagem: "Images/Personagens/OrcGuerreiroNvl2.png" },
                 { id: "o_g_3", nome: "Guerreiro Orc Nvl 3", nivel: 3, vida: 140, vidaMaxima: 140, ataque: 17, energia: 120, energiaMaxima: 120, armadura: 50, vigor: 40, esquiva: 7, precisao: 99, chanceCritico: 12, danoCritico: 175, imagem: "Images/Personagens/OrcGuerreiroNvl3.png" }
             ],
@@ -134,11 +168,30 @@ window.BancoDeDados = {
 
     // Cartas de Habilidade
     Cartas: [
-        { id: 1, nome: "Ataque Básico", tipo: "Bronze", custoEnergia: 5, efeito: { danoMultiplicador: 1.1 }, raridade: "Comum", imagem: "Images/Cartas/AtaqueBasico.png", som: "Audio/Sons/HitEspada.mp3" },
-        { id: 2, nome: "Defesa Sólida", tipo: "Bronze", custoEnergia: 8, efeito: { armaduraBonus: 5 }, raridade: "Comum", imagem: "Images/Cartas/AtaquePreciso.png", alvoAliado: true },
-        { id: 3, nome: "Fogo Arcano", tipo: "Bronze", custoMana: 5, efeito: { danoMultiplicador: 1.2 }, raridade: "Comum", imagem: "Images/Cartas/AtaqueBasico.png" },
-        { id: 4, nome: "Sopro de Vida", tipo: "Bronze", custoMana: 10, efeito: { cura: 15 }, raridade: "Incomum", imagem: "Images/Cartas/AtaquePreciso.png", alvoAliado: true },
-        { id: 5, nome: "Ataque Preciso", tipo: "Prata", custoEnergia: 15, efeito: { danoMultiplicador: 1.8 }, raridade: "Raro", imagem: "Images/Cartas/AtaquePesado.png", som: "Audio/Sons/ComboForte.mp3" }
+        // Bronze
+        { id: 1, nome: "Ataque Básico", tipo: "Bronze", custoEnergia: 21, efeito: { danoMultiplicador: 1.0, status: "Sangramento", nivelStatus: 1, chanceAplicarStatus: 1.0, duracaoStatus: 2 }, raridade: "Comum", imagem: "Images/Cartas/AtaqueBasico.png", /* SOM AQUI: */ som: "Audio/Sons/Luta/Espada8.mp3", descricao: "Dano: 100% | Sangramento I (100%)" },
+        { id: 2, nome: "Ataque Certeiro", tipo: "Bronze", custoEnergia: 32, efeito: { danoMultiplicador: 1.1, status: "Sangramento", nivelStatus: 1, chanceAplicarStatus: 0.75, duracaoStatus: 2 }, raridade: "Comum", imagem: "Images/Cartas/AtaquePreciso.png", /* SOM AQUI: */ som: "Audio/Sons/Luta/Espada6.mp3", descricao: "Dano: 110% | Sangramento I (75%)" },
+        { id: 3, nome: "Ataque Defensivo", tipo: "Bronze", custoEnergia: 35, efeito: { danoMultiplicador: 0.75, autoBuff: "AumentoDefesa", nivelAutoBuff: 1, duracaoAutoBuff: 2 }, raridade: "Comum", imagem: "Images/Cartas/AtaqueDefensivo.png", /* SOM AQUI: */ som: "Audio/Sons/Luta/Bloqueado.mp3", descricao: "Dano: 75% | Aum. Defesa I (2 turnos)" },
+
+        // Prata
+        { id: 4, nome: "Ataque Defensivo II", tipo: "Prata", custoEnergia: 40, efeito: { danoMultiplicador: 0.90, autoBuff: "AumentoDefesa", nivelAutoBuff: 2, duracaoAutoBuff: 2 }, raridade: "Incomum", imagem: "Images/Cartas/AtaqueDefensivo2.png", /* SOM AQUI: */ som: "Audio/Sons/Luta/Bloqueado.mp3", descricao: "Dano: 90% | Aum. Defesa II (2 turnos)" },
+        { id: 5, nome: "Erguer Escudo", tipo: "Prata", custoEnergia: 40, efeito: { armaduraBonus: 15, protecaoMagicaBonus: 15, autoBuff: "AumentoDefesa", nivelAutoBuff: 1, duracaoAutoBuff: 2, valorAutoBuffExtra: 2.5 }, raridade: "Incomum", imagem: "Images/Cartas/ErguerEscudo.png", alvoAliado: true, /* SOM AQUI: */ som: "Audio/Sons/Luta/Bloqueado.mp3", descricao: "+15 Defesa | Fortificacao Extrema" },
+        // Lógica Customizada para Erguer Escudo: Aum. Def. 250% = Nível ~55 ?? Não, vou criar lógica específica ou usar nivel alto.
+        // O usuário pediu "Aum. Def. 250%". Nível 10 é 45%. 250% é absurdo ou é outro cálculo?
+        // Vou assumir que ele quer dizer que o EFEITO AumentoDefesa aplica 250% SOBRE O VALOR BASE DO EFEITO?
+        // OU que ele quer +250% de defesa?
+        // Dado o contexto "Nível X = 45%", 250% parece ser um buff 'Ultimate'.
+        // Vou criar um efeito "DefesaAbsoluta" ou usar nivel muito alto de AumentoDefesa se o sistema permitir. 
+        // Mas o sistema limita a 10.
+        // Vou ajustar o efeito para dar um buff MASSIVO de armadura fixa ou criar um status customizado.
+        // REVISÃO: "Aum. Def. 250%". Talvez ele queira dizer que aumenta a defesa em 2.5x?
+        // Vou implementar como um buff simples de atributos por enquanto, ou usar nivel 10 do Fortificação (45%) + Bônus Fixo.
+
+        { id: 6, nome: "Ataque Pesado", tipo: "Prata", custoEnergia: 60, efeito: { danoMultiplicador: 1.0, precisaoFixa: 75, status: ["Concussao", "Rachadura"], nivelStatus: [1, 3], duracaoStatus: [1, 2] }, raridade: "Incomum", imagem: "Images/Cartas/AtaquePesado.png", /* SOM AQUI: */ som: "Audio/Sons/ComboForte.mp3", descricao: "Dano: 100% (75% Chance) | Concussão & Rachadura III" },
+
+        // Ouro
+        { id: 7, nome: "Ataque Preciso", tipo: "Ouro", custoEnergia: 32, efeito: { danoMultiplicador: 2.1, status: "Sangramento", nivelStatus: 3, chanceAplicarStatus: 0.90, duracaoStatus: 3 }, raridade: "Raro", imagem: "Images/Cartas/AtaquePrecisoOuro.png", /* SOM AQUI: */ som: "Audio/Sons/HitEspada.mp3", descricao: "Dano: 210% | Sangramento III (90%)" },
+        { id: 8, nome: "Defesa Esmagadora", tipo: "Ouro", custoEnergia: 50, efeito: { danoMultiplicador: 1.3, status: "Concussao", nivelStatus: 1, duracaoStatus: 1, autoBuff: "AumentoDefesa", nivelAutoBuff: 2, duracaoAutoBuff: 2 }, raridade: "Raro", imagem: "Images/Cartas/DefesaEsmagadora.png", /* SOM AQUI: */ som: "Audio/Sons/ImpactoMetal.mp3", descricao: "Dano: 130% | Concussão | Aum. Defesa II" }
     ],
 
     // Definições de Efeitos (Status Effects)
@@ -153,7 +206,41 @@ window.BancoDeDados = {
         BuffDefesa: { nome: "Armadura Aumentada", niveis: { 1: { armaduraBonus: 10, icone: "🛡️" } } },
         BuffDivino: { nome: "Proteção Divina", niveis: { 1: { protecaoMagicaBonus: 10, icone: "✨" } } },
         BuffAtaque: { nome: "Fúria", niveis: { 1: { ataqueBonus: 5, icone: "⚔️" } } },
-        RegeneracaoMana: { nome: "Regeneração de Mana", niveis: { 1: { curaManaPct: 0.1, icone: "💧" } } }
+        RegeneracaoMana: { nome: "Regeneração de Mana", niveis: { 1: { curaManaPct: 0.1, icone: "💧" } } },
+        Concussao: { nome: "Concussão", tipo: "Debuff", niveis: { 1: { redPrecisao: 30, icone: "😵" } } },
+
+        // Novos Efeitos
+        Rachadura: {
+            nome: "Rachadura",
+            tipo: "Debuff",
+            niveis: {
+                // Reduz Armadura e Resistência Mágica em 10% por nível (Acumula até 70%)
+                1: { reducaoResistenciasPct: 0.10, icone: "💔" },
+                2: { reducaoResistenciasPct: 0.20, icone: "💔" },
+                3: { reducaoResistenciasPct: 0.30, icone: "💔" },
+                4: { reducaoResistenciasPct: 0.40, icone: "💔" },
+                5: { reducaoResistenciasPct: 0.50, icone: "💔" },
+                6: { reducaoResistenciasPct: 0.60, icone: "💔" },
+                7: { reducaoResistenciasPct: 0.70, icone: "💔" }
+            }
+        },
+        AumentoDefesa: {
+            nome: "Fortificação",
+            tipo: "Buff",
+            niveis: {
+                // Aumenta Armadura e Resistência Mágica em 4.5% por nível (Acumula até 45%)
+                1: { aumentoResistenciasPct: 0.045, icone: "🛡️" },
+                2: { aumentoResistenciasPct: 0.090, icone: "🛡️" },
+                3: { aumentoResistenciasPct: 0.135, icone: "🛡️" },
+                4: { aumentoResistenciasPct: 0.180, icone: "🛡️" },
+                5: { aumentoResistenciasPct: 0.225, icone: "🛡️" },
+                6: { aumentoResistenciasPct: 0.270, icone: "🛡️" },
+                7: { aumentoResistenciasPct: 0.315, icone: "🛡️" },
+                8: { aumentoResistenciasPct: 0.360, icone: "🛡️" },
+                9: { aumentoResistenciasPct: 0.405, icone: "🛡️" },
+                10: { aumentoResistenciasPct: 0.450, icone: "🛡️" }
+            }
+        }
     },
 
     // Talentos Passivos

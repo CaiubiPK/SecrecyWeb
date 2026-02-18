@@ -40,40 +40,52 @@
         <!-- Tela de Seleção de Campanha -->
         <section id="tela-campanha" class="tela oculta">
             <h2 class="titulo-medieval">Selecione sua Jornada</h2>
-            <!-- Container Fullscreen removido pois o mapa foi removido -->
+
             <div class="campanhas-container">
                 <div class="card-campanha ativa" id="campanha-castelo">
+                    <h3>A Retomada do Castelo</h3>
                     <div class="decoracao-card">
-                        <img src="Images/Campanhas/CampanhaDoCastelo.png" alt="O Castelo de Igvuld">
+                        <img src="Images/Campanhas/Campanha1.png" alt="A Retomada do Castelo">
                     </div>
-                    <h3>O Castelo de Igvuld</h3>
                     <p>Enfrente a tirania no coração do reino.</p>
-                    <div class="tag-status">Disponível</div>
+                    <div class="tag-status">Iniciar Campanha</div>
                 </div>
 
                 <div class="card-campanha bloqueada">
-                    <div class="correntes">⛓️</div>
-                    <div class="decoracao-card">🌋</div>
                     <h3>As Terras de Fogo</h3>
+                    <div class="correntes"></div>
+                    <div class="decoracao-card">
+                        <div class="emoji-decor">🌋</div>
+                    </div>
                     <p>Em breve...</p>
                     <div class="tag-status">Bloqueado</div>
                 </div>
 
                 <div class="card-campanha bloqueada">
-                    <div class="correntes">⛓️</div>
-                    <div class="decoracao-card">❄️</div>
                     <h3>O Selo de Gelo</h3>
+                    <div class="correntes"></div>
+                    <div class="decoracao-card">
+                        <div class="emoji-decor">❄️</div>
+                    </div>
                     <p>Em breve...</p>
                     <div class="tag-status">Bloqueado</div>
                 </div>
+            </div>
+
+            <div class="controles-campanha">
+                <button class="botao-brilho btn-voltar-inicio" onclick="UI.TrocarTela('tela-inicial')">
+                    <span class="seta-voltar">?</span> Voltar ao Menu
+                </button>
             </div>
         </section>
 
         <!-- Tela do Mapa da Campanha -->
         <section id="tela-mapa-campanha" class="tela oculta">
-            <h2 class="titulo-medieval">Mapa da Jornada</h2>
             <div class="mapa-wrapper">
                 <div class="mapa-container">
+                    <div class="moldura-medieval-titulo-mapa">
+                        <h2 class="titulo-mapa-estilizado">A Retomada do Castelo</h2>
+                    </div>
                     <div class="mapa-caminho">
                         <!-- Marcador do Jogador -->
                         <div id="marcador-jogador" class="marcador-jogador">
@@ -82,46 +94,47 @@
 
                         <!-- Nível 1 -->
                         <div class="mapa-node ativo" id="node-1" onclick="Navigation.SelecionarFaseMapa(1)">
+                            <img src="Images/Cenarios/C1F1_AldeiaHumana.png" alt="Fase 1" class="node-background">
                             <div class="node-icon">Ⅰ</div>
                             <div class="node-tooltip">Cap. 1: A Jornada</div>
                         </div>
 
-                        <div class="mapa-link"></div>
 
                         <!-- Nível 2 -->
                         <div class="mapa-node bloqueado" id="node-2" onclick="Navigation.SelecionarFaseMapa(2)">
+                            <img src="Images/Cenarios/C1F2_Ponte.png" alt="Fase 2" class="node-background">
                             <div class="node-icon">Ⅱ</div>
                             <div class="node-tooltip">Cap. 2: Igvuld</div>
                         </div>
 
-                        <div class="mapa-link"></div>
 
                         <!-- Nível 3 -->
                         <div class="mapa-node bloqueado" id="node-3" onclick="Navigation.SelecionarFaseMapa(3)">
+                            <img src="Images/Cenarios/C1F3_TerraDosOrcs.png" alt="Fase 3" class="node-background">
                             <div class="node-icon">Ⅲ</div>
                             <div class="node-tooltip">Cap. 3: Lacaios</div>
                         </div>
 
-                        <div class="mapa-link"></div>
 
                         <!-- Nível 4 -->
                         <div class="mapa-node bloqueado" id="node-4" onclick="Navigation.SelecionarFaseMapa(4)">
+                            <img src="Images/Cenarios/C1F4_Castelo.png" alt="Fase 4" class="node-background">
                             <div class="node-icon">Ⅳ</div>
                             <div class="node-tooltip">Cap. 4: Zirgur</div>
                         </div>
 
-                        <div class="mapa-link"></div>
 
                         <!-- Nível 5 -->
                         <div class="mapa-node bloqueado" id="node-5" onclick="Navigation.SelecionarFaseMapa(5)">
+                            <img src="Images/Cenarios/C1F5_Passagem.png" alt="Fase 5" class="node-background">
                             <div class="node-icon">Ⅴ</div>
                             <div class="node-tooltip">Cap. 5: O Portão</div>
                         </div>
 
-                        <div class="mapa-link"></div>
 
                         <!-- Nível 6 -->
                         <div class="mapa-node bloqueado" id="node-6" onclick="Navigation.SelecionarFaseMapa(6)">
+                            <img src="Images/Cenarios/C1F6_Castelo.png" alt="Fase 6" class="node-background">
                             <div class="node-icon">Ⅵ</div>
                             <div class="node-tooltip">Cap. 6: Durotan</div>
                         </div>
@@ -129,10 +142,18 @@
                         <div class="mapa-link"></div>
 
                         <!-- Nível 7 -->
-                        <div class="mapa-node bloqueado" id="node-7" onclick="Navigation.SelecionarFaseMapa(7)">
+                        <div class="mapa-node bloqueado oculta" id="node-7" onclick="Navigation.SelecionarFaseMapa(7)">
+                            <img src="Images/Cenarios/C1F7_Castelo.png" alt="Fase 7" class="node-background">
                             <div class="node-icon">Ⅶ</div>
                             <div class="node-tooltip">Cap. 7: Gromn</div>
                         </div>
+
+                        <!-- SVG para Linhas de Conexão -->
+                        <svg class="mapa-conexoes" width="100%" height="100%"
+                            style="position:absolute; top:0; left:0; pointer-events:none; z-index:1;">
+                            <path id="path-conexoes" d="" fill="none" stroke="rgba(212, 175, 55, 0.4)" stroke-width="3"
+                                stroke-dasharray="10, 10" />
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -251,8 +272,8 @@
             <div id="modal-log-completo" class="modal-overlay oculta">
                 <div class="modal-conteudo modal-log-conteudo">
                     <div class="modal-header">
-                        <h2>Registro Completo de Combate</h2>
-                        <button class="fechar-modal" onclick="UI.FecharLogCompleto()">X</button>
+                        <h2 style="color: var(--cor-destaque);">Registro Completo de Combate</h2>
+                        <button class="botao-fechar" onclick="UI.FecharModal('modal-log-completo')">&times;</button>
                     </div>
                     <div id="conteudo-log-completo" class="log-scroll">
                         <!-- Lista completa inserida via JS -->
@@ -615,6 +636,26 @@
         </div>
     </div>
 
+    <!-- Modal de Detalhes do Item (Confirmação de Uso) -->
+    <div id="modal-item-detalhe" class="modal-overlay oculta">
+        <div class="modal-conteudo modal-pequeno">
+            <div class="modal-header">
+                <h2 id="item-detalhe-nome">Nome do Item</h2>
+                <button class="botao-fechar" onclick="UI.FecharModal('modal-item-detalhe')">&times;</button>
+            </div>
+            <div class="item-detalhe-corpo">
+                <div class="item-detalhe-imagem-container">
+                    <img id="item-detalhe-imagem" src="" alt="Item">
+                </div>
+                <p id="item-detalhe-descricao" class="item-detalhe-texto">Descrição do efeito do item aqui.</p>
+            </div>
+            <div class="item-detalhe-controles">
+                <button class="botao-acao btn-cancelar" onclick="UI.FecharModal('modal-item-detalhe')">Cancelar</button>
+                <button id="btn-confirmar-uso-item" class="botao-acao btn-confirmar">Utilizar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Efeitos Ativos -->
     <div id="modal-efeitos" class="modal-overlay oculta">
         <div class="modal-conteudo modal-pequeno">
@@ -629,18 +670,36 @@
     </div>
 
     <!-- Overlay de Seleção de Cartas (Atacar/Habilidades) -->
-    <div id="container-cartas" class="modal-overlay oculta">
-        <div class="modal-conteudo">
+    <!-- Overlay de Seleção de Cartas (Simplificado) -->
+    <div id="container-cartas" class="overlay-cartas oculta">
+        <!-- Título Removido, foco total nas cartas -->
+        <div id="cartas-wrapper-overlay" class="cartas-wrapper-simples">
+            <!-- Preenchido via JS -->
+        </div>
+        <button class="botao-cancelar-cartas"
+            onclick="window.GerenciadorInterface.FecharSelecaoCartas()">Cancelar</button>
+    </div>
+
+    <!-- NOVO: Modal de Detalhes da Fase (Mapa da Campanha) -->
+    <div id="modal-detalhes-fase" class="modal-overlay oculta">
+        <div class="modal-conteudo modal-fase">
             <div class="modal-header">
-                <h2 id="titulo-selecao-cartas">Selecione sua Ação</h2>
-                <button class="botao-fechar"
-                    onclick="window.GerenciadorInterface.FecharSelecaoCartas()">&times;</button>
+                <h2 id="fase-detalhe-titulo">Capítulo X</h2>
+                <button class="botao-fechar" onclick="UI.FecharModal('modal-detalhes-fase')">&times;</button>
             </div>
-            <div id="cartas-wrapper-overlay" class="cartas-wrapper">
-                <!-- Preenchido via JS -->
+            <div class="fase-detalhe-corpo">
+                <div class="fase-imagem-container">
+                    <img id="fase-detalhe-imagem" src="" alt="Cenário da Fase">
+                </div>
+                <div class="fase-info-container">
+                    <h3 id="fase-detalhe-subtitulo">Subtítulo da Fase</h3>
+                    <p id="fase-detalhe-descricao">Contextualização da fase aqui...</p>
+                </div>
             </div>
-            <div style="text-align: center; margin-top: 2rem;">
-                <button class="botao-acao" onclick="window.GerenciadorInterface.FecharSelecaoCartas()">Voltar</button>
+            <div class="fase-detalhe-controles">
+                <button class="botao-acao btn-cancelar"
+                    onclick="UI.FecharModal('modal-detalhes-fase')">Cancelar</button>
+                <button id="btn-confirmar-luta" class="botao-acao btn-lutar">LUTAR</button>
             </div>
         </div>
     </div>

@@ -42,9 +42,13 @@ window.GerenciadorInterface = {
         const btnConfig = document.getElementById('btn-config');
         if (btnConfig) btnConfig.onclick = () => this.AbrirModalConfig();
 
+        const btnLogCompleto = document.getElementById('btn-detalhes-log');
+        if (btnLogCompleto) btnLogCompleto.onclick = () => this.AbrirLogCompleto();
+
         window.FecharMenuConfig = () => this.FecharModal('modal-config');
         window.FecharDetalhesAtributos = () => this.FecharModal('modal-atributos');
         window.FecharModalBaralho = () => this.FecharModal('modal-baralho');
+        window.FecharLogCompleto = () => this.FecharModal('modal-log-completo');
         window.UI = this; // Alias reverso para compatibilidade de onClick no HTML
     },
 
@@ -54,7 +58,11 @@ window.GerenciadorInterface = {
             if (elJ) elJ.onclick = () => window.SistemaMira.ProcessarCliquePersonagem('aliado', i - 1);
 
             const elI = document.getElementById(`inimigo-${i}`);
-            if (elI) elI.onclick = () => window.SistemaMira.ProcessarCliquePersonagem('inimigo', i - 1);
+            if (elI) elI.onclick = () => {
+                //Colocarsom - Clique em Inimigo
+                window.GerenciadorAudio.TocarEfeito('Audio/Interface/Click_Inimigo.mp3');
+                window.SistemaMira.ProcessarCliquePersonagem('inimigo', i - 1);
+            };
         }
     },
 
@@ -73,14 +81,20 @@ window.GerenciadorInterface = {
     },
 
     AtualizarMusicaPorTela: function (idTela) {
-        if (idTela === 'tela-inicial') window.GerenciadorAudio.TocarMusica(window.BancoDeDados.Audio.Musicas.Fundo);
-        else if (idTela === 'tela-jogo') window.GerenciadorAudio.TocarMusica(window.BancoDeDados.Audio.Musicas.BatalhaSimples);
-        else if (idTela === 'tela-vitoria') window.GerenciadorAudio.TocarMusica(window.BancoDeDados.Audio.Musicas.Vitoria);
+        const musicas = window.BancoDeDados.Audio.Musicas;
+        if (idTela === 'tela-inicial') window.GerenciadorAudio.TocarMusica(musicas.Fundo);
+        else if (idTela === 'tela-campanha') window.GerenciadorAudio.TocarMusica(musicas.Mapa);
+        else if (idTela === 'tela-jogo') window.GerenciadorAudio.TocarMusica(musicas.BatalhaSimples);
+        else if (idTela === 'tela-vitoria') window.GerenciadorAudio.TocarMusica(musicas.Vitoria);
     },
 
     FecharModal: function (idModal) {
         const modal = this.ObterElemento(idModal);
-        if (modal) modal.classList.add('oculta');
+        if (modal) {
+            //Colocarsom - Fechar Janela/Modal
+            window.GerenciadorAudio.TocarEfeito('Audio/Interface/Fechar_Janela.mp3');
+            modal.classList.add('oculta');
+        }
     },
 
     FecharInventario: function () {
@@ -89,7 +103,11 @@ window.GerenciadorInterface = {
 
     AbrirModal: function (idModal) {
         const modal = this.ObterElemento(idModal);
-        if (modal) modal.classList.remove('oculta');
+        if (modal) {
+            //Colocarsom - Abrir Janela/Modal
+            window.GerenciadorAudio.TocarEfeito('Audio/Interface/Abrir_Janela.mp3');
+            modal.classList.remove('oculta');
+        }
     },
 
     // =========================================================================
@@ -220,14 +238,44 @@ window.GerenciadorInterface = {
     },
 
     AdicionarAoLog: function (texto, tipo) {
+        // Adiciona ao Estado Global (Histórico Completo)
+        if (!window.EstadoJogo.LogCombate) window.EstadoJogo.LogCombate = [];
+        window.EstadoJogo.LogCombate.push({ texto, tipo, timestamp: new Date().toLocaleTimeString() });
+
         const lista = this.ObterElemento('lista-log-recente');
         if (lista) {
             const item = document.createElement('div');
             item.className = `item-log ${tipo}`;
-            item.innerText = `> ${texto}`;
+            item.innerText = `${texto}`;
             lista.prepend(item);
-            if (lista.children.length > 6) lista.lastChild.remove();
+
+            // Mantém apenas os 3 últimos no HUD
+            while (lista.children.length > 3) {
+                lista.lastChild.remove();
+            }
         }
+    },
+
+    AbrirLogCompleto: function () {
+        const modal = this.ObterElemento('modal-log-completo');
+        const conteudo = this.ObterElemento('conteudo-log-completo');
+        if (!modal || !conteudo) return;
+
+        conteudo.innerHTML = '';
+        const logs = window.EstadoJogo.LogCombate || [];
+
+        logs.forEach(log => {
+            const item = document.createElement('div');
+            item.className = `item-log-completo ${log.tipo}`;
+            item.style.padding = '12px';
+            item.style.borderBottom = '1px solid rgba(255,255,255,0.15)';
+            item.style.fontSize = '1rem';
+            item.style.color = '#e0e0e0';
+            item.innerHTML = `<small style="color:#aaa; font-weight:bold">[${log.timestamp}]</small> <span style="margin-left:12px; color:#fff">${log.texto}</span>`;
+            conteudo.appendChild(item);
+        });
+
+        this.AbrirModal('modal-log-completo');
     },
 
     AtualizarStatus: function (idPrefixo, estadoAtual) {
@@ -267,6 +315,20 @@ window.GerenciadorInterface = {
             this.AtualizarTexto('roubo-jogador', (estadoAtual.rouboVida || 0) + '%');
             this.AtualizarTexto('pen-jogador-abs', estadoAtual.penetracaoArmadura || 0);
             this.AtualizarTexto('det-jogador', Math.floor(estadoAtual.determinacao || 0));
+        }
+
+        // Atualizar Grid de Atributos do Inimigo Selecionado
+        if (idPrefixo === 'inimigo') {
+            const nomeHud = this.ObterElemento('nome-inimigo-hud');
+            if (nomeHud) nomeHud.innerText = estadoAtual.nome;
+
+            this.AtualizarTexto('atk-inimigo', estadoAtual.ataque);
+            this.AtualizarTexto('def-inimigo', estadoAtual.armadura);
+            this.AtualizarTexto('vigor-inimigo', estadoAtual.vigor || 0);
+            this.AtualizarTexto('crit-inimigo', (estadoAtual.chanceCritico || 0) + '%');
+            this.AtualizarTexto('roubo-inimigo', (estadoAtual.rouboVida || 0) + '%');
+            this.AtualizarTexto('pen-inimigo-abs', estadoAtual.penetracaoArmadura || 0);
+            this.AtualizarTexto('det-inimigo', Math.floor(estadoAtual.determinacao || 0));
         }
 
         this.AtualizarIconesEfeitos(idPrefixo, estadoAtual.efeitos);
@@ -316,10 +378,7 @@ window.GerenciadorInterface = {
             if (carta.raridade) cardEl.classList.add(`raridade-${carta.raridade.toLowerCase()}`);
 
             cardEl.innerHTML = `
-                <div class="carta-custo">${carta.custoEnergia || 0}⚡</div>
-                <div class="carta-nome">${carta.nome}</div>
-                <div class="carta-imagem" style="background-image: url('${carta.imagem || ""}')"></div>
-                <div class="carta-descricao">${carta.descricao}</div>
+                <div class="carta-imagem-full" style="background-image: url('${carta.imagem || ""}')" title="${carta.nome} - ${carta.descricao}"></div>
             `;
 
             cardEl.onclick = () => window.SistemaCombate.TentarUsarCarta(index);
@@ -328,11 +387,11 @@ window.GerenciadorInterface = {
     },
 
     MostrarIndicadorFlutuante: function (idAlvo, valor, tipo) {
-        const el = this.ObterElemento(`indicador-dano-${idAlvo}`);
+        const el = this.ObterElemento(`indicador - dano - ${idAlvo} `);
         if (!el) return;
 
         const prefixo = tipo === 'cura' ? '+' : (tipo === 'dano' || tipo === 'critico' ? '-' : '');
-        el.innerText = `${prefixo}${valor}`;
+        el.innerText = `${prefixo}${valor} `;
         el.className = 'indicador-flutuante';
 
         requestAnimationFrame(() => {
@@ -340,7 +399,7 @@ window.GerenciadorInterface = {
             if (tipo === 'cura') el.style.color = '#00ff00';
             else if (tipo === 'critico') {
                 el.style.color = '#ffcc00';
-                el.innerText = `💥 ${valor}`;
+                el.innerText = `💥 ${valor} `;
             }
             else el.style.color = '#ff3333';
         });
@@ -373,7 +432,7 @@ window.GerenciadorInterface = {
 
     RenderizarPersonagens: function (jogadores, inimigos) {
         for (let i = 0; i < 3; i++) {
-            const el = document.getElementById(`jogador-${i + 1}`);
+            const el = document.getElementById(`jogador - ${i + 1} `);
             if (!el) continue;
 
             const dados = jogadores[i];
@@ -393,12 +452,20 @@ window.GerenciadorInterface = {
         }
 
         for (let i = 0; i < 3; i++) {
-            const el = document.getElementById(`inimigo-${i + 1}`);
+            const el = document.getElementById(`inimigo - ${i + 1} `);
             if (!el) continue;
 
             const dados = inimigos[i];
             if (dados && dados.vida > 0) {
                 el.classList.remove('oculta');
+
+                // Destaque para o selecionado no HUD
+                if (i === window.EstadoJogo.InimigoSelecionadoIndice) {
+                    el.classList.add('selecionado');
+                } else {
+                    el.classList.remove('selecionado');
+                }
+
                 const visual = el.querySelector('.visual-personagem');
                 const nome = el.querySelector('.nome-personagem');
 
@@ -435,16 +502,38 @@ window.GerenciadorInterface = {
                 img.src = item.imagem || "Images/Itens/PocaoDeVida.png";
                 slot.appendChild(img);
                 slot.title = item.nome;
-                slot.onclick = () => window.SistemaInventario.UsarItem(index);
+                slot.onclick = () => this.AbrirModalItemDetalhe(item, index);
             }
 
             grid.appendChild(slot);
         });
 
         const detalhes = this.ObterElemento('inventario-detalhes');
-        if (detalhes) detalhes.innerText = "Clique em um item para usar.";
+        if (detalhes) detalhes.innerText = "Selecione um item da mochila para ver as propriedades.";
     },
 
+    AbrirModalItemDetalhe: function (item, index) {
+        const modal = this.ObterElemento('modal-item-detalhe');
+        if (!modal) return;
+
+        this.ObterElemento('item-detalhe-nome').innerText = item.nome;
+        this.ObterElemento('item-detalhe-imagem').src = item.imagem || "Images/Itens/PocaoDeVida.png";
+        this.ObterElemento('item-detalhe-descricao').innerText = item.descricao || "Item sem descrição disponível.";
+
+        const btnUsar = document.getElementById('btn-confirmar-uso-item');
+        if (btnUsar) {
+            btnUsar.onclick = () => {
+                this.FecharModal('modal-item-detalhe');
+                window.SistemaInventario.UsarItem(index);
+            };
+        }
+
+        this.AbrirModal('modal-item-detalhe');
+    },
+
+    // =========================================================================
+    // MODAL DE BARALHO (DECK)
+    // =========================================================================
     // =========================================================================
     // MODAL DE BARALHO (DECK)
     // =========================================================================
@@ -454,9 +543,12 @@ window.GerenciadorInterface = {
         if (!grid) return;
 
         grid.innerHTML = '';
-        // Mostra todas as cartas disponíveis no banco (simulação de coleção)
-        // Idealmente usaria window.EstadoJogo.Deck ou similar
-        const cartas = window.BancoDeDados.Cartas;
+
+        // Usa o DECK do estado se existir, senão usa todas as cartas do banco (fallback)
+        let cartas = window.EstadoJogo.Deck;
+        if (!cartas || cartas.length === 0) {
+            cartas = window.BancoDeDados.Cartas;
+        }
 
         cartas.forEach(carta => {
             const el = document.createElement('div');
@@ -498,35 +590,34 @@ window.GerenciadorInterface = {
     AbrirSelecaoCartas: function (tipo) {
         const overlay = this.ObterElemento('container-cartas');
         const wrapper = this.ObterElemento('cartas-wrapper-overlay');
-        const titulo = this.ObterElemento('titulo-selecao-cartas');
 
         if (!overlay || !wrapper) return;
 
-        titulo.innerText = tipo === 'atacar' ? "Selecione seu Ataque" : "Selecione uma Habilidade";
+        // Limpa wrapper para renderizar
         wrapper.innerHTML = '';
 
-        // Filtra a mão ou mostra toda a mão com destaque?
-        // O usuário pediu "as cartas devem aparecer", então vamos mostrar o overlay.
         const mao = window.EstadoJogo.Mao || [];
 
         mao.forEach((carta, index) => {
+            // Filtragem por Tipo de Ação
+            const usaMana = (carta.custoMana || 0) > 0;
+            const usaEnergia = (carta.custoEnergia || 0) > 0;
+
+            // Se for Habilidade, mostra cartas de Mana. Se for Atacar, mostra Energia (ou custo zero).
+            const mostrar = tipo === 'habilidade' ? usaMana : (!usaMana);
+
+            if (!mostrar) return;
+
             const cardEl = document.createElement('div');
-            cardEl.className = 'carta';
+            cardEl.className = 'carta-overlay';
             if (carta.raridade) cardEl.classList.add(`raridade-${carta.raridade.toLowerCase()}`);
 
             // Adiciona tipo para visual (opcional)
-            const ehHabilidade = carta.custoMana > 0;
-            const corBorda = ehHabilidade ? '#3498db' : '#d4af37';
+            const corBorda = usaMana ? '#3498db' : '#d4af37';
             cardEl.style.borderColor = corBorda;
 
             cardEl.innerHTML = `
-                <div class="tag-raridade raridade-${carta.raridade.toLowerCase()}">${carta.raridade}</div>
-                <div class="carta-imagem" style="background-image: url('${carta.imagem || ""}')"></div>
-                <div class="info-carta">
-                    <div class="nome-carta">${carta.nome}</div>
-                    <div class="custo-carta">${carta.custoEnergia ? carta.custoEnergia + '⚡' : ''} ${carta.custoMana ? carta.custoMana + '🔹' : ''}</div>
-                    <p style="font-size: 0.8rem; opacity: 0.8;">${carta.descricao || ''}</p>
-                </div>
+                <div class="carta-imagem-full" style="background-image: url('${carta.imagem || ""}')" title="${carta.nome} - ${carta.descricao}"></div>
             `;
 
             cardEl.onclick = () => {

@@ -32,7 +32,10 @@ function ConfigurarEventosIniciais() {
     const btnIniciar = document.getElementById('botao-iniciar');
     if (btnIniciar) {
         btnIniciar.onclick = () => {
-            window.GerenciadorAudio.TocarEfeito('Click1');
+            //Colocarsom - Clique no Iniciar Jogo
+            window.GerenciadorAudio.TocarEfeito('Audio/Interface/Click_Start.mp3');
+            // Música Inicial solicitada pelo usuário
+            window.GerenciadorAudio.TocarMusica('Audio/Musicas/MusicaMenu.mp3');
             window.GerenciadorInterface.TrocarTela('tela-nome');
         };
     }
@@ -46,7 +49,9 @@ function ConfigurarEventosIniciais() {
 
             window.EstadoJogo.Jogadores[0].nome = nome;
             window.GerenciadorInterface.ExibirMensagem(`Bem-vindo, ${nome}!`);
-            window.GerenciadorAudio.TocarEfeito('Sucesso');
+
+            //Colocarsom - Confirmação de Nome / Sucesso
+            window.GerenciadorAudio.TocarEfeito('Audio/Interface/Sucesso_Nome.mp3');
 
             window.GerenciadorInterface.TrocarTela('tela-campanha');
         };
@@ -56,7 +61,8 @@ function ConfigurarEventosIniciais() {
     const cardCastelo = document.getElementById('campanha-castelo');
     if (cardCastelo) {
         cardCastelo.onclick = () => {
-            window.GerenciadorAudio.TocarEfeito('Click2');
+            //Colocarsom - Seleção de Campanha
+            window.GerenciadorAudio.TocarEfeito('Audio/Sons/Interface/Papel.mp3');
             window.Navigation.MostrarMapaCampanha();
         };
     }

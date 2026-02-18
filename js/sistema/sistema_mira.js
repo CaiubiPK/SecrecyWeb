@@ -94,7 +94,14 @@ window.SistemaMira = {
      * Chamado quando o jogador clica em um personagem na tela
      */
     ProcessarCliquePersonagem: function (tipo, indice) {
-        if (!this.ModoAtivo) return;
+        if (!this.ModoAtivo) {
+            if (tipo === 'inimigo') {
+                window.EstadoJogo.InimigoSelecionadoIndice = indice;
+                window.SistemaCombate.AtualizarInterfaceCompleta();
+                console.log(`🎯 [MIRA] Inimigo ${indice} selecionado para o HUD.`);
+            }
+            return;
+        }
 
         // Verifica validade
         const ehValido = this.AlvosPermitidos.some(a => a.tipo === tipo && a.indice === indice);

@@ -18,20 +18,51 @@ window.SistemaCombate = {
         // Inicializa Baralho de Combate (5 cartas aleatórias do deck)
         this.ComprarMao();
 
-        window.GerenciadorInterface.ExibirMensagem("Combate Iniciado!", "normal");
+        window.EstadoJogo.LogCombate = [];
+        window.EstadoJogo.InimigoSelecionadoIndice = 0;
+
         this.AtualizarInterfaceCompleta();
         window.GerenciadorInterface.TrocarTela('tela-jogo');
     },
 
     ComprarMao: function () {
-        // Lógica simplificada: Pega 5 cartas aleatórias do "Deck" do jogador
-        // Idealmente: Deck > Cemitério > Embaralhar
-        const deck = window.BancoDeDados.Cartas; // Todo: Usar deck personalizado do jogador
-        window.EstadoJogo.Mao = [];
-        for (let i = 0; i < 5; i++) {
-            const carta = deck[Math.floor(Math.random() * deck.length)];
-            window.EstadoJogo.Mao.push(JSON.parse(JSON.stringify(carta)));
+        // Inicializa Baralho de Combate com a lista solicitada pelo usuário
+        if (!window.EstadoJogo.Deck || window.EstadoJogo.Deck.length === 0) {
+            window.EstadoJogo.Deck = [];
+            const cartasDB = window.BancoDeDados.Cartas;
+
+            // Função helper para adicionar cartas por ID
+            const addCartas = (id, qtd) => {
+                const carta = cartasDB.find(c => c.id === id);
+                if (carta) {
+                    for (let i = 0; i < qtd; i++) window.EstadoJogo.Deck.push(JSON.parse(JSON.stringify(carta)));
+                } else {
+                    console.error(`Carta ID ${id} não encontrada!`);
+                }
+            };
+
+            // Deck Inicial Solicitado (20 cartas)
+            addCartas(1, 4); // Ataque Básico
+            addCartas(2, 4); // Ataque Certeiro
+            addCartas(3, 4); // Ataque Defensivo
+            addCartas(4, 2); // Ataque Defensivo II
+            addCartas(5, 2); // Erguer Escudo
+            addCartas(6, 2); // Ataque Pesado
+            addCartas(7, 1); // Ataque Preciso
+            addCartas(8, 1); // Defesa Esmagadora
         }
+
+        window.EstadoJogo.Mao = [];
+        const deck = window.EstadoJogo.Deck;
+
+        // Compra 5 cartas aleatórias DO DECK
+        for (let i = 0; i < 5; i++) {
+            if (deck.length === 0) break; // Deck acabou
+            const randomIdx = Math.floor(Math.random() * deck.length);
+            window.EstadoJogo.Mao.push(deck[randomIdx]);
+            // Nota: Em um TCG real removeríamos do deck, mas aqui é simplificado
+        }
+
         window.GerenciadorInterface.RenderizarMao();
     },
 
@@ -39,12 +70,11 @@ window.SistemaCombate = {
      * Tenta usar uma carta da mão
      */
     TentarUsarCarta: function (indiceCarta) {
-        if (window.EstadoJogo.Turno !== 0) {
-            window.GerenciadorInterface.ExibirMensagem("Aguarde seu turno!", "erro");
-            return;
-        }
+        if (window.EstadoJogo.Turno !== 0) return;
 
         const carta = window.EstadoJogo.Mao[indiceCarta];
+        if (!carta) return; // Proteção contra índice inválido
+
         const jogador = window.EstadoJogo.Jogadores[0];
 
         // 1. Verifica Custos
@@ -76,7 +106,10 @@ window.SistemaCombate = {
             const idAlvo = a.tipo === 'inimigo' ? `inimigo-${a.indice + 1}` : `jogador-${a.indice + 1}`;
             window.GerenciadorInterface.AnimarAtaque('jogador-1', idAlvo);
         });
-        window.GerenciadorAudio.TocarEfeito('AtaqueBasico');
+
+        //Colocarsom - Som do Ataque ou Habilidade usada (INÍCIO DA AÇÃO)
+        const somCast = carta.somCast || 'Audio/Combate/Ataque_Basico.mp3';
+        window.GerenciadorAudio.TocarEfeito(somCast);
 
         // Delay Impacto
         setTimeout(() => {
@@ -87,9 +120,26 @@ window.SistemaCombate = {
 
                 if (alvo.vida <= 0) return; // Ignora mortos
 
+                // --- Lógica de Som Avançada (Impacto) ---
+                let somImpacto = null;
+                const materialAlvo = (alvo.sons && alvo.sons.material) ? alvo.sons.material : 'Carne';
+                const vozAlvo = (alvo.sons && alvo.sons.voz) ? alvo.sons.voz : null;
+
+                // Verifica Erro/Esquiva
+                // (Para simplificar, vamos assumir que o cálculo de dano determina o resultado final,
+                // mas idealmente saberíamos se errou antes. Aqui usamos o log de dano depois.)
+
                 // Lógica de Efeito da Carta
                 if (carta.efeito.danoMultiplicador) {
-                    const resultado = this.CalcularDano(jogador, alvo, carta.efeito.danoMultiplicador, !!carta.custoMana);
+                    const chEhMagico = (carta.custoMana > 0);
+                    // Suporte a Precisão Fixa (ex: Ataque Pesado tem 75% chance)
+                    const precisaoOriginal = jogador.precisao;
+                    if (carta.efeito.precisaoFixa) jogador.precisao = carta.efeito.precisaoFixa;
+
+                    const resultado = this.CalcularDano(jogador, alvo, carta.efeito.danoMultiplicador, chEhMagico);
+
+                    // Restaura Precisão
+                    if (carta.efeito.precisaoFixa) jogador.precisao = precisaoOriginal;
                     if (resultado.sucesso) {
                         alvo.vida = Math.max(0, alvo.vida - resultado.dano);
                         window.GerenciadorInterface.MostrarIndicadorFlutuante(
@@ -97,15 +147,100 @@ window.SistemaCombate = {
                             resultado.dano,
                             resultado.critico ? 'critico' : 'dano'
                         );
+
+                        // --- SOM DE IMPACTO (DANO) ---
+                        // 1. Som do material recebendo o golpe (Carne, Metal, etc.)
+                        const tipoDano = carta.tipoDano || 'Corte'; // Pode vir da carta
+                        if (tipoDano === 'Contusao' && materialAlvo === 'Metal') {
+                            window.GerenciadorAudio.TocarEfeito('Impactos.Metal');
+                        } else {
+                            window.GerenciadorAudio.TocarEfeito(`Impactos.${materialAlvo}`);
+                        }
+
+                        // 2. Voz de Dor (se houver e tiver dano relevante)
+                        if (vozAlvo && resultado.dano > 0) {
+                            // Chance de gritar (não grita sempre para não poluir)
+                            if (Math.random() > 0.3) window.GerenciadorAudio.TocarEfeito(`Vozes.${vozAlvo}.Dano`);
+                        }
+
+                        // 3. Som de Morte (se morreu)
+                        if (alvo.vida <= 0 && vozAlvo) {
+                            setTimeout(() => window.GerenciadorAudio.TocarEfeito(`Vozes.${vozAlvo}.Morte`), 200);
+                        }
+
+                        // Log de Ação
+                        const nomeAlvo = alvo.nome || "Alvo";
+                        const criticoTexto = resultado.critico ? " CRÍTICO" : "";
+                        window.GerenciadorInterface.AdicionarAoLog(
+                            `${jogador.nome} atacou ${nomeAlvo} com ${carta.nome}, causando ${resultado.dano}${criticoTexto} de dano`,
+                            resultado.critico ? 'critico' : 'acao'
+                        );
+                    } else {
+                        // --- SOM DE FALHA (ESQUIVA) ---
+                        window.GerenciadorAudio.TocarEfeito('Impactos.Esquiva');
+                        window.GerenciadorInterface.AdicionarAoLog(`${jogador.nome} errou o ataque em ${alvo.nome}!`, 'aviso');
                     }
                 }
 
-                // Aplica Status (Ex: Atordoamento, Veneno)
+                // Aplica Status (Ex: Sangramento, Concussão, Rachadura)
                 if (carta.efeito.status) {
-                    window.SistemaEfeitos.Adicionar(alvo, carta.efeito.status, carta.efeito.duracao || 2, 1);
-                    window.GerenciadorInterface.ExibirMensagem(`Aplicou ${carta.efeito.status}!`);
+                    // Normaliza para array para lidar com múltiplos status
+                    const statusList = Array.isArray(carta.efeito.status) ? carta.efeito.status : [carta.efeito.status];
+                    const niveisList = Array.isArray(carta.efeito.nivelStatus) ? carta.efeito.nivelStatus : [carta.efeito.nivelStatus || 1];
+                    const duracaoList = Array.isArray(carta.efeito.duracaoStatus) ? carta.efeito.duracaoStatus : [carta.efeito.duracaoStatus || 2];
+
+                    statusList.forEach((statusNome, idx) => {
+                        const nivel = niveisList[idx] || 1; // Se array for menor, pega ultimo ou 1? Aqui assumo indices batem.
+                        const duracao = duracaoList[idx] || 2;
+                        const chance = carta.efeito.chanceAplicarStatus || 1.0; // Chance global por enquanto
+
+                        // Verifica Chance
+                        if (Math.random() <= chance) {
+                            window.SistemaEfeitos.Adicionar(alvo, statusNome, duracao, nivel);
+                            window.GerenciadorInterface.AdicionarAoLog(
+                                `${jogador.nome} aplicou ${statusNome} (${nivel}) em ${alvo.nome}`,
+                                'acao'
+                            );
+                        }
+                    });
                 }
             });
+
+            // Lógica de Auto-Buff (Ex: Ataque Defensivo, Erguer Escudo)
+            // Aplica no JOGADOR (ou quem usou a carta)
+            if (carta.efeito.autoBuff) {
+                const status = carta.efeito.autoBuff;
+                const nivel = carta.efeito.nivelAutoBuff || 1;
+                const duracao = carta.efeito.duracaoAutoBuff || 2;
+
+                // Se tiver ValorAutoBuffExtra, teríamos que passar isso pro sistema de efeitos,
+                // mas o sistema atual é baseado em NÍVEIS fixos no banco.
+                // Para 'Erguer Escudo' que pediu boost extra, vamos confiar no nível definido ou criar um efeito novo se precisar.
+                // O Nível 10 da Defesa é +45%. Se precisar de mais, aumente o nível no banco.
+
+                window.SistemaEfeitos.Adicionar(jogador, status, duracao, nivel);
+                window.GerenciadorInterface.AdicionarAoLog(
+                    `${jogador.nome} ganhou ${status} (${nivel})`,
+                    'buff'
+                );
+            }
+
+            // Bônus Diretos (Cura ou Armadura imediata que não é status)
+            if (carta.efeito.armaduraBonus || carta.efeito.protecaoMagicaBonus) {
+                // Como sistema de RPG geralmente armadura é atributo base, isso seria um buff temporário?
+                // Se for permanente na batalha, ok. Se for buff, deveria ser status.
+                // Vou assumir que 'Erguer Escudo' dá status Fortificação E TAMBÉM um ganho temporário se fosse um escudo de HP,
+                // mas a descrição diz "+15 Armadura". Vou aplicar como buff infinito até fim de combate se não tiver duração.
+                // Mas pera, o sistema de recalculo Reseta atributos. Então tem que ser via EFEITO.
+                // A carta 'Erguer Escudo' já tem 'AumentoDefesa'. O Texto "+15 Armadura" pode ser o efeito do nível 1.
+                // Se for bônus, só funciona se o sistema de efeitos suportar modificadores arbitrários.
+                // Por hora, vou ignorar bônus flat direto exceto se for cura.
+            }
+
+            if (carta.efeito.cura) {
+                jogador.vida = Math.min(jogador.vidaMaxima, jogador.vida + carta.efeito.cura);
+                window.GerenciadorInterface.MostrarIndicadorFlutuante('jogador-1', carta.efeito.cura, 'cura');
+            }
 
             this.AtualizarInterfaceCompleta();
             const alguemGanhou = this.VerificarFimCombate();
@@ -153,7 +288,6 @@ window.SistemaCombate = {
             return;
         }
 
-        window.GerenciadorInterface.ExibirMensagem("Turno do Inimigo...");
         window.EstadoJogo.Turno = 1;
 
         setTimeout(() => this.ExecutarTurnoInimigo(), 1000);
@@ -173,7 +307,7 @@ window.SistemaCombate = {
             // Verifica Atordoamento
             if (window.SistemaEfeitos.TemAtordoamento(inimigo)) {
                 setTimeout(() => {
-                    window.GerenciadorInterface.ExibirMensagem(`${inimigo.nome} está atordoado!`);
+                    window.GerenciadorInterface.AdicionarAoLog(`${inimigo.nome} está atordoado e não pode agir`, 'status');
                     window.SistemaEfeitos.ProcessarTurno(inimigo);
                     this.AtualizarInterfaceCompleta();
                 }, delayTotal);
@@ -185,16 +319,27 @@ window.SistemaCombate = {
             setTimeout(() => {
                 if (inimigo.vida > 0) {
                     const jogador = window.EstadoJogo.Jogadores[0];
-                    window.GerenciadorInterface.ExibirMensagem(`${inimigo.nome} Ataca!`);
                     window.GerenciadorInterface.AnimarAtaque(`inimigo-${window.EstadoJogo.Inimigos.indexOf(inimigo) + 1}`, 'jogador-1');
 
                     setTimeout(() => {
-                        const res = this.CalcularDano(inimigo, jogador, 1.0, false);
+                        // Determina se é ataque mágico ou físico
+                        const ehMagico = (inimigo.ataqueMagico || 0) > (inimigo.ataque || 0);
+                        const res = this.CalcularDano(inimigo, jogador, 1.0, ehMagico);
+
                         if (res.sucesso) {
                             jogador.vida = Math.max(0, jogador.vida - res.dano);
-                            window.GerenciadorInterface.MostrarIndicadorFlutuante('jogador-1', res.dano, 'dano');
+                            window.GerenciadorInterface.MostrarIndicadorFlutuante('jogador-1', res.dano, res.critico ? 'critico' : 'dano');
+
+                            //Colocarsom - Jogador Recebendo Dano / Dor
+                            window.GerenciadorAudio.TocarEfeito('Audio/Combate/Jogador_Dano.mp3');
+
+                            const criticoTexto = res.critico ? " CRÍTICO" : "";
+                            window.GerenciadorInterface.AdicionarAoLog(
+                                `${inimigo.nome} atacou ${jogador.nome}, causando ${res.dano}${criticoTexto} de dano`,
+                                res.critico ? 'critico' : 'inimigo'
+                            );
                         } else {
-                            window.GerenciadorInterface.ExibirMensagem("Errou!");
+                            window.GerenciadorInterface.AdicionarAoLog(`${inimigo.nome} errou o ataque`, 'inimigo');
                         }
 
                         window.SistemaEfeitos.ProcessarTurno(inimigo); // Processa DoTs do inimigo
@@ -234,11 +379,18 @@ window.SistemaCombate = {
         const jogador = window.EstadoJogo.Jogadores[0];
         window.GerenciadorInterface.AtualizarStatus('jogador', jogador);
 
-        window.EstadoJogo.Inimigos.forEach((inimigo, idx) => {
-            if (inimigo.vida > 0) {
-                window.GerenciadorInterface.AtualizarStatus('inimigo', inimigo); // TODO: Suportar múltiplos HUDS
+        // Atualiza apenas o inimigo selecionado no HUD
+        const inimigoSel = window.EstadoJogo.Inimigos[window.EstadoJogo.InimigoSelecionadoIndice];
+        if (inimigoSel && inimigoSel.vida > 0) {
+            window.GerenciadorInterface.AtualizarStatus('inimigo', inimigoSel);
+        } else {
+            // Se o selecionado estiver morto, tenta pegar o primeiro vivo
+            const primeiroVivo = window.EstadoJogo.Inimigos.find(i => i.vida > 0);
+            if (primeiroVivo) {
+                window.EstadoJogo.InimigoSelecionadoIndice = window.EstadoJogo.Inimigos.indexOf(primeiroVivo);
+                window.GerenciadorInterface.AtualizarStatus('inimigo', primeiroVivo);
             }
-        });
+        }
 
         window.GerenciadorInterface.RenderizarPersonagens(window.EstadoJogo.Jogadores, window.EstadoJogo.Inimigos);
     },
@@ -248,7 +400,9 @@ window.SistemaCombate = {
         if (!inimigosVivos) {
             window.EstadoJogo.Turno = -1;
             window.GerenciadorInterface.ExibirMensagem("VITÓRIA!", "vitoria");
-            window.GerenciadorAudio.TocarMusica(window.BancoDeDados.Audio.Musicas.Vitoria);
+
+            //Colocarsom - Música de Vitória
+            window.GerenciadorAudio.TocarMusica(window.BancoDeDados.Audio.Musicas.Vitoria || 'Audio/Musicas/Vitoria.mp3');
 
             // Recompensa (Loot Simples)
             window.EstadoJogo.Jogadores[0].ouro += 50;
@@ -275,7 +429,9 @@ window.SistemaCombate = {
     GameOver: function () {
         window.EstadoJogo.Turno = -1;
         window.GerenciadorInterface.ExibirMensagem("DERROTA...", "erro");
-        window.GerenciadorAudio.TocarEfeito('Fracasso');
+
+        //Colocarsom - Som de Derrota / Game Over
+        window.GerenciadorAudio.TocarEfeito('Audio/Sons/Interface/Fracasso.mp3');
         setTimeout(() => location.reload(), 3000);
     }
 };

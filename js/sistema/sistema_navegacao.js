@@ -6,13 +6,19 @@
 window.SistemaNavegacao = {
 
     MostrarMapaCampanha: function () {
-        console.log("[NAVEGACAO] Mostrar Mapa");
+        console.log("🗺️ [NAVEGACAO] Abrindo Mapa...");
         const desbloqueadas = window.EstadoJogo.FasesDesbloqueadas || 1;
 
-        // Atualiza visual dos nós no mapa
+        // Atualiza visual e visibilidade dos nós
         for (let i = 1; i <= 7; i++) {
             const node = document.getElementById(`node-${i}`);
             if (node) {
+                // Lógica da última fase oculta (Gromn)
+                if (i === 7) {
+                    if (desbloqueadas >= 7) node.classList.remove('oculta');
+                    else node.classList.add('oculta');
+                }
+
                 if (i <= desbloqueadas) {
                     node.classList.remove('bloqueado');
                     node.classList.add('ativo');
@@ -23,48 +29,116 @@ window.SistemaNavegacao = {
             }
         }
 
-        this.AtualizarMarcadorMapa(window.EstadoJogo.FaseAtual || 1);
+        // Atualiza marcador COM animação (força reposição)
+        this.AtualizarMarcadorMapa(window.EstadoJogo.FaseAtual || desbloqueadas, true);
+
+        // Pequeno delay para garantir que o layout renderizou antes de desenhar as linhas
+        setTimeout(() => {
+            this.DesenharLinhasConexao();
+        }, 200);
+
         window.GerenciadorInterface.TrocarTela('tela-mapa-campanha');
+
+        //Colocarsom - Música de Fundo do Mapa
+        window.GerenciadorAudio.TocarMusica('Audio/Musicas/DurianSlowed.mp4');
     },
 
-    AtualizarMarcadorMapa: function (faseId) {
+    DesenharLinhasConexao: function () {
+        const path = document.getElementById('path-conexoes');
+        if (!path) return;
+
+        // Sequência de conexão visual (conforme a imagem)
+        const sequencia = [1, 7, 2, 3, 4, 5, 6];
+        let d = "";
+
+        const view = document.querySelector('.mapa-caminho');
+        if (!view) return;
+
+        sequencia.forEach((id, index) => {
+            const node = document.getElementById(`node-${id}`);
+            if (node && !node.classList.contains('oculta')) {
+                const x = node.offsetLeft + (node.offsetWidth / 2);
+                const y = node.offsetTop + (node.offsetHeight / 2);
+
+                if (d === "") d += `M ${x} ${y}`;
+                else d += ` L ${x} ${y}`;
+            }
+        });
+
+        path.setAttribute('d', d);
+    },
+
+    AtualizarMarcadorMapa: function (faseId, instantaneo = false) {
         const node = document.getElementById(`node-${faseId}`);
         const marcador = document.getElementById('marcador-jogador');
 
         if (node && marcador) {
-            // Pequeno delay para garantir que a tela esteja visível para cálculo de posição
-            setTimeout(() => {
-                const rect = node.getBoundingClientRect();
-                const containerRect = document.querySelector('.mapa-wrapper').getBoundingClientRect();
+            const x = node.offsetLeft + (node.offsetWidth / 2) - (marcador.offsetWidth / 2);
+            const y = node.offsetTop - (marcador.offsetHeight) + 10;
 
-                // Cálculo relativo ao container do mapa
-                const left = (node.offsetLeft + (node.offsetWidth / 2)) - (marcador.offsetWidth / 2);
-                const top = node.offsetTop - (marcador.offsetHeight);
-
-                marcador.style.left = left + 'px';
-                marcador.style.top = top + 'px';
-            }, 100);
+            if (instantaneo) {
+                marcador.style.transition = 'none';
+                marcador.style.left = x + 'px';
+                marcador.style.top = y + 'px';
+                // Força reflow para aplicar o estilo sem animação
+                marcador.offsetHeight;
+                marcador.style.transition = '';
+            } else {
+                marcador.style.left = x + 'px';
+                marcador.style.top = y + 'px';
+            }
         }
     },
 
     SelecionarFaseMapa: function (faseId) {
         if (faseId > (window.EstadoJogo.FasesDesbloqueadas || 1)) {
+            //Colocarsom - Som de Bloqueio / Correntes
+            window.GerenciadorAudio.TocarEfeito('Audio/Interface/Bloqueado.mp3');
             window.GerenciadorInterface.ExibirMensagem("Esta fase ainda está bloqueada!", "erro");
             return;
         }
 
-        console.log(`[NAVEGACAO] Selecionar Fase: ${faseId}`);
+        //Colocarsom - Som de Passos / Movimento no Mapa
+        window.GerenciadorAudio.TocarEfeito('Audio/Interface/Passos_Mapa.mp3');
+
         window.EstadoJogo.FaseAtual = faseId;
+
+        console.log(`🏃 [NAVEGACAO] Movendo personagem para fase ${faseId}...`);
         this.AtualizarMarcadorMapa(faseId);
 
-        // Transição para história
+        // Espera a animação de movimento (1.5s no CSS) terminar para abrir o menu
         setTimeout(() => {
-            this.MostrarHistoria(faseId);
-        }, 500);
+            this.AbrirMenuDetalhesFase(faseId);
+        }, 1500);
+    },
+
+    AbrirMenuDetalhesFase: function (faseId) {
+        const campanha = window.BancoDeDados.Campanhas.Castelo;
+        const dadosNivel = campanha.niveis[faseId];
+
+        if (!dadosNivel) return;
+
+        console.log(`📜 [NAVEGACAO] Abrindo detalhes da fase ${faseId}`);
+
+        // Preenche o modal com as informações da fase
+        document.getElementById('fase-detalhe-titulo').innerText = dadosNivel.historia.titulo || `Fase ${faseId}`;
+        document.getElementById('fase-detalhe-subtitulo').innerText = dadosNivel.nome || dadosNivel.historia.subtitulo || "";
+        document.getElementById('fase-detalhe-descricao').innerText = dadosNivel.historia.texto;
+        document.getElementById('fase-detalhe-imagem').src = dadosNivel.cenario;
+
+        // Configura o botão de LUTAR
+        const btnLutar = document.getElementById('btn-confirmar-luta');
+        if (btnLutar) {
+            btnLutar.onclick = () => {
+                window.GerenciadorInterface.FecharModal('modal-detalhes-fase');
+                this.MostrarHistoria(faseId);
+            };
+        }
+
+        window.GerenciadorInterface.AbrirModal('modal-detalhes-fase');
     },
 
     MostrarHistoria: function (faseId) {
-        // Pega a primeira campanha disponível (Castelo)
         const campanha = window.BancoDeDados.Campanhas.Castelo;
         const dadosNivel = campanha.niveis[faseId];
 
@@ -73,15 +147,12 @@ window.SistemaNavegacao = {
             return;
         }
 
-        const historia = dadosNivel.historia;
-        document.getElementById('historia-titulo').innerText = historia.titulo;
-        document.getElementById('historia-subtitulo').innerText = historia.subtitulo || "";
-        document.getElementById('historia-texto').innerText = historia.texto;
+        document.getElementById('historia-titulo').innerText = dadosNivel.historia.titulo;
+        document.getElementById('historia-subtitulo').innerText = dadosNivel.historia.subtitulo || "";
+        document.getElementById('historia-texto').innerText = dadosNivel.historia.texto;
 
         const btn = document.getElementById('btn-iniciar-historia');
-        if (btn) {
-            btn.onclick = () => this.MostrarDialogo(faseId);
-        }
+        if (btn) btn.onclick = () => this.MostrarDialogo(faseId);
 
         window.GerenciadorInterface.TrocarTela('tela-historia');
     },
@@ -96,79 +167,50 @@ window.SistemaNavegacao = {
         const dadosFase = window.BancoDeDados.Campanhas.Castelo.niveis[faseId];
         if (!dadosFase) return;
 
-        console.log(`[NAVEGACAO] Iniciando combate do nível ${faseId}...`);
-
-        // Converte inimigos do banco para instâncias de combate
         const inimigosInstanciados = [];
         dadosFase.inimigos.forEach(def => {
             let template = null;
             if (def.tipo === 'Unidade') {
                 try {
                     template = window.BancoDeDados.Unidades[def.raca][def.classe].find(u => u.nivel === (def.nivel || 1));
-                } catch (e) { console.error("Erro template unidade:", e); }
+                } catch (e) { }
             } else if (def.tipo === 'Chefe') {
                 template = window.BancoDeDados.Chefes.find(c => c.id === def.id);
             } else if (def.tipo === 'Aleatorio') {
-                // Seleção Aleatória de Unidade ou Boss do tipo "Lacaio"
                 const pool = [];
-                const racasParaIncluir = def.raca ? [def.raca] : ['Orcs', 'Humanos'];
-
-                racasParaIncluir.forEach(racaNome => {
-                    const raca = window.BancoDeDados.Unidades[racaNome];
-                    if (raca) {
-                        Object.values(raca).forEach(classe => {
-                            const u = classe.find(unit => unit.nivel === (def.nivel || 1));
+                const racas = def.raca ? [def.raca] : ['Orcs', 'Humanos'];
+                racas.forEach(r => {
+                    if (window.BancoDeDados.Unidades[r]) {
+                        Object.values(window.BancoDeDados.Unidades[r]).forEach(cl => {
+                            const u = cl.find(unit => unit.nivel === (def.nivel || 1));
                             if (u) pool.push(u);
                         });
                     }
                 });
-
-                // Adiciona Cavaleiro Esquecido (se for aleatório global e chance rara)
-                if (!def.raca && Math.random() > 0.8) {
-                    pool.push(window.BancoDeDados.Chefes.find(c => c.id === 5));
-                }
-
-                template = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
+                template = pool[Math.floor(Math.random() * pool.length)];
             }
 
-            if (template) {
-                // Deep clone do template
-                inimigosInstanciados.push(JSON.parse(JSON.stringify(template)));
-            }
+            if (template) inimigosInstanciados.push(JSON.parse(JSON.stringify(template)));
         });
 
         if (inimigosInstanciados.length > 0) {
-            // Aplica cenário se houver
             const telaJogo = document.getElementById('tela-jogo');
-            if (telaJogo && dadosFase.cenario) {
-                telaJogo.style.backgroundImage = `url('${dadosFase.cenario}')`;
-            }
-
+            if (telaJogo && dadosFase.cenario) telaJogo.style.backgroundImage = `url('${dadosFase.cenario}')`;
             window.SistemaCombate.Iniciar(inimigosInstanciados);
         } else {
-            alert("Erro crítico: Nenhuma unidade inimiga carregada.");
             this.MostrarMapaCampanha();
         }
     },
 
     FinalizarCombate: function (vitoria) {
         if (vitoria) {
-            // Desbloqueia próxima fase
             if (window.EstadoJogo.FaseAtual === window.EstadoJogo.FasesDesbloqueadas) {
                 window.EstadoJogo.FasesDesbloqueadas++;
             }
-
-            // Vai para tela de vitória que o combate já chamou
-            // O botão de continuar na tela de vitória deve chamar MostrarMapaCampanha
-            const btnContinuar = document.getElementById('btn-vitoria-continuar');
-            if (btnContinuar) {
-                btnContinuar.onclick = () => this.MostrarMapaCampanha();
-            }
-        } else {
-            // Combate já lida com derrota (recarrega ou tela derrota)
+            const btn = document.getElementById('btn-vitoria-continuar');
+            if (btn) btn.onclick = () => this.MostrarMapaCampanha();
         }
     }
 };
 
-// Global alias for compatibility with index.html
 window.Navigation = window.SistemaNavegacao;

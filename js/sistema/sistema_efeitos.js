@@ -21,12 +21,28 @@ window.SistemaEfeitos = {
 
         if (existente) {
             // Regra de Stack: Mesmo nível -> aumenta nível ou duração
+            const defEfeito = window.BancoDeDados.Efeitos[nomeEfeito];
+            let maxNivel = 3; // Padrão
+
+            // Verifica se o efeito tem mais níveis definidos no banco
+            if (defEfeito && defEfeito.niveis) {
+                // Obtém o maior nível definido nas chaves do objeto niveis
+                const niveisDefinidos = Object.keys(defEfeito.niveis).map(Number);
+                if (niveisDefinidos.length > 0) {
+                    maxNivel = Math.max(...niveisDefinidos);
+                }
+            }
+
             if (nivel >= existente.nivel) {
-                existente.nivel = Math.min(3, Math.max(existente.nivel + 1, nivel)); // Tenta aumentar, cap em 3
-                existente.duracao = Math.max(existente.duracao, duracao);
+                existente.nivel = Math.min(maxNivel, Math.max(existente.nivel + 1, nivel)); // Aumenta até o limite definido
+                // Se a duração nova for -1 (infinito), torna o efeito infinito
+                if (duracao === -1) existente.duracao = -1;
+                else if (existente.duracao !== -1) existente.duracao = Math.max(existente.duracao, duracao);
             } else {
-                // Nível menor -> Apenas estende duração parcial
-                existente.duracao += Math.ceil(duracao / 2);
+                // Nível menor -> Apenas estende duração parcial (se não for infinito)
+                if (existente.duracao !== -1 && duracao !== -1) {
+                    existente.duracao += Math.ceil(duracao / 2);
+                }
             }
         } else {
             personagem.efeitos.push({ nome: nomeEfeito, duracao: duracao, nivel: nivel });
@@ -55,10 +71,12 @@ window.SistemaEfeitos = {
             // Aplica Efeitos por Turno (DoT/HoT)
             this.AplicarTick(personagem, eff, dadosNivel);
 
-            // Reduz Duração
-            eff.duracao--;
-            if (eff.duracao <= 0) {
-                personagem.efeitos.splice(i, 1);
+            // Reduz Duração (se não for infinita = -1)
+            if (eff.duracao !== -1) {
+                eff.duracao--;
+                if (eff.duracao <= 0) {
+                    personagem.efeitos.splice(i, 1);
+                }
             }
         }
 
@@ -107,33 +125,36 @@ window.SistemaEfeitos = {
      * (Buffs/Debuffs de status)
      */
     RecalcularAtributos: function (personagem) {
-        // Assume que existe um 'baseStatus' salvo no EstadoJogo ou clonado inicialmente
-        // Como o EstadoJogo clona do BancoDeDados, precisamos ter cuidado para não degradar os stats base permanentemente.
-        // A estratégia aqui será: Sempre resetar para o valor do BancoDeDados (se possível) ou 
-        // assumir que os valores atuais PODEM ter sido alterados permanentemente por itens, 
-        // então buffs temporários devem ser calculados à parte.
-
-        // Melhor abordagem para RPG: Atributo Atual = (Base + Equipamento) * Multiplicadores
-        // Pela simplicidade atual, vamos aplicar modificadores sobre os valores atuais, 
-        // mas idealmente deveríamos ter 'atributosBase' separados.
-
-        // POG de Segurança: Se não tem backup, cria
+        // Inicializa atributosBase se não existir (Backup dos status iniciais)
         if (!personagem.atributosBase) {
             personagem.atributosBase = {
                 ataque: personagem.ataque,
                 armadura: personagem.armadura,
+                protecaoMagica: personagem.protecaoMagica || 0,
                 precisao: personagem.precisao,
-                vigor: personagem.vigor
+                vigor: personagem.vigor || 0
             };
         }
 
-        // Reseta
+        // Reseta para valores base
         personagem.ataque = personagem.atributosBase.ataque;
         personagem.armadura = personagem.atributosBase.armadura;
+        personagem.protecaoMagica = personagem.atributosBase.protecaoMagica;
         personagem.precisao = personagem.atributosBase.precisao;
         personagem.vigor = personagem.atributosBase.vigor;
 
-        // Aplica Modificadores
+        // Acumuladores de Modificadores (Aditivos)
+        // Ex: +10% + 40% = +50% (multiplicador 0.5)
+        let modAtaquePct = 0;
+        let modArmaduraPct = 0;
+        let modProtMagicaPct = 0;
+        let modVigorPct = 0;
+
+        let bonusAtaqueFlat = 0;
+        let bonusArmaduraFlat = 0;
+        let redPrecisaoFlat = 0;
+
+        // Itera Efeitos
         if (personagem.efeitos) {
             personagem.efeitos.forEach(eff => {
                 const def = window.BancoDeDados.Efeitos[eff.nome];
@@ -141,14 +162,43 @@ window.SistemaEfeitos = {
                 const dados = def.niveis[eff.nivel];
                 if (!dados) return;
 
-                if (dados.ataqueBonus) personagem.ataque += dados.ataqueBonus;
-                if (dados.armaduraBonus) personagem.armadura += dados.armaduraBonus;
+                // Valores Fixos
+                if (dados.ataqueBonus) bonusAtaqueFlat += dados.ataqueBonus;
+                if (dados.armaduraBonus) bonusArmaduraFlat += dados.armaduraBonus;
+                if (dados.redPrecisao) redPrecisaoFlat += dados.redPrecisao;
 
-                if (dados.redAtaquePct) personagem.ataque = Math.floor(personagem.ataque * (1 - dados.redAtaquePct));
-                if (dados.redVigorPct) personagem.vigor = Math.floor(personagem.vigor * (1 - dados.redVigorPct));
-                if (dados.redPrecisao) personagem.precisao -= dados.redPrecisao;
+                // Porcentagens (Aditivas ao valor base)
+                // Reduções são negativas, aumentos positivos
+                if (dados.redAtaquePct) modAtaquePct -= dados.redAtaquePct;
+                if (dados.redVigorPct) modVigorPct -= dados.redVigorPct;
+
+                // Rachadura (Reduz defesas)
+                if (dados.reducaoResistenciasPct) {
+                    modArmaduraPct -= dados.reducaoResistenciasPct;
+                    modProtMagicaPct -= dados.reducaoResistenciasPct;
+                }
+
+                // Fortificação (Aumenta defesas)
+                if (dados.aumentoResistenciasPct) {
+                    modArmaduraPct += dados.aumentoResistenciasPct;
+                    modProtMagicaPct += dados.aumentoResistenciasPct;
+                }
             });
         }
+
+        // Aplicação Final: Base * (1 + SomaPorcentagens) + Flat
+        // Ataque
+        personagem.ataque = Math.floor(personagem.atributosBase.ataque * (1 + modAtaquePct)) + bonusAtaqueFlat;
+
+        // Defesas
+        personagem.armadura = Math.floor(personagem.atributosBase.armadura * (1 + modArmaduraPct)) + bonusArmaduraFlat;
+        personagem.protecaoMagica = Math.floor(personagem.atributosBase.protecaoMagica * (1 + modProtMagicaPct));
+
+        // Vigor
+        personagem.vigor = Math.floor(personagem.atributosBase.vigor * (1 + modVigorPct));
+
+        // Precisão (Geralmente é subtração direta de %)
+        personagem.precisao = personagem.atributosBase.precisao - redPrecisaoFlat;
 
         // Clamp (sem negativos)
         personagem.ataque = Math.max(0, personagem.ataque);
